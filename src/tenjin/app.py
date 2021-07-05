@@ -66,4 +66,4 @@ class GapAnalyzer:
                 html.H3('feature page {}'.format(pathname))
             ], style={'padding-left': '30px'})
         
-        app.run_server(debug=False, port=8000)
+        app.run_server(debug=False, port=8000) # need to make port a flexible param
