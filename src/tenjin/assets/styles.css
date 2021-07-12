@@ -1,3 +1,12 @@
+* {
+    box-sizing: border-box;
+}
+
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
 .container-fluid {
     padding-left: 0px;
     padding-right: 0px;
@@ -11,43 +20,43 @@
 }
 
 .header__first-row-col-left {
-    display: inline-flex;
-
-}
-
-.header__first-row-col-right {
-    display: inline-flex;
-    margin-left: auto;
+    /* display: inline-flex; */
+    max-height: max-content;
+    margin-left: 15px;
 }
 
 .header__aisg-logo {
-    border-radius: 50%;
     max-width: 35px;
-    margin-left: 10px;
-    display: inline-block;
+    display: inline;
+    vertical-align: middle;
+    border-radius: 50%;
 }
 
 .header__tenjin-title {
-    display: inline-block;
+    display: inline;
+    vertical-align: middle;
     padding-left: 12px;
     font-size: 18px;
     font-weight: bold;
 }
 
 .header__analysis-type {
-    padding: 5px 10px;
-    margin-right: 0px;
-    border: 1px solid rgb(255, 255, 255);
-    border-radius: .25rem;
     font-size: 18px;
     text-align: center;
+    padding: 5px 10px;
+    margin: 8px 15px 8px 35px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(255, 255, 255);
+    border-image: initial;
+    border-radius: 0.25rem;
 }
 
 .header__usr-pjt-title {
     font-weight: bold;
     color: floralwhite;
     font-size: x-large;
-    margin: 4px 70px;
+    margin: 4px 15px 4px 70px;
 }
 
 .header__nav-row {
@@ -75,5 +84,23 @@
     border-color: rgb(255, 255, 255) !important;
     outline: rgb(255, 255, 255);
     background-color: rgb(255, 255, 255) !important;
+}
+
+.border__common {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 15px 20px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.fig__roc-prec-recall {
+    width: 80%;
+    margin: auto;
 }
 
