@@ -61,7 +61,6 @@ class DataframeLoader:
         return self.models
         
     def get_all(self):
-        self._preprocess_yPreds()
         df_ls = []
         for i in range(len(self.models)):
             df = pd.concat([self.xFeatures, self.get_yTrue(), self.get_yPreds()[i]], axis=1)
