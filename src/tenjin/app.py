@@ -12,11 +12,10 @@ app = dash.Dash(__name__,
 
 
 class GapAnalyzer:
-    def __init__(self, data_loader, user_defined_title=None, analysis_type=None):
+    def __init__(self, data_loader, user_defined_title=None):
         self.data_loader = data_loader
+        self.analysis_type = self.data_loader.get_analysis_type()
         self.usr_defined_title = user_defined_title
-        self.analysis_type = analysis_type # binary-classification, multiclass-classification, regression
-
 
     def _layout(self):
         main_layout = dbc.Container([
@@ -29,7 +28,7 @@ class GapAnalyzer:
                                     ]), width=8, md=8, sm=9, className="header__first-row-col-left align-self-center"),
                                     
                                     dbc.Col(html.Div(
-                                        html.H4(self.analysis_type, className="header__analysis-type")), 
+                                        html.H4(self.analysis_type.capitalize(), className="header__analysis-type")), 
                                     width='auto', className="align-self-center"),
                                 ], className="justify-content-between"),
                                     
