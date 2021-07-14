@@ -23,27 +23,32 @@ class GeneralMetrics:
     def __init__(self, data_loader, viz_plot=None):
         self.data_loader = data_loader
         self.viz_plot = viz_plot
+        self.analysis_type = self.data_loader.get_analysis_type()
 
     def xform(self):
-        model_names = self.data_loader.get_model_list()
-        yTrue = self.data_loader.get_yTrue()
-        yTrue = yTrue['yTrue'].astype('string')
-        
-        preds = self.data_loader.get_yPreds()
-        if self.viz_plot in ['confMat', 'classRpt']:
-            yPred = [pred['yPred-label'] for pred in preds]
-        elif self.viz_plot in ['rocAuc', 'precRecall']:
-            is_multiclass = len(set(yTrue)) > 2
-            if is_multiclass:
-                yPred = []
-                for pred in preds:
-                    label_keys = pred['yPred-label']
-                    pred_values = pred[pred.columns[:-2]].max(axis=1)
-                    pred_tmp = [(label_keys[i], pred_values[i]) for i in range(len(label_keys))]
-                    yPred.append(pred_tmp)
-            else:
-                yPred = [pred[pred.columns[-3]] for pred in preds]
+        if self.analysis_type == 'regression':
+            df = self.data_loader.get_all()
+            return df
+
+        elif 'classification' in self.analysis_type:
+            model_names = self.data_loader.get_model_list()
+            yTrue = self.data_loader.get_yTrue()
+            yTrue = yTrue['yTrue'].astype('string')
+            preds = self.data_loader.get_yPreds()
             
-        return yTrue, yPred, model_names
+            if self.viz_plot in ['confMat', 'classRpt']:
+                yPred = [pred['yPred-label'] for pred in preds]
+            elif self.viz_plot in ['rocAuc', 'precRecall']:
+                is_multiclass = len(set(yTrue)) > 2
+                if is_multiclass:
+                    yPred = []
+                    for pred in preds:
+                        label_keys = pred['yPred-label']
+                        pred_values = pred[pred.columns[:-2]].max(axis=1)
+                        pred_tmp = [(label_keys[i], pred_values[i]) for i in range(len(label_keys))]
+                        yPred.append(pred_tmp)
+                else:
+                    yPred = [pred[pred.columns[-3]] for pred in preds]
+            return yTrue, yPred, model_names
 
 
