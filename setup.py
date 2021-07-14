@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 REQUIRED_PKGS = [
     "pandas>=1.2.4",
     "scikit-learn>=0.24.1",
+    "statsmodels==0.12.2",
     "plotly>=4.14.3",
     "dash==1.20.0",
     "dash-bootstrap-components==0.12.2",
