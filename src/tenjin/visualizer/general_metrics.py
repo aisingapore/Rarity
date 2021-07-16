@@ -4,6 +4,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import roc_auc_score, roc_curve, average_precision_score, precision_recall_curve
 import plotly.express as px
 import plotly.graph_objects as go
+import dash_table
 
 
 def plot_confusion_matrix(yTrue, yPred, model_names):
@@ -216,4 +217,126 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
                       yaxis_title='Precision', 
                       title_x=0.4,
                       showlegend=True)
+    return fig
+
+
+def plot_prediction_vs_actual(df):
+    '''
+    Display scatter plot for comparison on actual values vs prediction values
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        plotly scatter plot 
+    '''
+    def _modify_legend_name(fig, legend_name_dict):
+        for i, dt in enumerate(fig.data):
+            for element in dt:
+                if element == 'name':
+                    fig.data[i].name = legend_name_dict[fig.data[i].name]
+        return fig
+
+    pred_cols = [col for col in df.columns if 'yPred_' in col]
+    corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
+    legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
+
+    fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols')
+    fig.update_layout(
+        title=f'<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
+        title_x=0.12,
+        xaxis_title="Actual",
+        yaxis_title="Prediction",
+        legend_title="", 
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
+        margin=dict(t=110))
+
+    # scatter plot for pred_cols[0]
+    fig.data[0].hovertemplate = f'<b>{legend_name_dict[pred_cols[0]]}</b>' + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+    # trendline for scatter plot data[0]
+    fig.data[1].hovertemplate = fig.data[1].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
+    
+    if len(pred_cols) > 1: # Bimodal
+        # scatter plot for pred_cols[1]
+        fig.data[2].hovertemplate = f'{legend_name_dict[pred_cols[1]]}' + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+        # trendline for scatter plot data[1]
+        fig.data[3].hovertemplate = fig.data[3].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
+
+    fig = _modify_legend_name(fig=fig, legend_name_dict=dict(zip(pred_cols, corrected_legend_names)))
+    return fig
+
+
+def plot_prediction_offset_overview(df):
+    '''
+    Display scatter plot for overview on prediction offset values
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        plotly scatter plot 
+    '''
+    pred_cols = [col for col in df.columns if 'yPred_' in col]
+    corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
+    legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
+    max_range = int(df[pred_cols].max().max())
+
+    offset_cols = []
+    for col in pred_cols:
+        offset_col = f'offset_{legend_name_dict[col]}'
+        df[offset_col] = df[col] - df['yTrue']
+        offset_cols.append(offset_col)
+
+    fig = px.scatter(df, x=pred_cols[0], y=offset_cols[0])
+    fig.data[0].name=corrected_legend_names[0]
+    fig.update_traces(showlegend=True, hovertemplate="Prediction : %{x}<br>Offset : %{y}")
+
+    if len(pred_cols) > 1: # Bimodal
+        fig.add_trace(go.Scatter(
+            x=df[pred_cols[1]], 
+            y=df[offset_cols[1]], 
+            name=corrected_legend_names[1], 
+            mode='markers', 
+            hovertemplate="Prediction : %{x}<br>Offset : %{y}"))
+
+    # add reference baseline [mainly to have baseline included in legend]
+    fig.add_trace(go.Scatter(
+        x=[0, max_range], 
+        y=[0] * 2, 
+        name="Baseline [Prediction - Actual]", 
+        visible=True, 
+        hoverinfo='skip',
+        mode='lines',
+        line=dict(color="green", dash="dot")))
+    # referece baseline [mainly for the dotted line in graph, but no legend generated]
+    fig.add_hline(y=0, line_dash="dot")
+
+    fig.update_layout(
+                title='<b>Prediction Offset Overview</b>', 
+                xaxis_title='Prediction', 
+                yaxis_title='Offset from baseline', 
+                title_x=0.3,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
+                margin=dict(t=110))
+
+    return fig
+
+
+def plot_std_error_metrics(df):
+    '''
+    Display table comparing various standard metrics for regression task
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        dash table
+    '''
+    fig = dash_table.DataTable(id='table', 
+                columns=[{'id':c, 'name':c} if c!='Formula' else {'id':c, 'name':c, 'presentation':'markdown'} for c in df.columns], 
+                style_cell={'textAlign': 'center', 'border': '1px solid rgb(229, 211, 197)', 'font-family':'Arial', 'margin-bottom': '0'},
+                style_header={'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d ', 'border': '1px solid rgb(229, 211, 197)'},
+                style_table={'width': '98%', 'margin': 'auto'},
+                # css=[{'selector': '.dash-spreadsheet-container','rule': 'border: 1px solid rgb(229, 211, 197); border-radius: 15px;'}],
+                data=df.to_dict('records'))
     return fig

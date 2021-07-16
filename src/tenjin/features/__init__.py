@@ -1,4 +1,4 @@
-from .feat_general_metrics import GenericMetrics
+from .feat_general_metrics import GeneralMetrics
 
 
-__all__ = ['GenericMetrics']
+__all__ = ['GeneralMetrics']
