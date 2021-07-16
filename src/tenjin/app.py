@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+from tenjin.features import GenericMetrics
 
 
 app = dash.Dash(__name__, 
@@ -11,9 +12,10 @@ app = dash.Dash(__name__,
 
 
 class GapAnalyzer:
-    def __init__(self, user_defined_title=None, analysis_type=None):
+    def __init__(self, data_loader, user_defined_title=None, analysis_type=None):
+        self.data_loader = data_loader
         self.usr_defined_title = user_defined_title
-        self.analysis_type = analysis_type
+        self.analysis_type = analysis_type # binary-classification, multiclass-classification, regression
 
 
     def _layout(self):
@@ -24,12 +26,12 @@ class GapAnalyzer:
                                     dbc.Col(html.Div([
                                         html.Img(className="header__aisg-logo", src="assets/aisg-logo.png"), 
                                         html.H4("Gap Analysis with Tenjin 3.0", className="header__tenjin-title"),
-                                    ]), width=7, md=7, lg=9, sm=7, className="header__first-row-col-left"),
+                                    ]), width=8, md=8, sm=9, className="header__first-row-col-left align-self-center"),
                                     
                                     dbc.Col(html.Div(
                                         html.H4(self.analysis_type, className="header__analysis-type")), 
-                                    width=4, md=4, lg=2, sm=4, className="header__first-row-col-right"),
-                                ]),
+                                    width='auto', className="align-self-center"),
+                                ], className="justify-content-between"),
                                     
                                 dbc.Row(
                                     html.Div(
@@ -48,9 +50,9 @@ class GapAnalyzer:
                                     ]),
                                 ], className="header__nav-row")
                             ], fluid=True)
-                        , fluid=True),
+                        , fluid=True, className="sticky-top"),
 
-                        dbc.Row(html.Div(id='feature-page', children=[])),
+                        dbc.Container(html.Div(id='feature-page', children=[]), fluid=True),
                     ], fluid=True)
 
         return main_layout
@@ -62,8 +64,11 @@ class GapAnalyzer:
         @app.callback(Output('feature-page', 'children'),
                         [Input('tabs-feature-page', 'value')])
         def display_page(pathname="gen-metrics"):
-            return html.Div([
-                html.H3('feature page {}'.format(pathname))
-            ], style={'padding-left': '30px'})
+            if pathname=='gen-metrics':
+                return GenericMetrics(self.data_loader).show()
+            else:
+                return html.Div([
+                    html.H3('feature page {}'.format(pathname))
+                ], style={'padding-left': '30px'})
         
         app.run_server(debug=False, port=8000) # need to make port a flexible param
