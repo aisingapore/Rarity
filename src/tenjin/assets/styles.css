@@ -55,8 +55,13 @@
 .header__usr-pjt-title {
     font-weight: bold;
     color: floralwhite;
-    font-size: x-large;
-    margin: 4px 15px 4px 70px;
+    /* font-size: x-large; ** for version with pjt title at separate dbc.Row */
+    /* margin: 4px 15px 4px 70px; ** for version with pjt title at separate dcc.Row */
+    font-size: 18px;
+    font-family: inherit;
+    display: inline; 
+    vertical-align: middle;
+    margin: 4px 15px 4px 10px;
 }
 
 .header__nav-row {
@@ -104,3 +109,14 @@
     margin: auto;
 }
 
+table .cell-table {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-radius: 15px;
+}
+
+.div__std-err p {
+    text-align: center;
+    margin-bottom: 0;
+}
