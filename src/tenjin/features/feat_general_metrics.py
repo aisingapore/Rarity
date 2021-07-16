@@ -1,11 +1,11 @@
 import dash
+from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
 import sys
 
-from ..interpreters.structured_data import GeneralMetrics
+from ..interpreters.structured_data import IntGeneralMetrics
 from ..visualizer import general_metrics as viz_general
 
 
@@ -22,7 +22,7 @@ def fig_confusion_matrix(data_loader):
         plotly graph 
         -- displaying confusion matrix details
     """
-    yTrue, yPred, model_names = GeneralMetrics(data_loader, 'confMat').xform()
+    yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'confMat').xform()
     fig_objs = viz_general.plot_confusion_matrix(yTrue, yPred, model_names)
     return fig_objs
 
@@ -39,7 +39,7 @@ def fig_classification_report(data_loader):
         plotly table 
         -- containing classification report details
     """
-    yTrue, yPred, model_names = GeneralMetrics(data_loader, 'classRpt').xform()
+    yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'classRpt').xform()
     fig_objs = viz_general.plot_classification_report(yTrue, yPred, model_names)
     return fig_objs
 
@@ -56,7 +56,7 @@ def fig_roc_curve(data_loader):
         plotly line curve 
         -- comparing roc-auc score for various models
     """
-    yTrue, yPred, model_names = GeneralMetrics(data_loader, 'rocAuc').xform()
+    yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'rocAuc').xform()
     fig_obj = viz_general.plot_roc_curve(yTrue, yPred, model_names)
     return fig_obj
 
@@ -73,7 +73,7 @@ def fig_precisionRecall_curve(data_loader):
         plotly line curve 
         -- comparing roc-auc score for various models
     """
-    yTrue, yPred, model_names = GeneralMetrics(data_loader, 'precRecall').xform()
+    yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'precRecall').xform()
     fig_obj = viz_general.plot_precisionRecall_curve(yTrue, yPred, model_names)
     return fig_obj
 
@@ -89,7 +89,7 @@ def fig_prediction_actual_comparison(data_loader):
         plotly scatter plot
         -- comparing state of Prediction vs Actual for various models
     """
-    df = GeneralMetrics(data_loader).xform()
+    df = IntGeneralMetrics(data_loader).xform()
     fig_obj = viz_general.plot_prediction_vs_actual(df)
     return fig_obj
 
@@ -105,12 +105,28 @@ def fig_prediction_offset_overview(data_loader):
         plotly scatter plot with baseline
         -- comparing state of Prediction vs Residual / Offset for various models
     """
-    df = GeneralMetrics(data_loader).xform()
+    df = IntGeneralMetrics(data_loader).xform()
     fig_obj = viz_general.plot_prediction_offset_overview(df)
     return fig_obj
 
+def fig_standard_error_metrics(data_loader):
+    """
+    Display table comparing various standard metrics for regression task
+    
+    Arguments:
+        data_loader {class object} 
+        -- output from data loader pipeline 
+    
+    Returns:
+        dash table
+        -- comparing general metrics covering MAE, MSE, RSME, R2 for single model and bimodal
+    """
+    df = IntGeneralMetrics(data_loader, 'stdErr').xform()
+    fig_obj = viz_general.plot_std_error_metrics(df)
+    return fig_obj
 
-class GenericMetrics:
+
+class GeneralMetrics:
     def __init__(self, data_loader):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
@@ -118,6 +134,7 @@ class GenericMetrics:
         if self.analysis_type == 'regression':
             self.pred_actual = fig_prediction_actual_comparison(self.data_loader)
             self.pred_offset = fig_prediction_offset_overview(self.data_loader)
+            self.std_error_metrics = fig_standard_error_metrics(self.data_loader)
         elif 'classification' in self.analysis_type:
             self.conf_matrix = fig_confusion_matrix(self.data_loader)
             self.cls_report = fig_classification_report(self.data_loader)
@@ -125,7 +142,6 @@ class GenericMetrics:
             self.prec_recall = fig_precisionRecall_curve(self.data_loader)
 
     def show(self):
-        print(f'analysis_type: {self.analysis_type}')
         if self.analysis_type == 'regression':
             gen_metrics = dbc.Container([
                                 dbc.Row([
@@ -138,7 +154,8 @@ class GenericMetrics:
                                         ], className="border__common")
                                     ]), 
 
-                                # html.Div(html.Div(dcc.Graph(figure=self.roc), className="fig__roc-prec-recall"), className="border__common"),
+                                html.Div(html.Div(self.std_error_metrics, className="div__std-err")),
+                                html.Br(),
                                 # html.Div(html.Div(dcc.Graph(figure=self.prec_recall), className="fig__roc-prec-recall"), className="border__common")
                         ], fluid=True)
 
