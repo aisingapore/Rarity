@@ -1,4 +1,4 @@
-from .structured_data.int_general_metrics import GeneralMetrics
+from .structured_data.int_general_metrics import IntGeneralMetrics
 
 
-__all__ = ['GeneralMetrics']
+__all__ = ['IntGeneralMetrics']
