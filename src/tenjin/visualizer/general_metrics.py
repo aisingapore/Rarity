@@ -4,6 +4,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import roc_auc_score, roc_curve, average_precision_score, precision_recall_curve
 import plotly.express as px
 import plotly.graph_objects as go
+import dash_table
 
 
 def plot_confusion_matrix(yTrue, yPred, model_names):
@@ -217,17 +218,17 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
                       title_x=0.4,
                       showlegend=True)
     return fig
-   
+
 
 def plot_prediction_vs_actual(df):
     '''
-        Display scatter plot for comparison on actual values vs prediction values
-        
-        Arguments:
-            df -- output from interpreter [int_general_metrics]
-        
-        Returns:
-            plotly scatter plot 
+    Display scatter plot for comparison on actual values vs prediction values
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        plotly scatter plot 
     '''
     def _modify_legend_name(fig, legend_name_dict):
         for i, dt in enumerate(fig.data):
@@ -267,13 +268,13 @@ def plot_prediction_vs_actual(df):
 
 def plot_prediction_offset_overview(df):
     '''
-        Display scatter plot for overview on prediction offset values
-        
-        Arguments:
-            df -- output from interpreter [int_general_metrics]
-        
-        Returns:
-            plotly scatter plot 
+    Display scatter plot for overview on prediction offset values
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        plotly scatter plot 
     '''
     pred_cols = [col for col in df.columns if 'yPred_' in col]
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
@@ -321,3 +322,21 @@ def plot_prediction_offset_overview(df):
     return fig
 
 
+def plot_std_error_metrics(df):
+    '''
+    Display table comparing various standard metrics for regression task
+    
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+    
+    Returns:
+        dash table
+    '''
+    fig = dash_table.DataTable(id='table', 
+                columns=[{'id':c, 'name':c} if c!='Formula' else {'id':c, 'name':c, 'presentation':'markdown'} for c in df.columns], 
+                style_cell={'textAlign': 'center', 'border': '1px solid rgb(229, 211, 197)', 'font-family':'Arial', 'margin-bottom': '0'},
+                style_header={'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d ', 'border': '1px solid rgb(229, 211, 197)'},
+                style_table={'width': '98%', 'margin': 'auto'},
+                # css=[{'selector': '.dash-spreadsheet-container','rule': 'border: 1px solid rgb(229, 211, 197); border-radius: 15px;'}],
+                data=df.to_dict('records'))
+    return fig
