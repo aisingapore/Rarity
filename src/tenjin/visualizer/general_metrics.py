@@ -10,7 +10,7 @@ import dash_table
 def plot_confusion_matrix(yTrue, yPred, model_names):
     """
     Create confusion matrix
-    
+
     Arguments:
         yTrue, yPred, model_names -- output from interpreter [int_general_metrics]
 
@@ -20,20 +20,20 @@ def plot_confusion_matrix(yTrue, yPred, model_names):
     fig_objs = []
     for i in range(len(yPred)):
         conf_matrix = confusion_matrix(yTrue, yPred[i], labels=list(sorted(set(yTrue))))
-    
+
         fig = px.imshow(conf_matrix, 
                         labels=dict(x="Predicted Label", y="True Label", color="No.of Label"),
                         color_continuous_scale=px.colors.sequential.Viridis,
-                        x=list(sorted(set(yPred[i]))), # x = y
-                        y=list(sorted(set(yTrue))), # y = x
+                        x=list(sorted(set(yPred[i]))),  # x = y
+                        y=list(sorted(set(yTrue))),  # y = x
                         title=f'Confusion Matrix : <b>{model_names[i]}</b>') 
-        fig.update_layout(title={'y':0.90, 
-                                 'x':0.5, 
+        fig.update_layout(title={'y': 0.90, 
+                                 'x': 0.5, 
                                  'xanchor': 'center', 
                                  'yanchor': 'top', 
                                  },
                           margin=dict(r=180),
-                          xaxis={'side':'bottom'})
+                          xaxis={'side': 'bottom'})
 
         fig_objs.append(fig)
     return fig_objs
@@ -42,10 +42,10 @@ def plot_confusion_matrix(yTrue, yPred, model_names):
 def plot_classification_report(yTrue, yPred, model_names):
     """
     Create classification report in table form
-    
+
     Arguments:
         yTrue, yPred, model_names -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         plotly table -- containing classification report details
     """  
@@ -61,17 +61,17 @@ def plot_classification_report(yTrue, yPred, model_names):
                 """
                 cls_rpt_df.iloc[j, 0:2] = ''
                 cls_rpt_df.iloc[j, -1] = cls_rpt_df.iloc[j + 1, -1]
-    
+
         header = [''] + cls_rpt_df.columns.tolist()
         values_cells = [cls_rpt_df.index.tolist(), 
                         [f'{i:.4f}' if i != '' else i for i in cls_rpt_df['precision']],
                         [f'{i:.4f}' if i != '' else i for i in cls_rpt_df['recall']],
                         [f'{i:.4f}' for i in cls_rpt_df['f1-score']],
                         cls_rpt_df['support'].tolist()]
-      
+
         fig = go.Figure(data=[go.Table(header=dict(values=header), cells=dict(values=values_cells, height=28))])
         # height => cell height
-        
+
         fig.update_layout(
             title=f'Classification Report : <b>{model_names[i]}</b>', 
             title_x=0.5, 
@@ -84,16 +84,16 @@ def plot_classification_report(yTrue, yPred, model_names):
 def plot_roc_curve(yTrue, yPred, model_names):
     """
     Display roc curve for comparison on various models
-    
+
     Arguments:
         yTrue, yPred, model_names -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         plotly line curve -- comparing roc-auc score for various models
     """
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='navy', dash='dash'), showlegend=False))
-    
+
     is_multiclass = len(set(yTrue)) > 2
     if is_multiclass:
         for i in range(len(model_names)):
@@ -101,15 +101,15 @@ def plot_roc_curve(yTrue, yPred, model_names):
             tpr_j_list = []
             score_j_list = []
             for j in sorted(set(yTrue)):
-                yTrue_j = [1 if x==j else 0 for x in yTrue]
-                yPred_j = [pred[1] if pred[0]==j else 1-pred[1] for pred in yPred[i]]
-                
+                yTrue_j = [1 if x == j else 0 for x in yTrue]
+                yPred_j = [pred[1] if pred[0] == j else 1 - pred[1] for pred in yPred[i]]
+
                 fpr_j, tpr_j, _ = roc_curve(yTrue_j, yPred_j)
                 score_j = roc_auc_score(yTrue_j, yPred_j)
                 fpr_j_list.append(fpr_j)
                 tpr_j_list.append(tpr_j)
                 score_j_list.append(score_j)
-                
+
             for k in range(len(fpr_j_list)):
                 """
                 To plot roc_curve on same figure for multiple models
@@ -119,7 +119,7 @@ def plot_roc_curve(yTrue, yPred, model_names):
                     y=tpr_j_list[k], 
                     mode='lines', 
                     name=f'model_{model_names[i]}_class_{list(sorted(set(yTrue)))[k]} [score: {score_j_list[k]:.4f}]', 
-                    hoverlabel = dict(namelength = -1)))
+                    hoverlabel=dict(namelength=-1)))
     else:
         fpr_list = []
         tpr_list = []
@@ -141,7 +141,7 @@ def plot_roc_curve(yTrue, yPred, model_names):
                 y=tpr_list[i], 
                 mode='lines', 
                 name=f'{model_names[i]} [score: {score_list[i]:.4f}]', 
-                hoverlabel = dict(namelength = -1)))
+                hoverlabel=dict(namelength=-1)))
 
     fig.update_layout(title='<b>Receiver Operating Characteristic (ROC)</b>', 
                       xaxis_title='False Positive Rate', 
@@ -154,15 +154,15 @@ def plot_roc_curve(yTrue, yPred, model_names):
 def plot_precisionRecall_curve(yTrue, yPred, model_names):
     """
     Display precision-recall curve for comparison on various models
-    
+
     Arguments:
         yTrue, yPred, model_names -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         plotly line curve -- comparing roc-auc score for various models
     """
     fig = go.Figure()
-    
+
     is_multiclass = len(set(yTrue)) > 2
     if is_multiclass:
         for i in range(len(model_names)):
@@ -170,15 +170,15 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
             recall_j_list = []
             score_j_list = []
             for j in sorted(set(yTrue)):
-                yTrue_j = [1 if x==j else 0 for x in yTrue]
-                yPred_j = [pred[1] if pred[0]==j else 1-pred[1] for pred in yPred[i]]
-                
+                yTrue_j = [1 if x == j else 0 for x in yTrue]
+                yPred_j = [pred[1] if pred[0] == j else 1 - pred[1] for pred in yPred[i]]
+
                 precision, recall, _ = precision_recall_curve(yTrue_j, yPred_j)
                 score = average_precision_score(yTrue_j, yPred_j)
                 precision_j_list.append(precision)
                 recall_j_list.append(recall)
                 score_j_list.append(score)
-    
+
             for k in range(len(precision_j_list)):
                 """
                 To plot curves on same figure for multiple models
@@ -188,7 +188,7 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
                     y=precision_j_list[k], 
                     fill='tozeroy', 
                     name=f'model_{model_names[i]}_class{list(sorted(set(yTrue)))[k]} [score: {score_j_list[k]:.4f}]', 
-                    hoverlabel = dict(namelength = -1)))
+                    hoverlabel=dict(namelength=-1)))
     else:
         precision_list = []
         recall_list = []
@@ -210,7 +210,7 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
                 y=precision_list[i], 
                 fill='tozeroy', 
                 name=f'model_{model_names[i]} [score: {score_list[i]:.4f}]', 
-                hoverlabel=dict(namelength = -1)))
+                hoverlabel=dict(namelength=-1)))
 
     fig.update_layout(title='<b>Precision Recall Curve</b>', 
                       xaxis_title='Recall', 
@@ -223,10 +223,10 @@ def plot_precisionRecall_curve(yTrue, yPred, model_names):
 def plot_prediction_vs_actual(df):
     '''
     Display scatter plot for comparison on actual values vs prediction values
-    
+
     Arguments:
         df -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         plotly scatter plot 
     '''
@@ -243,7 +243,7 @@ def plot_prediction_vs_actual(df):
 
     fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols')
     fig.update_layout(
-        title=f'<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
+        title='<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
         title_x=0.12,
         xaxis_title="Actual",
         yaxis_title="Prediction",
@@ -252,13 +252,15 @@ def plot_prediction_vs_actual(df):
         margin=dict(t=110))
 
     # scatter plot for pred_cols[0]
-    fig.data[0].hovertemplate = f'<b>{legend_name_dict[pred_cols[0]]}</b>' + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+    hv_template0_str = f'<b>{legend_name_dict[pred_cols[0]]}</b>'
+    fig.data[0].hovertemplate = hv_template0_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
     # trendline for scatter plot data[0]
     fig.data[1].hovertemplate = fig.data[1].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
-    
-    if len(pred_cols) > 1: # Bimodal
+
+    if len(pred_cols) > 1:  # Bimodal
         # scatter plot for pred_cols[1]
-        fig.data[2].hovertemplate = f'{legend_name_dict[pred_cols[1]]}' + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+        hv_template2_str = f'{legend_name_dict[pred_cols[1]]}'
+        fig.data[2].hovertemplate = hv_template2_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
         # trendline for scatter plot data[1]
         fig.data[3].hovertemplate = fig.data[3].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
 
@@ -269,10 +271,10 @@ def plot_prediction_vs_actual(df):
 def plot_prediction_offset_overview(df):
     '''
     Display scatter plot for overview on prediction offset values
-    
+
     Arguments:
         df -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         plotly scatter plot 
     '''
@@ -288,10 +290,10 @@ def plot_prediction_offset_overview(df):
         offset_cols.append(offset_col)
 
     fig = px.scatter(df, x=pred_cols[0], y=offset_cols[0])
-    fig.data[0].name=corrected_legend_names[0]
+    fig.data[0].name = corrected_legend_names[0]
     fig.update_traces(showlegend=True, hovertemplate="Prediction : %{x}<br>Offset : %{y}")
 
-    if len(pred_cols) > 1: # Bimodal
+    if len(pred_cols) > 1:  # Bimodal
         fig.add_trace(go.Scatter(
             x=df[pred_cols[1]], 
             y=df[offset_cols[1]], 
@@ -325,18 +327,19 @@ def plot_prediction_offset_overview(df):
 def plot_std_error_metrics(df):
     '''
     Display table comparing various standard metrics for regression task
-    
+
     Arguments:
         df -- output from interpreter [int_general_metrics]
-    
+
     Returns:
         dash table
     '''
-    fig = dash_table.DataTable(id='table', 
-                columns=[{'id':c, 'name':c} if c!='Formula' else {'id':c, 'name':c, 'presentation':'markdown'} for c in df.columns], 
-                style_cell={'textAlign': 'center', 'border': '1px solid rgb(229, 211, 197)', 'font-family':'Arial', 'margin-bottom': '0'},
-                style_header={'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d ', 'border': '1px solid rgb(229, 211, 197)'},
-                style_table={'width': '98%', 'margin': 'auto'},
-                # css=[{'selector': '.dash-spreadsheet-container','rule': 'border: 1px solid rgb(229, 211, 197); border-radius: 15px;'}],
-                data=df.to_dict('records'))
+    fig = dash_table.DataTable(
+        id='table', 
+        columns=[{'id': c, 'name': c} if c != 'Formula' else {'id': c, 'name': c, 'presentation': 'markdown'} for c in df.columns], 
+        style_cell={'textAlign': 'center', 'border': '1px solid rgb(229, 211, 197)', 'font-family': 'Arial', 'margin-bottom': '0'},
+        style_header={'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d ', 'border': '1px solid rgb(229, 211, 197)'},
+        style_table={'width': '98%', 'margin': 'auto'},
+        # css=[{'selector': '.dash-spreadsheet-container','rule': 'border: 1px solid rgb(229, 211, 197); border-radius: 15px;'}],
+        data=df.to_dict('records'))
     return fig
