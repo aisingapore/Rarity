@@ -22,5 +22,5 @@ tests:
     - pip install -e .
     - pip install -r ci/_requirements.txt
     - pip install pytest pytest-cov dash[testing]
-    - pytest --cov-report term-missing --cov --headless --no-sandbox -v tests/
+    - pytest --cov-report term-missing --cov --headless -v tests/
     
