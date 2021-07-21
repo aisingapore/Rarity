@@ -7,8 +7,9 @@ class CSVDataLoader:
         self.yTrue = yTrue_file
         self.yPreds = yPred_file_list
         self.models = model_names_list
-        self.analysis_type = analysis_type.lower() # binary-classification, multiclass-classification, regression
+        self.analysis_type = analysis_type.lower()
         assert len(self.yPreds)==len(self.models), 'no. of yPred_files must be equal to no. of model_names in correct order'
+        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently supported analysis types: ['Regression', 'Binary-Classification', 'Multiclass-Classification']"
 
     def get_features(self):
         return pd.read_csv(self.xFeatures)
@@ -54,13 +55,14 @@ class CSVDataLoader:
         
 
 class DataframeLoader:
-    def __init__(self, df_xFeatures, df_yTrue, df_yPred_list=[], model_names_list=[]):
+    def __init__(self, df_xFeatures, df_yTrue, df_yPred_list=[], model_names_list=[], analysis_type=None):
         self.xFeatures = df_xFeatures
         self.yTrue = df_yTrue.copy()
         self.yPreds = [df.copy() for df in df_yPred_list]
         self.models = model_names_list
-        self.analysis_type = analysis_type.lower() # binary-classification, multiclass-classification, regression
+        self.analysis_type = analysis_type.lower()
         assert len(self.yPreds)==len(self.models), 'no. of yPred_files must be equal to no. of model_names in correct order'
+        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently supported analysis types: ['Regression', 'Binary-Classification', 'Multiclass-Classification']"
 
     def get_features(self):
         return self.xFeatures
@@ -77,10 +79,11 @@ class DataframeLoader:
                                         yPred_df.columns[1]: f'yPred_{self.models[1]}'}, inplace=True)
             elif len(self.models) == 1:
                 yPred_df.rename(columns={yPred_df.columns[0]: f'yPred_{self.models[0]}'}, inplace=True)
+            return yPred_df
         elif 'classification' in self.analysis_type:
             for i in range(len(self.models)):
                 self.yPreds[i]['model'] = self.models[i]
-                self.yPreds[i]['yPred-label'] = self.yPreds[i][list(self.yPreds[i].columns)[:-1]].idxmax(axis=1)
+                self.yPreds[i]['yPred-label'] = self.yPreds[i][list(self.yPreds[i].columns)[:2]].idxmax(axis=1)
             return self.yPreds
 
     def get_model_list(self):
@@ -92,6 +95,7 @@ class DataframeLoader:
     def get_all(self):
         if self.analysis_type == 'regression':
             df = pd.concat([self.get_features(), self.get_yTrue(), self.get_yPreds()], axis=1)
+            return df
         elif 'classification' in self.analysis_type:
             df_ls = []
             for i in range(len(self.models)):
