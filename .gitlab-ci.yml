@@ -1,7 +1,7 @@
 # Refer to gitlab CI job configuration docs for details
 # https://docs.gitlab.com/ee/ci/yaml/
 
-image: registry.aisingapore.net/brickworks/brickworks-vizlibrary-tenjin3:v1
+image: registry.aisingapore.net/brickworks/brickworks-vizlibrary-tenjin3:v2
 
 stages:
   - code_check
