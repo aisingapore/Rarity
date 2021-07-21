@@ -5,32 +5,42 @@ from tenjin.data_loader import CSVDataLoader, DataframeLoader
 
 
 @pytest.fixture
-def csv_data_loader_single_modal_reg():
-    SAMPLE_DATA_DIR = os.path.join("src", "tenjin",  "examples", "sample_data", "structured_data", "housing_price_prediction")
+def csv_loader_single_modal_reg():
+    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/housing_price_prediction/"
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_housing.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPreds_lasso.csv')
     MODEL_NAMES = ['lasso']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, Y_TRUE_FILE, yPred_file_list=[Y_PRED_FILE_1], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = CSVDataLoader(FEATURES_FILE, 
+                                Y_TRUE_FILE, 
+                                yPred_file_list=[Y_PRED_FILE_1], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
 
+
 @pytest.fixture
-def csv_data_loader_single_modal_cls():
-    SAMPLE_DATA_DIR = os.path.join("src", "tenjin",  "examples", "sample_data", "structured_data", "income_prediction")
+def csv_loader_single_modal_cls():
+    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/income_prediction/"
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_income.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue_income.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPred_income_modelA.csv')
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, Y_TRUE_FILE, yPred_file_list=[Y_PRED_FILE_1], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = CSVDataLoader(FEATURES_FILE, 
+                                Y_TRUE_FILE, 
+                                yPred_file_list=[Y_PRED_FILE_1], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
 
+
 @pytest.fixture
-def csv_data_loader_bimodal_reg():
-    SAMPLE_DATA_DIR = os.path.join("src", "tenjin",  "examples", "sample_data", "structured_data", "housing_price_prediction")
+def csv_loader_bimodal_reg():
+    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/housing_price_prediction/"
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_housing.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPreds_lasso.csv')
@@ -38,12 +48,17 @@ def csv_data_loader_bimodal_reg():
     MODEL_NAMES = ['lasso', 'random_forest']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, Y_TRUE_FILE, yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = CSVDataLoader(FEATURES_FILE, 
+                                Y_TRUE_FILE, 
+                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
 
+
 @pytest.fixture
-def csv_data_loader_bimodal_cls():
-    SAMPLE_DATA_DIR = os.path.join("src", "tenjin",  "examples", "sample_data", "structured_data", "income_prediction")
+def csv_loader_bimodal_cls():
+    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/income_prediction/"
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_income.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue_income.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPred_income_modelA.csv')
@@ -51,12 +66,17 @@ def csv_data_loader_bimodal_cls():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, Y_TRUE_FILE, yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = CSVDataLoader(FEATURES_FILE, 
+                                Y_TRUE_FILE, 
+                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
 
+
 @pytest.fixture
-def csv_data_loader_bimodal_cls_multi():
-    SAMPLE_DATA_DIR = os.path.join("src", "tenjin",  "examples", "sample_data", "glass_dataset")
+def csv_loader_bimodal_cls_multi():
+    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/glass_dataset/"
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'glass_xfeatures.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'glass_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'glass_yPreds_logreg.csv')
@@ -64,8 +84,13 @@ def csv_data_loader_bimodal_cls_multi():
     MODEL_NAMES = ['logreg', 'rf']
     ANALYSIS_TYPE = 'Multiclass-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, Y_TRUE_FILE, yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = CSVDataLoader(FEATURES_FILE, 
+                                Y_TRUE_FILE, 
+                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
+
 
 @pytest.fixture
 def dataframe_loader_single_modal_reg():
@@ -75,8 +100,13 @@ def dataframe_loader_single_modal_reg():
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = DataframeLoader(DF_FEATURES, DF_Y_TRUE, df_yPred_list=[DF_Y_PRED_1], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = DataframeLoader(DF_FEATURES, 
+                                DF_Y_TRUE, 
+                                df_yPred_list=[DF_Y_PRED_1], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
+
 
 @pytest.fixture
 def dataframe_loader_single_modal_cls():
@@ -86,8 +116,13 @@ def dataframe_loader_single_modal_cls():
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, DF_Y_TRUE, df_yPred_list=[DF_Y_PRED_1], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = DataframeLoader(DF_FEATURES, 
+                                DF_Y_TRUE, 
+                                df_yPred_list=[DF_Y_PRED_1], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
+
 
 @pytest.fixture
 def dataframe_loader_bimodal_reg():
@@ -98,8 +133,13 @@ def dataframe_loader_bimodal_reg():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = DataframeLoader(DF_FEATURES, DF_Y_TRUE, df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = DataframeLoader(DF_FEATURES, 
+                                DF_Y_TRUE, 
+                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
+
 
 @pytest.fixture
 def dataframe_loader_bimodal_cls():
@@ -110,8 +150,13 @@ def dataframe_loader_bimodal_cls():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, DF_Y_TRUE, df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = DataframeLoader(DF_FEATURES, 
+                                DF_Y_TRUE, 
+                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
+
 
 @pytest.fixture
 def dataframe_loader_bimodal_cls_multi():
@@ -122,5 +167,9 @@ def dataframe_loader_bimodal_cls_multi():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Multiclass-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, DF_Y_TRUE, df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], model_names_list=MODEL_NAMES, analysis_type=ANALYSIS_TYPE)
+    data_loader = DataframeLoader(DF_FEATURES, 
+                                DF_Y_TRUE, 
+                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
+                                model_names_list=MODEL_NAMES, 
+                                analysis_type=ANALYSIS_TYPE)
     return data_loader
