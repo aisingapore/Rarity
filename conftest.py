@@ -6,11 +6,11 @@ from tenjin.data_loader import CSVDataLoader, DataframeLoader
 
 @pytest.fixture
 def csv_loader_single_modal_reg():
-    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/housing_price_prediction/"
-    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_housing.csv')
-    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue.csv')
-    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPreds_lasso.csv')
-    MODEL_NAMES = ['lasso']
+    SAMPLE_DATA_DIR = "./tests/sample_data/regression/"
+    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_features.csv')
+    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_yTrue.csv')
+    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'reg_yPreds_modelA.csv')
+    MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Regression'
 
     data_loader = CSVDataLoader(FEATURES_FILE, 
@@ -23,10 +23,10 @@ def csv_loader_single_modal_reg():
 
 @pytest.fixture
 def csv_loader_single_modal_cls():
-    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/income_prediction/"
-    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_income.csv')
-    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue_income.csv')
-    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPred_income_modelA.csv')
+    SAMPLE_DATA_DIR = "./tests/sample_data/classification/binary/"
+    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_features.csv')
+    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_yTrue.csv')
+    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'binary_yPreds_modelA.csv')
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Binary-Classification'
 
@@ -40,12 +40,12 @@ def csv_loader_single_modal_cls():
 
 @pytest.fixture
 def csv_loader_bimodal_reg():
-    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/housing_price_prediction/"
-    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_housing.csv')
-    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue.csv')
-    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPreds_lasso.csv')
-    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'yPreds_rf.csv')
-    MODEL_NAMES = ['lasso', 'random_forest']
+    SAMPLE_DATA_DIR = "./tests/sample_data/regression/"
+    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_features.csv')
+    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_yTrue.csv')
+    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'reg_yPreds_modelA.csv')
+    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'reg_yPreds_modelB.csv')
+    MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Regression'
 
     data_loader = CSVDataLoader(FEATURES_FILE, 
@@ -58,11 +58,11 @@ def csv_loader_bimodal_reg():
 
 @pytest.fixture
 def csv_loader_bimodal_cls():
-    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/structured_data/income_prediction/"
-    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'features_income.csv')
-    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'yTrue_income.csv')
-    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'yPred_income_modelA.csv')
-    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'yPred_income_modelB.csv')
+    SAMPLE_DATA_DIR = "./tests/sample_data/classification/binary/"
+    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_features.csv')
+    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_yTrue.csv')
+    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'binary_yPreds_modelA.csv')
+    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'binary_yPreds_modelB.csv')
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Binary-Classification'
 
@@ -76,12 +76,12 @@ def csv_loader_bimodal_cls():
 
 @pytest.fixture
 def csv_loader_bimodal_cls_multi():
-    SAMPLE_DATA_DIR = "src/tenjin/examples/sample_data/glass_dataset/"
-    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'glass_xfeatures.csv')
-    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'glass_yTrue.csv')
-    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'glass_yPreds_logreg.csv')
-    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'glass_yPreds_rf.csv')
-    MODEL_NAMES = ['logreg', 'rf']
+    SAMPLE_DATA_DIR = "./tests/sample_data/classification/multiclass/"
+    FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'multiclass_features.csv')
+    Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'multiclass_yTrue.csv')
+    Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'multiclass_yPreds_modelA.csv')
+    Y_PRED_FILE_2 = os.path.join(SAMPLE_DATA_DIR, 'multiclass_yPreds_modelB.csv')
+    MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Multiclass-Classification'
 
     data_loader = CSVDataLoader(FEATURES_FILE, 
