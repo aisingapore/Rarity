@@ -11,7 +11,8 @@ from sklearn import metrics
 
 ERR_DESC = ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error', 'R Squared']
 ERR_NAMES = ['MAE', 'MSE', 'RMSE', 'R2']
-METRICS_FORMULA = ['![MAE](assets/MAE.png)', '![MSE](assets/MSE.png)', '![RMSE](assets/RMSE.png)', '![R2](assets/R2.png)']
+METRICS_FORMULA = ['![MAE](assets/MAE.png)', '![MSE](assets/MSE.png)', 
+                    '![RMSE](assets/RMSE.png)', '![R2](assets/R2.png)']
 ERR_METRICS_DICT = {}
 ERR_METRICS_DICT['Metrics Description'] = ERR_DESC
 ERR_METRICS_DICT['Formula'] = METRICS_FORMULA
@@ -40,7 +41,7 @@ class IntGeneralMetrics:
         self.viz_plot = viz_plot
         self.analysis_type = self.data_loader.get_analysis_type()
 
-    def _standard_error_metrics(self, yTrue, yPred):
+    def _std_err_metrics(self, yTrue, yPred):
         mae = metrics.mean_absolute_error(yTrue, yPred)
         mse = metrics.mean_squared_error(yTrue, yPred)
         rmse = np.sqrt(metrics.mean_squared_error(yTrue, yPred))
@@ -53,11 +54,11 @@ class IntGeneralMetrics:
                 yTrue = self.data_loader.get_yTrue()
                 yPreds = self.data_loader.get_yPreds()
                 models = self.data_loader.get_model_list()
-                if len(models)==1:
-                    ERR_METRICS_DICT[f'Model_{models[0]}'] = self._standard_error_metrics(yTrue, yPreds)
-                elif len(models)>1:
+                if len(models) == 1:
+                    ERR_METRICS_DICT[f'Model_{models[0]}'] = self._std_err_metrics(yTrue, yPreds)
+                elif len(models) > 1:
                     for i in range(len(models)):
-                        ERR_METRICS_DICT[f'Model_{models[i]}'] = self._standard_error_metrics(yTrue, yPreds[yPreds.columns[i]])
+                        ERR_METRICS_DICT[f'Model_{models[i]}'] = self._std_err_metrics(yTrue, yPreds[yPreds.columns[i]])
                 df = pd.DataFrame(ERR_METRICS_DICT)
             else:
                 df = self.data_loader.get_all()
@@ -68,7 +69,7 @@ class IntGeneralMetrics:
             yTrue = self.data_loader.get_yTrue()
             yTrue = yTrue['yTrue'].astype('string')
             preds = self.data_loader.get_yPreds()
-            
+
             if self.viz_plot in ['confMat', 'classRpt']:
                 yPred = [pred['yPred-label'] for pred in preds]
             elif self.viz_plot in ['rocAuc', 'precRecall']:
@@ -83,5 +84,3 @@ class IntGeneralMetrics:
                 else:
                     yPred = [pred[pred.columns[-3]] for pred in preds]
             return yTrue, yPred, model_names
-
-

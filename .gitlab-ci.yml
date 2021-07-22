@@ -1,0 +1,26 @@
+# Refer to gitlab CI job configuration docs for details
+# https://docs.gitlab.com/ee/ci/yaml/
+
+image: registry.aisingapore.net/brickworks/brickworks-vizlibrary-tenjin3:v3
+
+stages:
+  - code_check
+  - tests
+
+code_check:
+  stage: code_check
+  script:
+    - pip install --upgrade pip
+    - pip install -r ci/_requirements.txt
+    - pip install flake8
+    - flake8 . --count --show-source --statistics
+
+tests:
+  stage: tests
+  script:
+    - echo "Running tests on Tenjin package"
+    - pip install -e .
+    - pip install -r ci/_requirements.txt
+    - pip install pytest pytest-cov dash[testing]
+    - pytest --cov-report term-missing --cov --headless -v tests/
+    
