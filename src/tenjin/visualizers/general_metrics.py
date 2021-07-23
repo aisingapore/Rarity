@@ -241,7 +241,6 @@ def plot_prediction_vs_actual(df):
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
     legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
 
-    # fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols')
     fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols', marginal_x="histogram", marginal_y="histogram")
     fig.update_layout(
         title='<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
@@ -268,7 +267,6 @@ def plot_prediction_vs_actual(df):
     if len(pred_cols) > 1:  # Bimodal
         # scatter plot for pred_cols[1]
         hv_template2_str = f'{legend_name_dict[pred_cols[1]]}'
-        # fig.data[2].hovertemplate = hv_template2_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
         fig.data[4].hovertemplate = hv_template2_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
         # histogram-x
         text_to_replace = 'variable=yPred_random_forest'
@@ -276,7 +274,6 @@ def plot_prediction_vs_actual(df):
         # histogram-y
         fig.data[6].hovertemplate = fig.data[6].hovertemplate.replace('value', 'yPred').replace(text_to_replace, '')
         # trendline for scatter plot data[1]
-        # fig.data[3].hovertemplate = fig.data[3].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
         fig.data[7].hovertemplate = fig.data[7].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
 
     fig = _modify_legend_name(fig=fig, legend_name_dict=dict(zip(pred_cols, corrected_legend_names)))
