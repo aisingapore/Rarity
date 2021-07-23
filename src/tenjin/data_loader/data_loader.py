@@ -7,21 +7,21 @@ class CSVDataLoader:
         self.yTrue = yTrue_file
         self.yPreds = yPred_file_list
         self.models = model_names_list
-        self.analysis_type = analysis_type.lower()
+        self.analysis_type = analysis_type.lower().replace(' ', '-')
         assert len(self.yPreds) == len(self.models), 'no. of yPred_files must be equal to \
                                                     no. of model_names in correct order'
 
-        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently \
-                supported analysis types: ['Regression', 'Binary-Classification', 'Multiclass-Classification']"
+        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently " \
+            "supported analysis types: ['Regression', 'Binary Classification', 'Multiclass Classification']"
 
         if self.analysis_type == 'multiclass-classification':
             cols_ls = [list(pd.read_csv(yPred).columns) for yPred in self.yPreds]
-            assert all(len(col) > 2 for col in cols_ls), "Data for yPred_file doesn't seem to be a multiclass prediction. \
-                Please ensure there is prediction probabilities for each class in the yPred file."
+            assert all(len(col) > 2 for col in cols_ls), "Data for yPred_file doesn't seem to be a multiclass prediction. " \
+                "Please ensure there is prediction probabilities for each class in the yPred file."
 
         if self.analysis_type == 'binary-classification':
-            assert pd.read_csv(self.yTrue).nunique().values[0] == 2, "Data for yTrue_file doesn't seem to be a binary-class prediction. \
-                Please ensure yTrue_file consists of array of only 2 unique class"
+            assert pd.read_csv(self.yTrue).nunique().values[0] == 2, "Data for yTrue_file doesn't seem to be a binary-class " \
+                "prediction. Please ensure yTrue_file consists of array of only 2 unique class"
 
     def get_features(self):
         return pd.read_csv(self.xFeatures)
@@ -73,20 +73,20 @@ class DataframeLoader:
         self.yPreds = [df.copy() for df in df_yPred_list]
         self.models = model_names_list
         self.analysis_type = analysis_type.lower()
-        assert len(self.yPreds) == len(self.models), 'no. of yPred_files must be equal to \
-                no. of model_names in correct order'
+        assert len(self.yPreds) == len(self.models), 'no. of yPred_files must be equal to ' \
+                'no. of model_names in correct order'
 
-        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently \
-            supported analysis types: ['Regression', 'Binary-Classification', 'Multiclass-Classification']"
+        assert self.analysis_type in ['regression', 'binary-classification', 'multiclass-classification'], "Currently " \
+            "supported analysis types: ['Regression', 'Binary-Classification', 'Multiclass-Classification']"
 
         if self.analysis_type == 'multiclass-classification':
             cols_ls = [list(yPred.columns) for yPred in self.yPreds]
-            assert all(len(col) > 2 for col in cols_ls), "Data for df_yPred_list doesn't seem to be a multiclass prediction. \
-                Please ensure there is prediction probabilities for each class in the df of df_yPred_list."
+            assert all(len(col) > 2 for col in cols_ls), "Data for df_yPred_list doesn't seem to be a multiclass prediction. " \
+                "Please ensure there is prediction probabilities for each class in the df of df_yPred_list."
 
         if self.analysis_type == 'binary-classification':
-            assert self.yTrue.nunique().values[0] == 2, "Data for df_yTrue doesn't seem to be a binary-class prediction. \
-                Please ensure df_yTrue consists of data with only 2 unique class"
+            assert self.yTrue.nunique().values[0] == 2, "Data for df_yTrue doesn't seem to be a binary-class prediction. " \
+                "Please ensure df_yTrue consists of data with only 2 unique class"
 
     def get_features(self):
         return self.xFeatures
