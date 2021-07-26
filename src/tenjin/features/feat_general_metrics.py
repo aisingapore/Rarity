@@ -3,7 +3,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 from ..interpreters.structured_data import IntGeneralMetrics
-from ..visualizer import general_metrics as viz_general
+from ..visualizers import general_metrics as viz_general
 
 
 def fig_confusion_matrix(data_loader):
@@ -91,23 +91,6 @@ def fig_prediction_actual_comparison(data_loader):
     return fig_obj
 
 
-def fig_prediction_offset_overview(data_loader):
-    """
-    Display overview of prediction offset
-
-    Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
-
-    Returns:
-        plotly scatter plot with baseline
-        -- comparing state of Prediction vs Residual / Offset for various models
-    """
-    df = IntGeneralMetrics(data_loader).xform()
-    fig_obj = viz_general.plot_prediction_offset_overview(df)
-    return fig_obj
-
-
 def fig_standard_error_metrics(data_loader):
     """
     Display table comparing various standard metrics for regression task
@@ -132,7 +115,6 @@ class GeneralMetrics:
 
         if self.analysis_type == 'regression':
             self.pred_actual = fig_prediction_actual_comparison(self.data_loader)
-            self.pred_offset = fig_prediction_offset_overview(self.data_loader)
             self.std_error_metrics = fig_standard_error_metrics(self.data_loader)
         elif 'classification' in self.analysis_type:
             self.conf_matrix = fig_confusion_matrix(self.data_loader)
@@ -145,12 +127,8 @@ class GeneralMetrics:
             gen_metrics = dbc.Container([
                                 dbc.Row([
                                     dbc.Col([
-                                        dcc.Graph(figure=self.pred_actual),
+                                        dbc.Row(dcc.Graph(figure=self.pred_actual), justify="center")
                                     ], className="border__common"), 
-
-                                    dbc.Col([
-                                        dcc.Graph(figure=self.pred_offset),
-                                    ], className="border__common")
                                 ]), 
 
                                 html.Div(html.Div(self.std_error_metrics, className="div__std-err")),
