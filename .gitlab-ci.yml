@@ -20,6 +20,7 @@ tests:
   script:
     - echo "Running tests on Tenjin package"
     - pip install -e .
+    - pip install --upgrade pip
     - pip install -r ci/_requirements.txt
     - pip install pytest pytest-cov dash[testing]
     - pytest --cov-report term-missing --cov --headless -v tests/
