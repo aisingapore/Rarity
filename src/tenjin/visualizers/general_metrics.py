@@ -241,7 +241,7 @@ def plot_prediction_vs_actual(df):
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
     legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
 
-    fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols')
+    fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols', marginal_x="histogram", marginal_y="histogram")
     fig.update_layout(
         title='<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
         title_x=0.12,
@@ -249,78 +249,34 @@ def plot_prediction_vs_actual(df):
         yaxis_title="Prediction",
         legend_title="", 
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
-        margin=dict(t=110))
+        # margin=dict(t=110))
+        width=1100,
+        height=550,
+        margin=dict(t=110, l=50, r=50))
 
     # scatter plot for pred_cols[0]
     hv_template0_str = f'<b>{legend_name_dict[pred_cols[0]]}</b>'
     fig.data[0].hovertemplate = hv_template0_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+    # histogram-x
+    fig.data[1].hovertemplate = fig.data[1].hovertemplate.replace('value', 'yTrue').replace('variable=yPred_lasso', '')
+    # histogram-y
+    fig.data[2].hovertemplate = fig.data[2].hovertemplate.replace('value', 'yPred').replace('variable=yPred_lasso', '')
     # trendline for scatter plot data[0]
-    fig.data[1].hovertemplate = fig.data[1].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
+    fig.data[3].hovertemplate = fig.data[3].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
 
     if len(pred_cols) > 1:  # Bimodal
         # scatter plot for pred_cols[1]
         hv_template2_str = f'{legend_name_dict[pred_cols[1]]}'
-        fig.data[2].hovertemplate = hv_template2_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+        fig.data[4].hovertemplate = hv_template2_str + '<br><br>Actual : %{x}<br>Prediction : %{y}<extra></extra>'
+        # histogram-x
+        text_to_replace = 'variable=yPred_random_forest'
+        fig.data[5].hovertemplate = fig.data[5].hovertemplate.replace('value', 'yTrue').replace(text_to_replace, '')
+        # histogram-y
+        fig.data[6].hovertemplate = fig.data[6].hovertemplate.replace('value', 'yPred').replace(text_to_replace, '')
         # trendline for scatter plot data[1]
-        fig.data[3].hovertemplate = fig.data[3].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
+        fig.data[7].hovertemplate = fig.data[7].hovertemplate.replace('value', 'yPred').replace('variable=yPred_', '')
 
     fig = _modify_legend_name(fig=fig, legend_name_dict=dict(zip(pred_cols, corrected_legend_names)))
-    return fig
-
-
-def plot_prediction_offset_overview(df):
-    '''
-    Display scatter plot for overview on prediction offset values
-
-    Arguments:
-        df -- output from interpreter [int_general_metrics]
-
-    Returns:
-        plotly scatter plot 
-    '''
-    pred_cols = [col for col in df.columns if 'yPred_' in col]
-    corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
-    legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
-    max_range = int(df[pred_cols].max().max())
-
-    offset_cols = []
-    for col in pred_cols:
-        offset_col = f'offset_{legend_name_dict[col]}'
-        df[offset_col] = df[col] - df['yTrue']
-        offset_cols.append(offset_col)
-
-    fig = px.scatter(df, x=pred_cols[0], y=offset_cols[0])
-    fig.data[0].name = corrected_legend_names[0]
-    fig.update_traces(showlegend=True, hovertemplate="Prediction : %{x}<br>Offset : %{y}")
-
-    if len(pred_cols) > 1:  # Bimodal
-        fig.add_trace(go.Scatter(
-            x=df[pred_cols[1]], 
-            y=df[offset_cols[1]], 
-            name=corrected_legend_names[1], 
-            mode='markers', 
-            hovertemplate="Prediction : %{x}<br>Offset : %{y}"))
-
-    # add reference baseline [mainly to have baseline included in legend]
-    fig.add_trace(go.Scatter(
-        x=[0, max_range], 
-        y=[0] * 2, 
-        name="Baseline [Prediction - Actual]", 
-        visible=True, 
-        hoverinfo='skip',
-        mode='lines',
-        line=dict(color="green", dash="dot")))
-    # referece baseline [mainly for the dotted line in graph, but no legend generated]
-    fig.add_hline(y=0, line_dash="dot")
-
-    fig.update_layout(
-                title='<b>Prediction Offset Overview</b>', 
-                xaxis_title='Prediction', 
-                yaxis_title='Offset from baseline', 
-                title_x=0.3,
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
-                margin=dict(t=110))
-
     return fig
 
 

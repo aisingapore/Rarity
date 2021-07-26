@@ -3,18 +3,18 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
-from tenjin.features import GeneralMetrics
+from tenjin.features import GeneralMetrics, MissPredictions
 
 
 app = dash.Dash(__name__, 
                 meta_tags=[{'name': 'viewport', 
-                            'content': 'width=device-width, initial-scale=1.0'}],)
+                            'content': 'width=device-width, initial-scale=1.0'}])
 
 
 class GapAnalyzer:
     def __init__(self, data_loader, user_defined_title=None):
         self.data_loader = data_loader
-        self.analysis_type = self.data_loader.get_analysis_type()
+        self.analysis_type = self.data_loader.get_analysis_type().replace('-', ' ').title()
         self.usr_defined_title = user_defined_title
 
     def _layout(self):
@@ -29,7 +29,7 @@ class GapAnalyzer:
                                     ]), width=8, md=8, sm=9, className="header__first-row-col-left align-self-center"),
 
                                     dbc.Col(html.Div(
-                                        html.H4(self.analysis_type.capitalize(), className="header__analysis-type")), 
+                                        html.H4(self.analysis_type, className="header__analysis-type")), 
                                         width='auto', className="align-self-center"),
                                 ], className="justify-content-between"),
 
@@ -39,11 +39,11 @@ class GapAnalyzer:
                                             dcc.Tab(label='General Metrics', 
                                                     value='gen-metrics', 
                                                     className="header__nav-tab", 
-                                                    selected_className="header__nav-tab-selected"),
+                                                    selected_className="header__nav-tab-selected",),
                                             dcc.Tab(label='Miss Predictions', 
                                                     value='miss-pred', 
                                                     className="header__nav-tab", 
-                                                    selected_className="header__nav-tab-selected"),
+                                                    selected_className="header__nav-tab-selected",),
                                             dcc.Tab(label='Logloss Clusters', 
                                                     value='lloss-clust', 
                                                     className="header__nav-tab", 
@@ -74,6 +74,8 @@ class GapAnalyzer:
         def display_page(pathname="gen-metrics"):
             if pathname == 'gen-metrics':
                 return GeneralMetrics(self.data_loader).show()
+            elif pathname == 'miss-pred':
+                return MissPredictions(self.data_loader).show()
             else:
                 return html.Div([
                     html.H3('feature page {}'.format(pathname))
