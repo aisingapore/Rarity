@@ -37,6 +37,12 @@ def fig_probabilities_spread_pattern(data_loader):
     return fig_objs_all_models, tables_all_models
 
 
+def fig_plot_prediction_offset_overview(data_loader):
+    df = IntMissPredictions(data_loader).xform()
+    fig_obj = viz_misspred.plot_prediction_offset_overview(df)
+    return fig_obj
+
+
 class MissPredictions:
     def __init__(self, data_loader):
         self.data_loader = data_loader
@@ -44,7 +50,7 @@ class MissPredictions:
         self.is_bimodal = True if len(self.data_loader.get_model_list()) > 1 else False
 
         if self.analysis_type == 'regression':
-            pass
+            self.preds_offset = fig_plot_prediction_offset_overview(self.data_loader)
         elif 'classification' in self.analysis_type:
             self.probs_pattern, self.label_state = fig_probabilities_spread_pattern(self.data_loader)
 
@@ -53,8 +59,7 @@ class MissPredictions:
             miss_preds = dbc.Container([
                                 dbc.Row([
                                     dbc.Col([
-                                        # dcc.Graph(figure=self.pred_actual),
-                                        dbc.Row(dcc.Graph(figure=self.pred_offset), justify="center")
+                                        dbc.Row(dcc.Graph(figure=self.preds_offset), justify="center")
                                     ], className="border__common"), 
                                 ]), 
 
@@ -64,7 +69,6 @@ class MissPredictions:
             fig_objs_model_1 = self.probs_pattern[0]
             tables_model_1 = self.label_state[0]
             if self.is_bimodal and 'classification' in self.analysis_type:  # cover bimodal_binary and bimodal_multiclass
-                # if self.is_bimodal and 'multiclass' in self.analysis_type:
                 fig_objs_model_2 = self.probs_pattern[1]
                 tables_model_2 = self.label_state[1]
 

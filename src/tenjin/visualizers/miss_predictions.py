@@ -1,4 +1,4 @@
-# import plotly.graph_objects as go
+import plotly.graph_objects as go
 import plotly.express as px
 import dash_table
 
@@ -77,4 +77,56 @@ def plot_simple_probs_spread_overview(df_label_state):
         style_data_conditional=[{'if': {'column_id': 'index'}, 'textAlign': 'left'},
                                 {'if': {'column_id': 'state_value'}, 'textAlign': 'right'}],
         data=df_label_state.to_dict('records'))
+    return fig
+
+
+def plot_prediction_offset_overview(df):
+    '''
+    Display scatter plot for overview on prediction offset values
+
+    Arguments:
+        df -- output from interpreter [int_general_metrics]
+
+    Returns:
+        plotly scatter plot 
+    '''
+    pred_cols = [col for col in df.columns if 'yPred_' in col]
+    offset_cols = [col for col in df.columns if 'offset_' in col]
+    corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
+    df['index'] = list(df.index)
+
+    fig = px.scatter(df, x='index', y=offset_cols[0])
+    fig.data[0].name = corrected_legend_names[0]
+    fig.update_traces(showlegend=True, hovertemplate="Data Index : %{x}<br>Prediction Offset : %{y}")
+
+    if len(pred_cols) > 1:  # Bimodal
+        fig.add_trace(go.Scatter(
+            x=df['index'], 
+            y=df[offset_cols[1]], 
+            name=corrected_legend_names[1], 
+            mode='markers', 
+            hovertemplate="Data Index : %{x}<br>Prediction Offset : %{y}"))
+
+    # add reference baseline [mainly to have baseline included in legend]
+    fig.add_trace(go.Scatter(
+        x=[0, len(df)], 
+        y=[0] * 2, 
+        name="Baseline [Prediction - Actual]", 
+        visible=True, 
+        hoverinfo='skip',
+        mode='lines',
+        line=dict(color="green", dash="dot")))
+    # referece baseline [mainly for the dotted line in graph, but no legend generated]
+    fig.add_hline(y=0, line_dash="dot")
+
+    fig.update_layout(
+                title='<b>Prediction Offset Overview by Datapoint Index</b>', 
+                xaxis_title='Datapoint Index', 
+                yaxis_title='Offset from baseline', 
+                title_x=0.5,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
+                width=1000,
+                height=550,
+                margin=dict(t=110))
+
     return fig

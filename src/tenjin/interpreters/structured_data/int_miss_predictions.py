@@ -10,17 +10,27 @@ class IntMissPredictions:
         data_loader {class object} -- class object from data_loader pipeline
 
     Returns:
-        ls_dfs_viz {list} -- list of dataframes for overview
-        ls_dfs_by_label {list} -- list of dataframes by individual label class
-        ls_dfs_by_label_state {list} -- list of dataframes storing basic stats of each label class
+        if analysis_type == 'regression'
+            df {dataframe} -- dataframe storing info needed for visualizer
+        elif analysis_type == 'classification'
+            ls_dfs_viz {list} -- list of dataframes for overview
+            ls_dfs_by_label {list} -- list of dataframes by individual label class
+            ls_dfs_by_label_state {list} -- list of dataframes storing basic stats of each label class
         """
     def __init__(self, data_loader):
         self.data_loader = data_loader
         self.analysis_type = self.data_loader.get_analysis_type()
+        self.models = self.data_loader.get_model_list()
 
     def xform(self):
         if self.analysis_type == 'regression':
-            pass
+            df = self.data_loader.get_all()
+            if len(self.models) > 1:
+                df[f'offset_{self.models[0]}'] = df[f'yPred_{self.models[0]}'] - df['yTrue']
+                df[f'offset_{self.models[1]}'] = df[f'yPred_{self.models[1]}'] - df['yTrue']
+            elif len(self.models) == 1:
+                df[f'offset_{self.models[0]}'] = df[f'yPred_{self.models[0]}'] - df['yTrue']
+            return df
 
         elif 'classification' in self.analysis_type:
             # extract list of class labels
