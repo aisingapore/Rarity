@@ -94,8 +94,9 @@ def plot_prediction_offset_overview(df):
     offset_cols = [col for col in df.columns if 'offset_' in col]
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
     df['index'] = list(df.index)
+    df.insert(0, 'index', df.pop('index'))
 
-    fig = px.scatter(df, x='index', y=offset_cols[0])
+    fig = px.scatter(df, x='index', y=offset_cols[0], custom_data=['index'])
     fig.data[0].name = corrected_legend_names[0]
     fig.update_traces(showlegend=True, hovertemplate="Data Index : %{x}<br>Prediction Offset : %{y}")
 
@@ -127,6 +128,7 @@ def plot_prediction_offset_overview(df):
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
                 width=1000,
                 height=550,
-                margin=dict(t=110))
+                margin=dict(t=110), 
+                clickmode='event+select')
 
     return fig
