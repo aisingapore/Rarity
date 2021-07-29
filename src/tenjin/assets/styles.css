@@ -20,13 +20,12 @@
 }
 
 .header__first-row-col-left {
-    /* display: inline-flex; */
     max-height: max-content;
     margin-left: 15px;
 }
 
 .header__aisg-logo {
-    max-width: 35px;
+    max-width: 40px;
     display: inline;
     vertical-align: middle;
     border-radius: 50%;
@@ -116,6 +115,10 @@ table .cell-table {
     border-radius: 15px;
 }
 
+.div__std-err {
+    margin-top: 20px;
+}
+
 .div__std-err p {
     text-align: center;
     margin-bottom: 0;
@@ -126,3 +129,31 @@ table .cell-table {
     margin-top: 0;
     margin-bottom: 20px;
 }
+
+.h6__dash-table-note {
+    padding-left: 20px;
+    margin-top: 10px;
+    color: #212529;
+    display: inline-block;
+}
+
+.dash-spreadsheet-menu {
+    margin: -2% 0.5% 0.6% 93%;
+    }
+    
+.export {
+    border-radius: 5px;
+    border: 2px solid lightgrey;
+    padding: 0 15px;
+    font-family: inherit;
+    color: floralwhite;
+    background-color: #aaa19b;
+    transition:.75s;
+    }
+    
+.export:hover, .export:active, .export:focus {
+    color:white;
+    box-shadow: 0px 1px 3px lightgrey;
+    background-color: #f3c8c0;
+    outline: none;
+    }
