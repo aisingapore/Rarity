@@ -1,3 +1,3 @@
-from .app import GapAnalyzer
+from .analyzer import GapAnalyzer
 
 __all__ = ['GapAnalyzer']
