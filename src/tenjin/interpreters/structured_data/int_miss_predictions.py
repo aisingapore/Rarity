@@ -19,8 +19,8 @@ class IntMissPredictions:
         """
     def __init__(self, data_loader):
         self.data_loader = data_loader
-        self.analysis_type = self.data_loader.get_analysis_type()
-        self.models = self.data_loader.get_model_list()
+        self.analysis_type = data_loader.get_analysis_type()
+        self.models = data_loader.get_model_list()
 
     def xform(self):
         if self.analysis_type == 'regression':
