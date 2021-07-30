@@ -3,11 +3,12 @@ from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-import dash_table
 
 from tenjin.app import app
 from tenjin.interpreters.structured_data import IntMissPredictions
 from tenjin.visualizers import miss_predictions as viz_misspred
+
+INSTRUCTION_TEXT = 'Click and drag on the graph to select the range of data points to inspect feature values'
 
 
 def fig_probabilities_spread_pattern(data_loader):
@@ -45,6 +46,11 @@ def fig_plot_prediction_offset_overview(data_loader):
     df = IntMissPredictions(data_loader).xform()
     fig_obj = viz_misspred.plot_prediction_offset_overview(df)
     return fig_obj, df
+
+
+def table_to_filtered_datapoints_reg(table_id, customized_cols):
+    tab_obj = viz_misspred.reponsive_table_to_filtered_datapoints_reg(table_id, customized_cols)
+    return tab_obj
 
 
 def convert_filtered_data_to_df(relayout_data, df, models):
@@ -95,6 +101,7 @@ class MissPredictions:
         if self.analysis_type == 'regression':
             self.preds_offset, self.df = fig_plot_prediction_offset_overview(self.data_loader)
             self.cols_dash_table = [col.replace('_', ' ') for col in self.df.columns]
+            self.table_obj_reg = table_to_filtered_datapoints_reg('responsive-dash-table', self.cols_dash_table)
 
         elif 'classification' in self.analysis_type:
             self.probs_pattern, self.label_state = fig_probabilities_spread_pattern(self.data_loader)
@@ -102,43 +109,12 @@ class MissPredictions:
     def show(self):
         if self.analysis_type == 'regression':
             miss_preds = dbc.Container([
-                                dbc.Row([
-                                    dbc.Col([
-                                        dbc.Row(dcc.Graph(id='filter-datapoint', figure=self.preds_offset,), justify="center")
-                                    ], className="border__common"), 
-                                ]), 
-
-                                html.Div(html.H6('Click and drag on the graph to select the range of data points \
-                                                to inspect feature values'), className="h6__dash-table-note"),
-
-                                html.Div(
-                                        dash_table.DataTable(
-                                            id='responsive-dash-table',
-                                            columns=[{'id': c, 'name': c} for c in self.cols_dash_table],
-                                            page_action='none',
-                                            fixed_rows={'headers': True},
-                                            # fixed_columns={'headers': True, 'data': 1},  # alighment will be out 
-                                            # - bug reported in dash repo
-                                            style_data={'whiteSpace': 'normal', 'height': 'auto'},
-                                            style_cell={'textAlign': 'center',
-                                                        'border': '1px solid rgb(229, 211, 197)',
-                                                        'font-family': 'Arial',
-                                                        'margin-bottom': '0',
-                                                        'whiteSpace': 'normal',
-                                                        'height': 'auto',
-                                                        'minWidth': '200px',
-                                                        'width': '200px',
-                                                        'maxWidth': '200px'},
-                                            style_header={'fontWeight': 'bold',
-                                                        'color': 'white',
-                                                        'backgroundColor': '#7e746d ',
-                                                        'border': '1px solid rgb(229, 211, 197)'},
-                                            style_table={'width': 1400,
-                                                        'height': 200,
-                                                        'margin': 'auto'},
-                                            export_format='csv'),
-                                        className="div__table-proba-spread"),
-
+                                dbc.Row(dcc.Graph(id='filter-datapoint-reg', 
+                                                figure=self.preds_offset,), 
+                                                justify="center", 
+                                                className="border__common-misspred-reg"),
+                                html.Div(html.H6(INSTRUCTION_TEXT), className="h6__dash-table-note"),
+                                html.Div(self.table_obj_reg, className="div__table-proba-spread"),
                                 html.Br()
                         ], fluid=True)
 
@@ -184,9 +160,10 @@ class MissPredictions:
                                                         justify="center"),
                                                 ]),
                                                 ])
-                                        ], className="border__common")])
-
+                                        ], className="border__common")
+                                    ])
                         dash_fig_ls.append(fig_pair)
+
                     except IndexError:  # handling the last odd figure that can't be paired out
                         fig_pair = dbc.Row([
                                         dbc.Col([dbc.Row([
@@ -203,8 +180,7 @@ class MissPredictions:
                                                         justify="center"),
                                                 ]),
                                                 ])
-                                        ], className="border__common"),
-                                    ])
+                                        ], className="border__common")])
                         dash_fig_ls.append(fig_pair)
 
                 miss_preds = dbc.Container(dash_fig_ls, fluid=True)
@@ -257,7 +233,7 @@ class MissPredictions:
     def callback(self):
         @app.callback(
             Output('responsive-dash-table', 'data'), 
-            Input('filter-datapoint', 'relayoutData'))
+            Input('filter-datapoint-reg', 'relayoutData'))
         def display_relayout_data(relayoutData):
             if relayoutData is not None:
                 try:
