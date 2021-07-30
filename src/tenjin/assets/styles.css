@@ -103,6 +103,19 @@
     border-radius: 15px;
 }
 
+.border__common-misspred-reg {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 10% 20px 9%;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
 .fig__roc-prec-recall {
     width: 80%;
     margin: auto;
@@ -131,7 +144,7 @@ table .cell-table {
 }
 
 .h6__dash-table-note {
-    padding-left: 20px;
+    padding-left: 25px;
     margin-top: 10px;
     color: #212529;
     display: inline-block;
