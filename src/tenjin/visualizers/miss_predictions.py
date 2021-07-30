@@ -132,3 +132,32 @@ def plot_prediction_offset_overview(df):
                 clickmode='event+select')
 
     return fig
+
+
+def reponsive_table_to_filtered_datapoints_reg(table_id, customized_cols):
+    table_obj = dash_table.DataTable(
+                    id=table_id,
+                    columns=[{'id': c, 'name': c} for c in customized_cols],
+                    page_action='none',
+                    fixed_rows={'headers': True},
+                    # fixed_columns={'headers': True, 'data': 1},  # alighment will be out
+                    # - bug reported in dash repo
+                    style_data={'whiteSpace': 'normal', 'height': 'auto'},
+                    style_cell={'textAlign': 'center',
+                                'border': '1px solid rgb(229, 211, 197)',
+                                'font-family': 'Arial',
+                                'margin-bottom': '0',
+                                'whiteSpace': 'normal',
+                                'height': 'auto',
+                                'minWidth': '200px',
+                                'width': '200px',
+                                'maxWidth': '200px'},
+                    style_header={'fontWeight': 'bold',
+                                'color': 'white',
+                                'backgroundColor': '#7e746d ',
+                                'border': '1px solid rgb(229, 211, 197)'},
+                    style_table={'width': 1400,
+                                'height': 200,
+                                'margin': 'auto'},
+                    export_format='csv'),
+    return table_obj
