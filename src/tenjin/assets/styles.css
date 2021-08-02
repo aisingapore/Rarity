@@ -106,7 +106,7 @@
 .border__common-misspred-reg {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 0px 10% 20px 9%;
+    margin: 0px 10% 5px 9%;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -143,16 +143,25 @@ table .cell-table {
     margin-bottom: 20px;
 }
 
-.h6__dash-table-note {
+.h6__dash-table-note-reg {
     padding-left: 25px;
     margin-top: 10px;
-    color: #212529;
+    margin-left: 8%;
+    color: #687e94;
+    font-style: italic;
     display: inline-block;
 }
 
+.alert__note-reg {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
 .dash-spreadsheet-menu {
-    margin: -2% 0.5% 0.6% 93%;
-    }
+    margin: 0 0.5% 0.6% 93%;
+}
     
 .export {
     border-radius: 5px;

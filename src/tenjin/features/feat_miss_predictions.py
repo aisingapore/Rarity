@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
@@ -8,7 +8,15 @@ from tenjin.app import app
 from tenjin.interpreters.structured_data import IntMissPredictions
 from tenjin.visualizers import miss_predictions as viz_misspred
 
-INSTRUCTION_TEXT = 'Click and drag on the graph to select the range of data points to inspect feature values'
+INSTRUCTION_TEXT_REG_1 = 'Click and drag on the graph to select the range of data points to inspect feature values.' 
+INSTRUCTION_TEXT_REG_2 = 'To reset back to default settings, hover over icons on the top right of the graph and click "Autoscale" icon.'
+DEFAULT_HEADER = {'fontWeight': 'bold', 'color': 'white'}
+
+
+def fig_plot_prediction_offset_overview(data_loader):
+    df = IntMissPredictions(data_loader).xform()
+    fig_obj = viz_misspred.plot_prediction_offset_overview(df)
+    return fig_obj, df
 
 
 def fig_probabilities_spread_pattern(data_loader):
@@ -42,18 +50,13 @@ def fig_probabilities_spread_pattern(data_loader):
     return fig_objs_all_models, tables_all_models
 
 
-def fig_plot_prediction_offset_overview(data_loader):
-    df = IntMissPredictions(data_loader).xform()
-    fig_obj = viz_misspred.plot_prediction_offset_overview(df)
-    return fig_obj, df
-
-
-def table_to_filtered_datapoints_reg(table_id, customized_cols):
-    tab_obj = viz_misspred.reponsive_table_to_filtered_datapoints_reg(table_id, customized_cols)
+# def table_to_filtered_datapoints(table_id, customized_cols):
+def table_to_filtered_datapoints(data, customized_cols, header, exp_format):
+    tab_obj = viz_misspred.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
     return tab_obj
 
 
-def convert_filtered_data_to_df(relayout_data, df, models):
+def convert_filtered_data_to_df_reg(relayout_data, df, models):
     """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
 
     Arguments:
@@ -71,7 +74,6 @@ def convert_filtered_data_to_df(relayout_data, df, models):
         y_start_idx = int(relayout_data['yaxis.range[0]'])
         y_stop_idx = int(relayout_data['yaxis.range[1]'])
         offset_cols = [col for col in df.columns if 'offset_' in col]
-
         df_filtered = df.iloc[df.index[x_start_idx]:df.index[x_stop_idx]]
 
         if len(offset_cols) == 1:
@@ -86,22 +88,22 @@ def convert_filtered_data_to_df(relayout_data, df, models):
 
             final_filtered_idx = set(df_final_m1.index).union(set(df_final_m2.index))
             df_final = df_filtered[df_filtered['index'].isin(list(final_filtered_idx))]
-        return df_final
 
-    except TypeError:  # during first startup when no filtered data applied
-        pass
+    except KeyError:  # reset with relayout_data['xaxis.autorange']:
+        df_final = df.head(0)
+    return df_final
 
 
 class MissPredictions:
     def __init__(self, data_loader):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
-        self.is_bimodal = True if len(self.data_loader.get_model_list()) > 1 else False
+        self.model_names = self.data_loader.get_model_list()
+        self.is_bimodal = True if len(self.model_names) > 1 else False
 
         if self.analysis_type == 'regression':
             self.preds_offset, self.df = fig_plot_prediction_offset_overview(self.data_loader)
-            self.cols_dash_table = [col.replace('_', ' ') for col in self.df.columns]
-            self.table_obj_reg = table_to_filtered_datapoints_reg('responsive-dash-table', self.cols_dash_table)
+            self.cols_table_reg = [col.replace('_', ' ') for col in self.df.columns]
 
         elif 'classification' in self.analysis_type:
             self.probs_pattern, self.label_state = fig_probabilities_spread_pattern(self.data_loader)
@@ -109,12 +111,13 @@ class MissPredictions:
     def show(self):
         if self.analysis_type == 'regression':
             miss_preds = dbc.Container([
-                                dbc.Row(dcc.Graph(id='filter-datapoint-reg', 
-                                                figure=self.preds_offset,), 
-                                                justify="center", 
-                                                className="border__common-misspred-reg"),
-                                html.Div(html.H6(INSTRUCTION_TEXT), className="h6__dash-table-note"),
-                                html.Div(self.table_obj_reg, className="div__table-proba-spread"),
+                                html.Div(html.H6(INSTRUCTION_TEXT_REG_1), className='h6__dash-table-note-reg'),
+                                dbc.Row(dcc.Graph(id='fig-reg',
+                                                figure=self.preds_offset,),
+                                                justify='center',
+                                                className='border__common-misspred-reg'),
+                                html.Div(id='alert-to-reset-reg'),
+                                html.Div(id='show-feat-prob-table-reg', className='div__table-proba-spread'),
                                 html.Br()
                         ], fluid=True)
 
@@ -232,9 +235,11 @@ class MissPredictions:
 
     def callback(self):
         @app.callback(
-            Output('responsive-dash-table', 'data'), 
-            Input('filter-datapoint-reg', 'relayoutData'))
-        def display_relayout_data(relayoutData):
+            Output('show-feat-prob-table-reg', 'children'),
+            Output('alert-to-reset-reg', 'children'),
+            Input('fig-reg', 'relayoutData'),
+            State('fig-reg', 'figure'))
+        def display_relayout_data_reg(relayoutData, fig_trace):
             if relayoutData is not None:
                 try:
                     self.df = self.df.round(2)
@@ -243,9 +248,31 @@ class MissPredictions:
                     self.df
 
                 models = self.data_loader.get_model_list()
-                df_final = convert_filtered_data_to_df(relayoutData, self.df, models)
-                df_final.columns = self.cols_dash_table
-                data_relayout = df_final.to_dict('records')
-                return data_relayout
+                df_final = convert_filtered_data_to_df_reg(relayoutData, self.df, models)
+                df_final.columns = self.cols_table_reg
+
+                # relayoutData.keys() ==> valid keys
+                if 'xaxis.range[0]' in relayoutData.keys():
+                    DEFAULT_HEADER['backgroundColor'] = '#7e746d'
+                    DEFAULT_HEADER['border'] = '1px solid rgb(229, 211, 197)'
+
+                    data_relayout_reg = df_final.to_dict('records')
+                    table_obj_reg = table_to_filtered_datapoints(data_relayout_reg,
+                                                                self.cols_table_reg,
+                                                                DEFAULT_HEADER,
+                                                                'csv')
+                    alert_obj_reg = dbc.Alert(INSTRUCTION_TEXT_REG_2, color="secondary", className='alert__note-reg')
+
+                elif 'xaxis.autorange' in relayoutData.keys():
+                    DEFAULT_HEADER['backgroundColor'] = 'white'
+                    DEFAULT_HEADER['border'] = 'none'
+
+                    data_relayout_reg = df_final.to_dict('records')
+                    table_obj_reg = table_to_filtered_datapoints(data_relayout_reg,
+                                                                self.cols_table_reg,
+                                                                DEFAULT_HEADER,
+                                                                'none')
+                    alert_obj_reg = dbc.Alert(color="light")
+                return table_obj_reg, alert_obj_reg
             else:
                 raise PreventUpdate
