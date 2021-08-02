@@ -94,8 +94,9 @@ def plot_prediction_offset_overview(df):
     offset_cols = [col for col in df.columns if 'offset_' in col]
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
     df['index'] = list(df.index)
+    df.insert(0, 'index', df.pop('index'))
 
-    fig = px.scatter(df, x='index', y=offset_cols[0])
+    fig = px.scatter(df, x='index', y=offset_cols[0], custom_data=['index'])
     fig.data[0].name = corrected_legend_names[0]
     fig.update_traces(showlegend=True, hovertemplate="Data Index : %{x}<br>Prediction Offset : %{y}")
 
@@ -127,6 +128,33 @@ def plot_prediction_offset_overview(df):
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
                 width=1000,
                 height=550,
-                margin=dict(t=110))
+                margin=dict(t=110), 
+                clickmode='event+select')
 
     return fig
+
+
+def reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format):
+    table_obj = dash_table.DataTable(
+                    data=data,
+                    columns=[{'id': c, 'name': c} for c in customized_cols],
+                    page_action='none',
+                    fixed_rows={'headers': True},
+                    # fixed_columns={'headers': True, 'data': 1},  # alighment will be out
+                    # - bug reported in dash repo
+                    style_data={'whiteSpace': 'normal', 'height': 'auto'},
+                    style_cell={'textAlign': 'center',
+                                'border': '1px solid rgb(229, 211, 197)',
+                                'font-family': 'Arial',
+                                'margin-bottom': '0',
+                                'whiteSpace': 'normal',
+                                'height': 'auto',
+                                'minWidth': '200px',
+                                'width': '200px',
+                                'maxWidth': '200px'},
+                    style_header=header,
+                    style_table={'width': 1400,
+                                'height': 200,
+                                'margin': 'auto'},
+                    export_format=exp_format),
+    return table_obj

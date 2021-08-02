@@ -20,13 +20,12 @@
 }
 
 .header__first-row-col-left {
-    /* display: inline-flex; */
     max-height: max-content;
     margin-left: 15px;
 }
 
 .header__aisg-logo {
-    max-width: 35px;
+    max-width: 40px;
     display: inline;
     vertical-align: middle;
     border-radius: 50%;
@@ -104,6 +103,19 @@
     border-radius: 15px;
 }
 
+.border__common-misspred-reg {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 10% 5px 9%;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
 .fig__roc-prec-recall {
     width: 80%;
     margin: auto;
@@ -116,6 +128,10 @@ table .cell-table {
     border-radius: 15px;
 }
 
+.div__std-err {
+    margin-top: 20px;
+}
+
 .div__std-err p {
     text-align: center;
     margin-bottom: 0;
@@ -126,3 +142,40 @@ table .cell-table {
     margin-top: 0;
     margin-bottom: 20px;
 }
+
+.h6__dash-table-note-reg {
+    padding-left: 25px;
+    margin-top: 10px;
+    margin-left: 8%;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+}
+
+.alert__note-reg {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.dash-spreadsheet-menu {
+    margin: 0 0.5% 0.6% 93%;
+}
+    
+.export {
+    border-radius: 5px;
+    border: 2px solid lightgrey;
+    padding: 0 15px;
+    font-family: inherit;
+    color: floralwhite;
+    background-color: #aaa19b;
+    transition:.75s;
+    }
+    
+.export:hover, .export:active, .export:focus {
+    color:white;
+    box-shadow: 0px 1px 3px lightgrey;
+    background-color: #f3c8c0;
+    outline: none;
+    }
