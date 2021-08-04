@@ -116,15 +116,17 @@
     border-radius: 15px;
 }
 
-.fig__roc-prec-recall {
-    width: 80%;
-    margin: auto;
-}
-
-table .cell-table {
+.border__common-misspred-cls-single-binary {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    /* margin: 0px 15px 20px; */
+    margin: 0px 20% 20px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
     border-width: 1px;
     border-style: solid;
     border-color: rgb(229, 211, 197);
+    border-image: initial;
     border-radius: 15px;
 }
 
@@ -137,30 +139,78 @@ table .cell-table {
     margin-bottom: 0;
 }
 
-.div__table-proba-spread {
+.div__table-proba-misspred {
     text-align: center;
     margin-top: 0;
     margin-bottom: 20px;
 }
 
-.h6__dash-table-note-reg {
+.h6__dash-table-instruction-reg {
     padding-left: 25px;
     margin-top: 10px;
     margin-left: 8%;
+    margin-bottom: 5px;
     color: #687e94;
     font-style: italic;
     display: inline-block;
 }
 
+.h6__dash-table-instruction-cls {
+    padding-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.h6__dash-table-instruction-cls-single-binary {
+    padding-left: 25px;
+    margin: 10px 20%;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+    font-weight: 500;
+}
+
 .alert__note-reg {
+    margin-top: 20px;
     margin-top: 15px;
-    margin-bottom: 5px;
+    margin-bottom: 30px;
     padding-top: 3px;
     padding-bottom: 3px;
 }
 
+.title__main-plot-name-cls {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 23px;
+    color: #212529;
+    font-weight:bold;
+}
+
+.title__table-misspred-cls {
+    margin-bottom: 0px;
+    margin-left: 23px;
+    font-family: inherit;
+    color: #212529;
+}
+
+.fig__roc-prec-recall {
+    width: 80%;
+    margin: auto;
+}
+
+table .cell-table {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-radius: 15px;
+}
+
 .dash-spreadsheet-menu {
-    margin: 0 0.5% 0.6% 93%;
+    margin: -1.5% 0.5% 0.6% 93%;
 }
     
 .export {
@@ -171,11 +221,11 @@ table .cell-table {
     color: floralwhite;
     background-color: #aaa19b;
     transition:.75s;
-    }
+}
     
 .export:hover, .export:active, .export:focus {
     color:white;
     box-shadow: 0px 1px 3px lightgrey;
     background-color: #f3c8c0;
     outline: none;
-    }
+}
