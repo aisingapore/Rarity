@@ -13,7 +13,7 @@ from tenjin.visualizers import miss_predictions as viz_misspred
 INSTRUCTION_TEXT_SHARED = 'Click and drag on the graph to select the range of data points to inspect feature values.'
 INSTRUCTION_TEXT_REG = 'To reset back to default settings, hover over icons on the top right of the graph and click "Autoscale" icon.'
 WARNING_TEXT = 'To inspect new range of datapoints in different graph, please first reset the earlier selection by clicking "Autoscale" icon ' \
-                'in the top right corner of the graph.'
+                'at the top right corner of the graph.'
 
 DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d', 'border': '1px solid rgb(229, 211, 197)'}
 DEFAULT_TITLE_STYLE = {'visibility': 'visible'}
