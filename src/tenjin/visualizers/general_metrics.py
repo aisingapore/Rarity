@@ -253,7 +253,7 @@ def plot_prediction_vs_actual(df):
         yaxis_title="Prediction",
         legend_title="", 
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
-        margin=dict(t=110))
+        margin=dict(t=110, l=30, r=30))
 
     # scatter plot for pred_cols[0]
     hv_template0_str = f'<b>{legend_name_dict[pred_cols[0]]}</b>'
@@ -332,7 +332,7 @@ def plot_prediction_offset_overview(df):
                 yaxis_title='Offset from baseline', 
                 title_x=0.3,
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
-                margin=dict(t=110))
+                margin=dict(t=110, l=30, r=30))
 
     return fig
 
