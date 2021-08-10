@@ -45,10 +45,19 @@ class IntMissPredictions:
             for df in self.data_loader.get_all():
                 # extract df with info useful for miss-prediction viz                
                 col_start_idx_to_extract = list(df.columns).index('yTrue')
-                df_viz = df[list(df.columns)[col_start_idx_to_extract:]]
+                df_viz = df.loc[:, list(df.columns)[col_start_idx_to_extract:]]
                 pred_state_condition = df_viz['yPred-label'].astype('str') == df_viz['yTrue'].astype('str')
                 df_viz['pred_state'] = np.where(pred_state_condition, 'correct', 'miss-predict')
-                ls_dfs_viz.append(df_viz)
+
+                # re-arrange the columns orders for viz need at features-module
+                org_cols = list(df_viz.columns)
+                idx_model_col = org_cols.index('model')
+                ls_class_labels = org_cols[1:idx_model_col]  # first col is 'yTrue', and should be the same even for bimodal case
+                org_cols.remove('model')
+                new_position_yTrue_col_idx = org_cols.index('yPred-label')
+                new_cols_order = ['model'] + org_cols[1:new_position_yTrue_col_idx] + ['yTrue'] + org_cols[new_position_yTrue_col_idx:]
+                df_viz_final = df_viz.loc[:, new_cols_order]
+                ls_dfs_viz.append(df_viz_final)
 
                 # tapout df that is specific to each label-class
                 dfs_specific_label = []
@@ -70,4 +79,4 @@ class IntMissPredictions:
 
                 ls_dfs_by_label.append(dfs_specific_label)
                 ls_dfs_by_label_state.append(dfs_state)
-            return ls_dfs_viz, ls_dfs_by_label, ls_dfs_by_label_state
+            return ls_dfs_viz, ls_class_labels, ls_dfs_by_label, ls_dfs_by_label_state
