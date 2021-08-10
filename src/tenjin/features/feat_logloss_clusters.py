@@ -44,7 +44,7 @@ class LogLossClusters:
                                                                     {'label': '7', 'value': '7'},
                                                                     {'label': '8', 'value': '8'}],
                                                             value='4'))
-                                            ], width=5, className='selection-bar-item__cluster-reg'),
+                                            ], width=5),
                                             dbc.Col(
                                                 dbc.Row(dbc.Button("Update", 
                                                                     id='button__logloss-update-reg', 
