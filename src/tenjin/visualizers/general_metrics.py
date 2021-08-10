@@ -117,7 +117,7 @@ def plot_roc_curve(yTrue, yPred, model_names):
                 fig.add_trace(go.Scatter(
                     x=fpr_j_list[k], 
                     y=tpr_j_list[k], 
-                    mode='lines', 
+                    mode='lines',
                     name=f'model_{model_names[i]}_class_{list(sorted(set(yTrue)))[k]} [score: {score_j_list[k]:.4f}]', 
                     hoverlabel=dict(namelength=-1)))
     else:
@@ -241,7 +241,11 @@ def plot_prediction_vs_actual(df):
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
     legend_name_dict = dict(zip(pred_cols, corrected_legend_names))
 
-    fig = px.scatter(df, x='yTrue', y=pred_cols, trendline='ols', marginal_x='histogram', marginal_y='histogram')
+    fig = px.scatter(df, x='yTrue', y=pred_cols,
+                    trendline='ols',
+                    marginal_x='histogram',
+                    marginal_y='histogram',
+                    color_discrete_sequence=px.colors.qualitative.D3)
     fig.update_layout(
         title='<b>Comparison of Prediction (yPred) vs Actual (yTrue)</b>',
         title_x=0.12,
@@ -298,7 +302,7 @@ def plot_prediction_offset_overview(df):
         df[offset_col] = df[col] - df['yTrue']
         offset_cols.append(offset_col)
 
-    fig = px.scatter(df, x=pred_cols[0], y=offset_cols[0])
+    fig = px.scatter(df, x=pred_cols[0], y=offset_cols[0], color_discrete_sequence=px.colors.qualitative.D3)
     fig.data[0].name = corrected_legend_names[0]
     fig.update_traces(showlegend=True, hovertemplate="Prediction : %{x}<br>Offset : %{y}")
 
