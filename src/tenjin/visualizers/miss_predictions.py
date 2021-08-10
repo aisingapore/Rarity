@@ -21,7 +21,8 @@ def plot_probabilities_spread_pattern(df_specific_label):
                      x=list(df_specific_label.index), 
                      y=df_specific_label[label], 
                      color='pred_state', 
-                     category_orders={"pred_state": ["correct", "miss-predict"]})
+                     category_orders={"pred_state": ["correct", "miss-predict"]},
+                     color_discrete_sequence=px.colors.qualitative.D3)
 
     fig.update_layout(
         title=f'<b>Class {label}<br>[ {model_name} ]</b><br>',
@@ -43,12 +44,12 @@ def plot_probabilities_spread_pattern(df_specific_label):
     # iterate through all traces, to ensure all label-class have consistent format
     for i in range(len(fig.data)):
         if fig.data[i]['legendgroup'] == 'correct':
-            fig.data[i]['marker']['color'] = '#636efa' 
+            fig.data[i]['marker']['color'] = '#1f77b4'
             fig.data[i]['hovertemplate'] = "<b>Index %{x}</b><br>" + "<b>[ correct ]</b><br><br>" + \
                                             "probability: %{y:.4f}<br>" + "<extra></extra>"
 
         elif fig.data[i]['legendgroup'] == 'miss-predict':
-            fig.data[i]['marker']['color'] = '#EF553B'
+            fig.data[i]['marker']['color'] = '#FF7F0E'
             fig.data[i]['hovertemplate'] = "<b>Index %{x}</b><br>" + "<b>[ miss-predict ]</b><br><br>" + \
                                             "probability: %{y:.4f}<br>" + "<extra></extra>"
     return fig
@@ -93,10 +94,9 @@ def plot_prediction_offset_overview(df):
     pred_cols = [col for col in df.columns if 'yPred_' in col]
     offset_cols = [col for col in df.columns if 'offset_' in col]
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
-    df['index'] = list(df.index)
-    df.insert(0, 'index', df.pop('index'))
+    df.insert(0, 'index', list(df.index))
 
-    fig = px.scatter(df, x='index', y=offset_cols[0], custom_data=['index'])
+    fig = px.scatter(df, x='index', y=offset_cols[0], custom_data=['index'], color_discrete_sequence=px.colors.qualitative.D3)
     fig.data[0].name = corrected_legend_names[0]
     fig.update_traces(showlegend=True, hovertemplate="Data Index : %{x}<br>Prediction Offset : %{y}")
 
