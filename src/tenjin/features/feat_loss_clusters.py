@@ -73,7 +73,7 @@ class LossClusters:
                                                                     {'label': '6', 'value': '6'},
                                                                     {'label': '7', 'value': '7'},
                                                                     {'label': '8', 'value': '8'}],
-                                                            value='4'), className='params__select-cluster-reg')
+                                                            value='4'), className='params__select-cluster')
                                             ], width=5),
                                             dbc.Col(
                                                 dbc.Row(dbc.Button("Update", 
@@ -114,7 +114,7 @@ class LossClusters:
                                                                     {'label': '6', 'value': '6'},
                                                                     {'label': '7', 'value': '7'},
                                                                     {'label': '8', 'value': '8'}],
-                                                            value='4'), className='params__select-cluster-cls')
+                                                            value='4'), className='params__select-cluster')
                                             ], width=5),
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select Logarithm Method'), className='h6__cluster-instruction')),
@@ -123,7 +123,7 @@ class LossClusters:
                                                                     {'label': 'LOG1P', 'value': 'log1p'},
                                                                     {'label': 'LOG2', 'value': 'log2'},
                                                                     {'label': 'LOG10', 'value': 'log10'}],
-                                                            value='log'), className='params__select-cluster-cls')
+                                                            value='log'), className='params__select-cluster')
                                             ], width=5),
                                             dbc.Col(
                                                 dbc.Row(dbc.Button("Update", 
