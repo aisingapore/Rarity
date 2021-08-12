@@ -94,7 +94,7 @@
 .border__common {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 0px 15px 20px;
+    margin: 0px 25px 20px;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -133,7 +133,33 @@
 .border__common-cluster-plot-reg {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 20px 15px 0px 20px;
+    margin: 20px 25px 0px 30px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__common-cluster-plot-cls {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 45px 25px 0px 30px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__optimum-cluster {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 2px 25px 30px 30px;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -168,16 +194,6 @@
     display: inline-block;
 }
 
-.h6__cluster-instruction-reg {
-    padding-left: 5px;
-    margin-top: 5px;
-    margin-left: 0;
-    margin-bottom: 5px;
-    color: #687e94;
-    font-style: italic;
-    display: inline-block;
-}
-
 .h6__dash-table-instruction-cls {
     padding-left: 25px;
     margin-top: 10px;
@@ -195,6 +211,31 @@
     font-style: italic;
     display: inline-block;
     font-weight: 500;
+}
+
+.h6__cluster-instruction {
+    padding-left: 15px;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 5px;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+}
+
+.h5__cluster-section-title {
+    padding: 5px 10px;
+    margin-top: 5px;
+    margin-left: 25px;
+    margin-bottom: 10px;
+    color: floralwhite;
+    font-weight: 400;
+    background-color: #a80202;
+    border: #a80202;
+}
+
+.params__select-cluster {
+    margin-left: 15px;
 }
 
 .alert__note-reg {
@@ -236,14 +277,27 @@ table .cell-table {
     margin: -1.5% 0.5% 0.6% 93%;
 }
 
-.text__score-cluster {
+.text__score-cluster-reg {
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 3px;
     color: #687e94;
     font-style: italic;
     margin-right: 1.5rem;
     margin-bottom: 0;
+    font-weight: 500;
+    line-height: 1.2;
+    font-size: 0.8rem;
+}
+
+.text__score-cluster-cls {
+    position: absolute;
+    bottom: 0;
+    right: 8px;
+    color: #687e94;
+    font-style: italic;
+    margin-right: 1.5rem;
+    margin-bottom: -2.5rem;
     font-weight: 500;
     line-height: 1.2;
     font-size: 0.8rem;
@@ -260,7 +314,7 @@ table .cell-table {
 }
     
 .export:hover, .export:active, .export:focus, 
-.button__update-cluster-reg:hover, .button__update-cluster-reg:active {
+.button__update-cluster:hover, .button__update-cluster:active {
     color: #75706c;
     box-shadow: 0px 1px 3px lightgrey;
     background-color: #f3c8c0;
@@ -268,7 +322,7 @@ table .cell-table {
     border: none;
 }
 
-.button__update-cluster-reg, .button__update-cluster-reg:focus {
+.button__update-cluster, .button__update-cluster:focus {
     border-radius: 5px;
     border: 2px solid lightgrey;
     margin-right: 15px;
@@ -281,5 +335,5 @@ table .cell-table {
     transition:.75s;
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 8px;
 }
