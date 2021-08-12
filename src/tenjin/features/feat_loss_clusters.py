@@ -106,7 +106,7 @@ class LossClusters:
                                     dbc.Row([
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
-                                                dbc.Row(dbc.Select(id='select-num-cluster-reg', 
+                                                dbc.Row(dbc.Select(id='select-num-cluster-cls', 
                                                             options=[{'label': '2', 'value': '2'},
                                                                     {'label': '3', 'value': '3'},
                                                                     {'label': '4', 'value': '4'},
@@ -118,7 +118,7 @@ class LossClusters:
                                             ], width=5),
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select Logarithm Method'), className='h6__cluster-instruction')),
-                                                dbc.Row(dbc.Select(id='select-num-cluster-reg', 
+                                                dbc.Row(dbc.Select(id='select-num-cluster-cls', 
                                                             options=[{'label': 'LOG', 'value': 'log'},
                                                                     {'label': 'LOG1P', 'value': 'log1p'},
                                                                     {'label': 'LOG2', 'value': 'log2'},
@@ -127,10 +127,10 @@ class LossClusters:
                                             ], width=5),
                                             dbc.Col(
                                                 dbc.Row(dbc.Button("Update", 
-                                                                    id='button__logloss-update-reg', 
+                                                                    id='button__logloss-update-cls', 
                                                                     n_clicks=0,
                                                                     color="info", 
-                                                                    className='button__update-cluster-reg'),
+                                                                    className='button__update-cluster'),
                                                         justify='right'), width=2)]),
 
                                     dbc.Row(dbc.Col(dbc.Row(
