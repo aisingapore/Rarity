@@ -7,7 +7,7 @@ class IntLossClusterer(BaseInterpreters):
     def __init__(self, data_loader):
         super().__init__(data_loader)
 
-    def xform(self, num_cluster, log_func):
+    def xform(self, num_cluster, log_func, specific_label):
         if self.analysis_type == 'regression':
             df = super().get_df_with_offset_values()
             df.insert(0, 'index', df.index)  # for ease of user to trace the datapoint in raw dataframe
@@ -33,26 +33,46 @@ class IntLossClusterer(BaseInterpreters):
 
         elif 'classification' in self.analysis_type:
             ls_dfs_prob, ls_class_labels = super().get_df_with_probability_values()
+            ls_dfs_prob_misspred = [df.loc[lambda x: x['pred_state'] == 'miss-predict', :] for df in ls_dfs_prob]
+            ls_class_labels_misspred = [list(df['yTrue'].astype('str').unique()) for df in ls_dfs_prob_misspred]
+            if len(ls_dfs_prob) == 2:
+                ls_class_labels_misspred = list(set(ls_class_labels_misspred[0] + ls_class_labels_misspred[1]))
+            else:
+                ls_class_labels_misspred = ls_class_labels_misspred[0]
+
+            try:
+                ls_class_labels_misspred = [int(label) for label in ls_class_labels_misspred]
+                ls_class_labels_misspred.sort()
+            except TypeError:
+                ls_class_labels_misspred.sort()
 
             ls_score = []
             ls_dfs_viz = []
             ls_cluster_range = []
             ls_ssd = []
-            if len(ls_class_labels) == 2:  # binary classification (supporting both single and bimodal)
-                for df in ls_dfs_prob:
-                    df_viz = df.loc[lambda x: x['pred_state'] == 'miss-predict', :]
+            for df in ls_dfs_prob_misspred:
+                df['eff_prob_for_loss_cal'] = [df[df['yTrue'].astype('str').values[i]].values[i] for i in range(len(df))]
 
-                    df_temp = df_viz[['yTrue', ls_class_labels[1]]]
-                    df_viz['lloss'] = df_temp.apply(lambda x: calculate_logloss(x['yTrue'], x[ls_class_labels[1]], log_func), axis=1)
+                if specific_label != 'All':
+                    try:
+                        df_viz = df.loc[lambda x: x['yTue'].astype('str') == specific_label, :]
+                    except ValueError:
+                        pass  # # **** need to check error at this point
+                else:
+                    df_viz = df
 
-                    cluster_groups, cluster_score = create_clusters(df_viz['lloss'], num_cluster)
-                    df_viz['cluster'] = cluster_groups
+                df_temp = df_viz[['yTrue', 'eff_prob_for_loss_cal']]
+                df_viz['lloss'] = df_temp.apply(lambda x: calculate_logloss(x['yTrue'], x['eff_prob_for_loss_cal'], log_func), axis=1)
+                df_viz.pop('eff_prob_for_loss_cal')
 
-                    cluster_range, sum_squared_distance = find_optimum_num_clusters(df_viz['lloss'], num_cluster)
+                cluster_groups, cluster_score = create_clusters(df_viz['lloss'], num_cluster)
+                df_viz['cluster'] = cluster_groups
 
-                    ls_score.append(cluster_score)
-                    ls_dfs_viz.append(df_viz)
-                    ls_cluster_range.append(cluster_range)
-                    ls_ssd.append(sum_squared_distance)
+                cluster_range, sum_squared_distance = find_optimum_num_clusters(df_viz['lloss'], num_cluster)
 
-            return ls_dfs_viz, ls_class_labels, ls_score, self.analysis_type, ls_cluster_range, ls_ssd
+                ls_score.append(cluster_score)
+                ls_dfs_viz.append(df_viz)
+                ls_cluster_range.append(cluster_range)
+                ls_ssd.append(sum_squared_distance)
+
+            return ls_dfs_viz, ls_class_labels, ls_class_labels_misspred, ls_score, self.analysis_type, ls_cluster_range, ls_ssd
