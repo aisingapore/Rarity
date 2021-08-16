@@ -133,7 +133,7 @@
 .border__common-cluster-plot-reg {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 20px 25px 0px 30px;
+    margin: 25px 25px 0px 30px;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -146,7 +146,7 @@
 .border__common-cluster-plot-cls {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 45px 25px 0px 30px;
+    margin: 30px 25px 0px 30px;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -167,6 +167,16 @@
     border-color: rgb(229, 211, 197);
     border-image: initial;
     border-radius: 15px;
+}
+
+.border__select-dataset {
+    box-sizing: border-box;
+    margin: 2px 25px 30px 30px;
+    padding: 10px 10px 20px 10px;
+    background: rgb(236, 197, 197);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(236, 197, 197);
 }
 
 .div__std-err {
@@ -218,7 +228,7 @@
     margin-top: 5px;
     margin-left: 2px;
     margin-bottom: 5px;
-    color: #687e94;
+    color: rgb(124, 109, 109);
     font-style: italic;
     display: inline-block;
 }
@@ -226,7 +236,7 @@
 .h5__cluster-section-title {
     padding: 5px 10px;
     margin-top: 5px;
-    margin-left: 25px;
+    margin-left: 28px;
     margin-bottom: 10px;
     color: floralwhite;
     font-weight: 400;
@@ -279,12 +289,13 @@ table .cell-table {
 
 .text__score-cluster-reg {
     position: absolute;
+    top: 5px;
     bottom: 0;
-    right: 3px;
+    right: 20px;
     color: #687e94;
     font-style: italic;
+    margin-bottom: 0.5rem;
     margin-right: 1.5rem;
-    margin-bottom: 0;
     font-weight: 500;
     line-height: 1.2;
     font-size: 0.8rem;
@@ -292,8 +303,9 @@ table .cell-table {
 
 .text__score-cluster-cls {
     position: absolute;
+    top:8px;
     bottom: 0;
-    right: 8px;
+    right: 20px;
     color: #687e94;
     font-style: italic;
     margin-right: 1.5rem;
@@ -312,17 +324,9 @@ table .cell-table {
     background-color: #aaa19b;
     transition:.75s;
 }
-    
-.export:hover, .export:active, .export:focus, 
-.button__update-cluster:hover, .button__update-cluster:active {
-    color: #75706c;
-    box-shadow: 0px 1px 3px lightgrey;
-    background-color: #f3c8c0;
-    outline: none;
-    border: none;
-}
 
-.button__update-cluster, .button__update-cluster:focus {
+.button__update-cluster, .button__update-cluster:focus,
+.button__update-dataset, .button__update-dataset:focus {
     border-radius: 5px;
     border: 2px solid lightgrey;
     margin-right: 15px;
@@ -336,4 +340,21 @@ table .cell-table {
     position: absolute;
     bottom: 0;
     right: 8px;
+}
+
+.export:hover, .export:active, .export:focus,
+.button__update-cluster:hover, .button__update-cluster:active {
+    color: #75706c;
+    box-shadow: 0px 1px 3px lightgrey;
+    background-color: #f3c8c0;
+    outline: none;
+    border: none;
+}
+
+.button__update-dataset:hover, .button__update-dataset:active {
+    color: floralwhite;
+    box-shadow: 0px 1px 3px lightgrey;
+    background-color: #ccc1ba;
+    outline: none;
+    border: 2px solid lightgrey;
 }
