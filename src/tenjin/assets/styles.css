@@ -169,6 +169,16 @@
     border-radius: 15px;
 }
 
+.border__select-dataset {
+    box-sizing: border-box;
+    margin: 2px 25px 30px 30px;
+    padding: 10px 10px 20px 10px;
+    background: rgb(236, 197, 197);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(236, 197, 197);
+}
+
 .div__std-err {
     margin-top: 20px;
 }
@@ -218,7 +228,7 @@
     margin-top: 5px;
     margin-left: 2px;
     margin-bottom: 5px;
-    color: #687e94;
+    color: rgb(124, 109, 109);
     font-style: italic;
     display: inline-block;
 }
@@ -302,6 +312,12 @@ table .cell-table {
     line-height: 1.2;
     font-size: 0.8rem;
 }
+
+.loading__loss-cluster-reg {
+    /* color: #a80202; */
+    margin-bottom: -40px;
+    display: inline-block;
+}
     
 .export {
     border-radius: 5px;
@@ -336,4 +352,5 @@ table .cell-table {
     position: absolute;
     bottom: 0;
     right: 8px;
+    display: inline-block;
 }
