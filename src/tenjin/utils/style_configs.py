@@ -16,6 +16,16 @@ def default_header_style():
     return DEFAULT_HEADER_STYLE
 
 
+def hidden_title_style():
+    DEFAULT_TITLE_STYLE['visibility'] = 'hidden'
+    return DEFAULT_TITLE_STYLE
+
+
+def hidden_plot_name_style():
+    DEFAULT_PLOT_NAME_STYLE['visibility'] = 'hidden'
+    return DEFAULT_PLOT_NAME_STYLE
+
+
 def collapse_header_style():
     DEFAULT_HEADER_STYLE['border'] = 'none'
     DEFAULT_HEADER_STYLE['visibility'] = 'collapse'
