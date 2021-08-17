@@ -245,9 +245,7 @@ class LossClusters:
             Input('button-select-num-cluster-reg', 'n_clicks'),
             State('select-num-cluster-reg', 'value'))
         def update_fig_based_on_selected_num_cluster(click_count, selected_no_cluster):
-            print(f'click_count: {click_count}')
             if click_count > 0:
-                print(f'selected_no_cluster: {selected_no_cluster}')
                 _, fig_obj_cluster_usr, ls_cluster_score_usr, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
                 score_text_usr = _display_score(ls_cluster_score_usr, self.model_names)
                 return '', score_text_usr, fig_obj_cluster_usr
