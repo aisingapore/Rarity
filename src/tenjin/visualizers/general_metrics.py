@@ -311,7 +311,8 @@ def plot_prediction_offset_overview(df):
             x=df[pred_cols[1]], 
             y=df[offset_cols[1]], 
             name=corrected_legend_names[1], 
-            mode='markers', 
+            mode='markers',
+            marker=dict(color='#FF7F0E'),
             hovertemplate="Prediction : %{x}<br>Offset : %{y}"))
 
     # add reference baseline [mainly to have baseline included in legend]
