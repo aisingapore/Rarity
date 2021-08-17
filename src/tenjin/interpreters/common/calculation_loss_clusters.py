@@ -10,9 +10,16 @@ def create_clusters(loss_list, num_cluster):
     """
     loss_array = np.array(loss_list).reshape(-1, 1)
     kmean = KMeans(n_clusters=num_cluster, random_state=42).fit(loss_array)
-    cluster_groups = kmean.labels_.tolist()
-    cluster_groups = [cluster + 1 for cluster in cluster_groups]  # cluster to start from 1, instead of 0
 
+    # this lookup index is to ensure the same clustering results (cluster groups) even though Kmean randomized the initalization at diff centroid
+    # reference: https://stackoverflow.com/questions/44888415/how-to-set-k-means-clustering-labels-from-highest-to-lowest-with-python
+    idx = np.argsort(kmean.cluster_centers_.sum(axis=1))
+    lookup = np.zeros_like(idx)
+    lookup[idx] = np.arange(num_cluster)
+    cluster_groups = lookup[kmean.labels_].tolist()
+
+    # cluster_groups = kmean.labels_.tolist() ==> use this if don't mind different clustering groups at each button click
+    cluster_groups = [cluster + 1 for cluster in cluster_groups]  # cluster to start from 1, instead of 0
     cluster_score = round(metrics.silhouette_score(loss_array, cluster_groups, metric='euclidean'), 4)
     return cluster_groups, cluster_score
 
