@@ -1,5 +1,7 @@
 import math
-from dash.dependencies import Input, Output, ALL, State
+import pandas as pd
+
+from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,9 +11,13 @@ from tenjin.app import app
 from tenjin.interpreters.structured_data import IntLossClusterer
 from tenjin.visualizers import loss_clusters as viz_clusters
 from tenjin.visualizers import shared_viz_component as viz_shared
-from tenjin.utils.common_function import (convert_relayout_data_to_df_reg, convert_relayout_data_to_df_cls, identify_active_trace,
-                                        is_active_trace, is_reset, detected_legend_filtration, detected_unique_figure,
-                                        detected_more_than_1_unique_figure, insert_index_col)
+from tenjin.utils import style_configs
+from tenjin.utils.common_functions import (is_active_trace, is_reset, detected_legend_filtration, detected_single_xaxis, detected_single_yaxis,
+                                        detected_bimodal, get_min_max_offset, get_min_max_cluster, get_effective_xaxis_cluster,
+                                        conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice)
+
+
+OPTIONS_NO_OF_CLUSTERS = [{'label': f'{n}', 'value': f'{n}'} for n in range(2, 9)]  # option 2 to 8
 
 
 def fig_plot_offset_clusters_reg(data_loader, num_cluster):
@@ -23,11 +29,6 @@ def fig_plot_offset_clusters_reg(data_loader, num_cluster):
     return df, fig_obj_cluster, ls_cluster_score, fig_obj_elbow
 
 
-def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
-    tab_obj = viz_shared.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
-    return tab_obj
-
-
 def fig_plot_logloss_clusters_cls(data_loader, num_cluster, log_func=math.log, specific_label='All'):
     compact_outputs = IntLossClusterer(data_loader).xform(num_cluster, log_func, specific_label)
     ls_dfs_viz, ls_class_labels, ls_class_labels_misspred = compact_outputs[0], compact_outputs[1], compact_outputs[2]
@@ -35,10 +36,70 @@ def fig_plot_logloss_clusters_cls(data_loader, num_cluster, log_func=math.log, s
     ls_cluster_range, ls_ssd = compact_outputs[5], compact_outputs[6]
 
     models = data_loader.get_model_list()
-
     fig_obj_cluster = viz_clusters.plot_logloss_clusters(ls_dfs_viz, analysis_type)
     fig_obj_elbow = viz_clusters.plot_optimum_cluster_via_elbow_method(ls_cluster_range, ls_ssd, models)
     return ls_dfs_viz, fig_obj_cluster, ls_cluster_score, fig_obj_elbow, ls_class_labels, ls_class_labels_misspred
+
+
+def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
+    tab_obj = viz_shared.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
+    return tab_obj
+
+
+def convert_cluster_relayout_data_to_df_reg(relayout_data, df, models):
+    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+
+    Arguments:
+        relayout_data {dict}: data containing selection range indices returned from plotly graph
+        df {pandas dataframe}: dataframe tap-out from interpreters pipeline
+        models {list}: model names defined by user during spin-up of Tenjin app
+
+    Returns:
+        pandas dataframe
+        -- dataframe fit for the responsive table-graph filtering
+    """
+    if detected_single_xaxis(relayout_data):
+        x_cluster = get_effective_xaxis_cluster(relayout_data)
+        df_filtered_x = df[df[f'cluster_{models[0]}'] == x_cluster]
+
+        if detected_bimodal(models):
+            df_filtered_x_m2 = df[df[f'cluster_{models[1]}'] == x_cluster]
+            df_filtered_x = pd.concat([df_filtered_x, df_filtered_x_m2]).drop_duplicates()
+
+        y_start_idx, y_stop_idx = get_min_max_offset(df_filtered_x, models)
+        df_final = dataframe_prep_on_model_count_by_yaxis_slice(df_filtered_x, models, y_start_idx, y_stop_idx)
+
+    elif detected_single_yaxis(relayout_data):
+        y_start_idx = relayout_data['yaxis.range[0]']
+        y_stop_idx = relayout_data['yaxis.range[1]']
+        df_filtered_y = dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx)
+
+        x_start_idx, x_stop_idx = get_min_max_cluster(df_filtered_y, models, y_start_idx, y_stop_idx)
+        x_start_idx = x_start_idx if x_start_idx >= 1 else 1
+        x_stop_idx = x_stop_idx if x_stop_idx <= 8 else 8
+
+        condition_min_cluster = df_filtered_y[f'cluster_{models[0]}'] >= x_start_idx
+        condition_max_cluster = df_filtered_y[f'cluster_{models[0]}'] <= x_stop_idx
+        df_final = conditional_sliced_df(df_filtered_y, condition_min_cluster, condition_max_cluster)
+
+        if detected_bimodal(models):
+            condition_min_cluster_m2 = df_filtered_y[f'cluster_{models[1]}'] >= x_start_idx
+            condition_max_cluster_m2 = df_filtered_y[f'cluster_{models[1]}'] <= x_stop_idx
+            df_final_m2 = conditional_sliced_df(df_filtered_y, condition_min_cluster_m2, condition_max_cluster_m2)
+            df_final = pd.concat([df_final, df_final_m2]).drop_duplicates()
+
+    else:  # a complete range is provided by user (with proper x-y coordinates)
+        x_cluster = get_effective_xaxis_cluster(relayout_data)
+        y_start_idx = relayout_data['yaxis.range[0]']
+        y_stop_idx = relayout_data['yaxis.range[1]']
+        df_filtered = df[df[f'cluster_{models[0]}'] == x_cluster]
+
+        if detected_bimodal(models):
+            df_filtered_m2 = df[df[f'cluster_{models[1]}'] == x_cluster]
+            df_filtered = pd.concat([df_filtered, df_filtered_m2]).drop_duplicates()
+
+        df_final = dataframe_prep_on_model_count_by_yaxis_slice(df_filtered, models, y_start_idx, y_stop_idx)
+    return df_final
 
 
 def _display_score(ls_cluster_score, models):
@@ -91,14 +152,8 @@ class LossClusters:
                                     dbc.Row([
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
-                                                dbc.Row(dbc.Select(id='select-num-cluster-reg', 
-                                                            options=[{'label': '2', 'value': '2'},
-                                                                    {'label': '3', 'value': '3'},
-                                                                    {'label': '4', 'value': '4'},
-                                                                    {'label': '5', 'value': '5'},
-                                                                    {'label': '6', 'value': '6'},
-                                                                    {'label': '7', 'value': '7'},
-                                                                    {'label': '8', 'value': '8'}],
+                                                dbc.Row(dbc.Select(id='select-num-cluster-reg',
+                                                            options=OPTIONS_NO_OF_CLUSTERS,
                                                             value='4'), className='params__select-cluster')
                                             ], width=6),
                                             dbc.Col(
@@ -109,15 +164,10 @@ class LossClusters:
                                                                     className='button__update-dataset'),
                                                         justify='right'), width=1),
                                             dbc.Col(
-                                                dbc.Row(dcc.Loading(id='loading-update-loss-cluster-reg',
+                                                dbc.Row(dcc.Loading(id='loading-output-loss-cluster-reg',
                                                                     type='circle', color='#a80202'),
                                                         justify='left', className='loading__loss-cluster-reg'), width=1)],
-                                            # dbc.Col(
-                                            #     dbc.Row(
-                                            #         html.Div(children=self.score_text,
-                                            #                 id='text-score-cluster-reg',
-                                            #                 className='text__score-cluster-reg'), justify='right'))],
-                                    className='border__select-dataset'),
+                                        className='border__select-dataset'),
                                     dbc.Row(dbc.Col(dbc.Row(
                                         html.Div(self.score_text,
                                                 id='text-score-cluster-reg',
@@ -157,13 +207,7 @@ class LossClusters:
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
                                             dbc.Row(dbc.Select(id='select-num-cluster-cls',
-                                                        options=[{'label': '2', 'value': '2'},
-                                                                {'label': '3', 'value': '3'},
-                                                                {'label': '4', 'value': '4'},
-                                                                {'label': '5', 'value': '5'},
-                                                                {'label': '6', 'value': '6'},
-                                                                {'label': '7', 'value': '7'},
-                                                                {'label': '8', 'value': '8'}],
+                                                        options=OPTIONS_NO_OF_CLUSTERS,
                                                         value='4'), className='params__select-cluster')
                                         ], width=5),
                                         dbc.Col([
@@ -195,7 +239,7 @@ class LossClusters:
 
     def callbacks(self):
         @app.callback(
-            Output('loading-update-loss-cluster-reg', 'children'),
+            Output('loading-output-loss-cluster-reg', 'children'),
             Output('text-score-cluster-reg', 'children'),
             Output('fig-loss-cluster-reg', 'figure'),
             Input('button-select-num-cluster-reg', 'n_clicks'),
@@ -204,7 +248,6 @@ class LossClusters:
             print(f'click_count: {click_count}')
             if click_count > 0:
                 print(f'selected_no_cluster: {selected_no_cluster}')
-                # print(f'type_no_cluster: {type(selected_no_cluster)}')
                 _, fig_obj_cluster_usr, ls_cluster_score_usr, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
                 score_text_usr = _display_score(ls_cluster_score_usr, self.model_names)
                 return '', score_text_usr, fig_obj_cluster_usr
@@ -214,16 +257,37 @@ class LossClusters:
         @app.callback(
             Output('alert-to-reset-cluster-reg', 'children'),
             Output('table-feat-prob-cluster-reg', 'children'),
-            Input({"index": ALL, "type": "fig-obj-prob-spread"}, 'relayoutData'),
-            Input({"index": ALL, "type": "fig-obj-prob-spread"}, 'restyleData'),
+            Input('fig-loss-cluster-reg', 'relayoutData'),
+            Input('fig-loss-cluster-reg', 'restyleData'),
             State('select-num-cluster-reg', 'value'))
         def display_table_based_on_selected_range_reg(relayout_data, restyle_data, selected_no_cluster):
-            print(f'relayout_data: {relayout_data}')
-            print(f'restyle_data: {restyle_data}')
             if relayout_data is not None:
-                print(f'selected_no_cluster: {selected_no_cluster}')
                 df_usr_select_cluster, _, _, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
-                print(f'df_usr_select_cluster: {df_usr_select_cluster}')
-                return '', ''
+                try:
+                    # to limit table cell having values with long decimals for better viz purpose
+                    df_usr_select_cluster = df_usr_select_cluster.round(2)
+                except TypeError:
+                    df_usr_select_cluster
+
+                if is_reset(relayout_data):
+                    alert_obj_reg = None
+                    table_obj_reg = None
+
+                elif is_active_trace(relayout_data):
+                    models = self.model_names
+                    if restyle_data is not None:  # [{'visible': ['legendonly']}, [1]]
+                        if detected_legend_filtration(restyle_data):
+                            model_to_exclude_from_view = self.model_names[restyle_data[1][0]]
+                            models = [model for model in self.model_names if model != model_to_exclude_from_view]
+
+                    default_header = style_configs.default_header_style()
+                    alert_obj_reg = style_configs.activate_alert()
+
+                    df_final = convert_cluster_relayout_data_to_df_reg(relayout_data, df_usr_select_cluster, models)
+                    df_final.columns = self.cols_table_reg  # to have customized column names displayed on table
+
+                    data_relayout_reg = df_final.to_dict('records')
+                    table_obj_reg = table_with_relayout_datapoints(data_relayout_reg, self.cols_table_reg, default_header, 'csv')
+                return alert_obj_reg, table_obj_reg
             else:
                 raise PreventUpdate
