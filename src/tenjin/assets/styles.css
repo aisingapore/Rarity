@@ -314,6 +314,12 @@ table .cell-table {
     line-height: 1.2;
     font-size: 0.8rem;
 }
+
+.loading__loss-cluster-reg {
+    /* color: #a80202; */
+    margin-bottom: -40px;
+    display: inline-block;
+}
     
 .export {
     border-radius: 5px;
@@ -340,6 +346,7 @@ table .cell-table {
     position: absolute;
     bottom: 0;
     right: 8px;
+    display: inline-block;
 }
 
 .export:hover, .export:active, .export:focus,
