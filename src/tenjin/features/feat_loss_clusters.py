@@ -1,6 +1,7 @@
 import math
 import pandas as pd
 
+import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
@@ -14,10 +15,12 @@ from tenjin.visualizers import shared_viz_component as viz_shared
 from tenjin.utils import style_configs
 from tenjin.utils.common_functions import (is_active_trace, is_reset, detected_legend_filtration, detected_single_xaxis, detected_single_yaxis,
                                         detected_bimodal, get_min_max_offset, get_min_max_cluster, get_effective_xaxis_cluster,
-                                        conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice)
+                                        get_adjusted_dfs_based_on_legend_filtration, conditional_sliced_df, insert_index_col,
+                                        dataframe_prep_on_model_count_by_yaxis_slice, new_dataframe_prep_based_on_effective_index)
 
 
 OPTIONS_NO_OF_CLUSTERS = [{'label': f'{n}', 'value': f'{n}'} for n in range(2, 9)]  # option 2 to 8
+LOG_METHOD_DICT = {'log': math.log, 'log1p': math.log1p, 'log2': math.log2, 'log10': math.log10}
 
 
 def fig_plot_offset_clusters_reg(data_loader, num_cluster):
@@ -29,16 +32,17 @@ def fig_plot_offset_clusters_reg(data_loader, num_cluster):
     return df, fig_obj_cluster, ls_cluster_score, fig_obj_elbow
 
 
-def fig_plot_logloss_clusters_cls(data_loader, num_cluster, log_func=math.log, specific_label='All'):
-    compact_outputs = IntLossClusterer(data_loader).xform(num_cluster, log_func, specific_label)
+def fig_plot_logloss_clusters_cls(data_loader, num_cluster, log_func=math.log, specific_dataset='All'):
+    compact_outputs = IntLossClusterer(data_loader).xform(num_cluster, log_func, specific_dataset)
     ls_dfs_viz, ls_class_labels, ls_class_labels_misspred = compact_outputs[0], compact_outputs[1], compact_outputs[2]
     ls_cluster_score, analysis_type = compact_outputs[3], compact_outputs[4]
     ls_cluster_range, ls_ssd = compact_outputs[5], compact_outputs[6]
+    df_features = data_loader.get_features()
 
     models = data_loader.get_model_list()
     fig_obj_cluster = viz_clusters.plot_logloss_clusters(ls_dfs_viz, analysis_type)
     fig_obj_elbow = viz_clusters.plot_optimum_cluster_via_elbow_method(ls_cluster_range, ls_ssd, models)
-    return ls_dfs_viz, fig_obj_cluster, ls_cluster_score, fig_obj_elbow, ls_class_labels, ls_class_labels_misspred
+    return ls_dfs_viz, fig_obj_cluster, ls_cluster_score, fig_obj_elbow, ls_class_labels, ls_class_labels_misspred, df_features
 
 
 def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
@@ -102,6 +106,75 @@ def convert_cluster_relayout_data_to_df_reg(relayout_data, df, models):
     return df_final
 
 
+def convert_cluster_relayout_data_to_df_cls(relayout_data, dfs_viz, df_features, models):
+    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+
+    Arguments:
+        relayout_data {dict}: data containing selection range indices returned from plotly graph
+        dfs_viz {pandas dataframe}: dataframe tap-out from interpreters pipeline
+        df_features {pandas datafrmae}: dataframe with all xFeatures
+        models {list}: model names
+
+    Returns:
+        pandas dataframe
+        -- dataframe fit for the responsive table-graph filtering
+    """
+    if detected_single_xaxis(relayout_data):
+        x_cluster = get_effective_xaxis_cluster(relayout_data)
+        df_final_probs = dfs_viz[0][dfs_viz[0]['cluster'] == x_cluster]
+
+        if detected_bimodal(models):
+            df_final_probs_m2 = dfs_viz[1][dfs_viz[1]['cluster'] == x_cluster]
+            df_final_probs = pd.concat([df_final_probs, df_final_probs_m2]).drop_duplicates()
+            df_final_probs = df_final_probs.sort_values('index')  # so that index of different models will appear together row-row
+
+        df_final_features = new_dataframe_prep_based_on_effective_index(df_features, df_final_probs)
+
+    elif detected_single_yaxis(relayout_data):
+        y_start_idx = relayout_data['yaxis.range[0]']
+        y_stop_idx = relayout_data['yaxis.range[1]']
+
+        condition_min_loss = dfs_viz[0]['lloss'] >= y_start_idx
+        condition_max_loss = dfs_viz[0]['lloss'] <= y_stop_idx
+        df_final_probs = conditional_sliced_df(dfs_viz[0], condition_min_loss, condition_max_loss)
+
+        if detected_bimodal(models):
+            condition_min_loss_m2 = dfs_viz[1]['lloss'] >= y_start_idx
+            condition_max_loss_m2 = dfs_viz[1]['lloss'] <= y_stop_idx
+            df_final_probs_m2 = conditional_sliced_df(dfs_viz[1], condition_min_loss_m2, condition_max_loss_m2)
+
+            df_final_probs = pd.concat([df_final_probs, df_final_probs_m2]).drop_duplicates()
+            df_final_probs = df_final_probs.sort_values('index')  # so that index of different models will appear together row-row
+
+        df_final_features = new_dataframe_prep_based_on_effective_index(df_features, df_final_probs)
+
+    else:  
+        '''
+        detected_single_xaxis or a complete range is provided by user (with proper x-y coordinates) 
+        will have same results due to the setup of dfs_viz for cls (loss values are right to cluster group)
+        '''
+        x_cluster = get_effective_xaxis_cluster(relayout_data)
+        df_filtered_x = dfs_viz[0][dfs_viz[0]['cluster'] == x_cluster]
+
+        y_start_idx = relayout_data['yaxis.range[0]']
+        y_stop_idx = relayout_data['yaxis.range[1]']
+        condition_min_loss = df_filtered_x['lloss'] >= y_start_idx
+        condition_max_loss = df_filtered_x['lloss'] <= y_stop_idx
+        df_final_probs = conditional_sliced_df(df_filtered_x, condition_min_loss, condition_max_loss)
+
+        if detected_bimodal(models):
+            df_filtered_x_m2 = dfs_viz[1][dfs_viz[1]['cluster'] == x_cluster]
+            condition_min_loss_m2 = df_filtered_x_m2['lloss'] >= y_start_idx
+            condition_max_loss_m2 = df_filtered_x_m2['lloss'] <= y_stop_idx
+            df_final_probs_m2 = conditional_sliced_df(df_filtered_x_m2, condition_min_loss_m2, condition_max_loss_m2)
+
+            df_final_probs = pd.concat([df_final_probs, df_final_probs_m2]).drop_duplicates()
+            df_final_probs = df_final_probs.sort_values('index')  # so that index of different models will appear together row-row
+
+        df_final_features = new_dataframe_prep_based_on_effective_index(df_features, df_final_probs)
+    return df_final_features, df_final_probs
+
+
 def _display_score(ls_cluster_score, models):
     score_text = f'Silhouette score: {ls_cluster_score[0]}'
     if len(models) == 2:
@@ -127,17 +200,13 @@ class LossClusters:
 
         elif 'classification' in self.analysis_type:
             self.log_func = math.log
-            self.specific_label = 'All'
+            self.specific_dataset = 'All'
 
-            self.compact_outputs_cls = fig_plot_logloss_clusters_cls(self.data_loader, self.num_cluster, self.log_func, self.specific_label)
+            self.compact_outputs_cls = fig_plot_logloss_clusters_cls(self.data_loader, self.num_cluster, self.log_func, self.specific_dataset)
             self.ls_dfs_viz, self.lloss_clusters_cls, = self.compact_outputs_cls[0], self.compact_outputs_cls[1]
             self.ls_cluster_score, self.optimum_elbow_cls = self.compact_outputs_cls[2], self.compact_outputs_cls[3]
             self.ls_class_labels, self.ls_class_labels_misspred = self.compact_outputs_cls[4], self.compact_outputs_cls[5]
-
-            self.score_text = f'Silhouette score: {self.ls_cluster_score[0]}'
-            if self.is_bimodal:
-                self.score_text = f'Silhouette score: {self.ls_cluster_score[0]} [ {self.model_names[0]} ] ' \
-                            f'{self.ls_cluster_score[1]} [ {self.model_names[1]} ]'
+            self.score_text = _display_score(self.ls_cluster_score, self.model_names)
 
     def show(self):
         if self.analysis_type == 'regression':
@@ -157,17 +226,16 @@ class LossClusters:
                                                             value='4'), className='params__select-cluster')
                                             ], width=6),
                                             dbc.Col(
+                                                dbc.Row(dcc.Loading(id='loading-output-loss-cluster-reg',
+                                                                    type='circle', color='#a80202'),
+                                                        justify='left', className='loading__loss-cluster'), width=1),
+                                            dbc.Col(
                                                 dbc.Row(dbc.Button("Update",
-                                                                    id='button-select-num-cluster-reg',
+                                                                    id='button-num-cluster-update-reg',
                                                                     n_clicks=0,
                                                                     color="info", 
                                                                     className='button__update-dataset'),
-                                                        justify='right'), width=1),
-                                            dbc.Col(
-                                                dbc.Row(dcc.Loading(id='loading-output-loss-cluster-reg',
-                                                                    type='circle', color='#a80202'),
-                                                        justify='left', className='loading__loss-cluster-reg'), width=1)],
-                                        className='border__select-dataset'),
+                                                        justify='right'))], className='border__select-dataset'),
                                     dbc.Row(dbc.Col(dbc.Row(
                                         html.Div(self.score_text,
                                                 id='text-score-cluster-reg',
@@ -185,6 +253,7 @@ class LossClusters:
         elif 'classification' in self.analysis_type:
             options_misspred_dataset = [{'label': 'All', 'value': 'All'}] + \
                                         [{'label': f'class {label}', 'value': f'class {label}'} for label in self.ls_class_labels_misspred]
+
             lloss_clusters = dbc.Container([
                                     dbc.Row([
                                         dbc.Col([
@@ -192,66 +261,91 @@ class LossClusters:
                                             dbc.Row(dbc.Select(id='select-misspred-dataset-cls',
                                                         options=options_misspred_dataset,
                                                         value='All'), className='params__select-cluster')
-                                        ], width=6),
+                                        ], width=4),
+                                        dbc.Col(
+                                                dbc.Row(dcc.Loading(id='loading-output-misspred-dataset-cls',
+                                                                    type='circle', color='#a80202'),
+                                                        justify='left', className='loading__loss-cluster'), width=1),
                                         dbc.Col(
                                             dbc.Row(dbc.Button("Update",
-                                                                id='button__logloss-update-cls',
+                                                                id='button-misspred-dataset-update-cls',
                                                                 n_clicks=0,
                                                                 color="info",
                                                                 className='button__update-dataset'),
                                                     justify='right'))], className='border__select-dataset'),
-                                    dbc.Row(dcc.Graph(id='fig-reg-optimum-cluster', figure=self.optimum_elbow_cls,),
+                                    html.Div(id='alert-clustering-error-cls'),
+                                    dbc.Row(html.H5('Loss Cluster Analysis for ALL Miss Predictions',
+                                                    id='title-after-misspred-dataset-selection-cls',
+                                                    className='h5__cluster-section-title')),
+                                    dbc.Row(dcc.Graph(id='fig-cls-optimum-cluster', figure=self.optimum_elbow_cls,),
                                         justify='center', className='border__optimum-cluster'),
-                                    dbc.Row(html.H5('Log-Loss Clustering via KMean', className='h5__cluster-section-title')),
                                     dbc.Row([
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
                                             dbc.Row(dbc.Select(id='select-num-cluster-cls',
                                                         options=OPTIONS_NO_OF_CLUSTERS,
                                                         value='4'), className='params__select-cluster')
-                                        ], width=5),
+                                        ], width=4),
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select Logarithm Method'), className='h6__cluster-instruction')),
-                                            dbc.Row(dbc.Select(id='select-num-cluster-cls',
+                                            dbc.Row(dbc.Select(id='select-log-method-cls',
                                                         options=[{'label': 'LOG', 'value': 'log'},
                                                                 {'label': 'LOG1P', 'value': 'log1p'},
                                                                 {'label': 'LOG2', 'value': 'log2'},
                                                                 {'label': 'LOG10', 'value': 'log10'}],
                                                         value='log'), className='params__select-cluster')
-                                        ], width=5),
+                                        ], width=4),
+                                        dbc.Col(
+                                                dbc.Row(dcc.Loading(id='loading-output-loss-cluster-cls',
+                                                                    type='circle', color='#a80202'),
+                                                        justify='left', className='loading__loss-cluster'), width=1),
                                         dbc.Col(
                                             dbc.Row(dbc.Button("Update",
-                                                                id='button__logloss-update-cls',
+                                                                id='button-logloss-update-cls',
                                                                 n_clicks=0,
                                                                 color="info",
                                                                 className='button__update-dataset'),
-                                                    justify='right'), width=2)], className='border__select-dataset'),
+                                                    justify='right'))], className='border__select-dataset'),
+                                    dbc.Row(html.H5('Log-Loss Clustering via KMean on ALL Miss Predictions',
+                                                    id='title-after-losscluster-params-selection-cls',
+                                                    className='h5__cluster-section-title-kmean')),
                                     dbc.Row(dbc.Col(dbc.Row(
                                         html.Div(self.score_text,
-                                                id='score__cluster-reg',
+                                                id='text-score-cluster-cls',
                                                 className='text__score-cluster-cls'), justify='right'))),
                                     dbc.Row(
-                                        dcc.Graph(id='fig-reg-lloss-clusters',
+                                        dcc.Graph(id='fig-loss-cluster-cls',
                                                     figure=self.lloss_clusters_cls,),
                                         justify='center', className='border__common-cluster-plot-cls'),
+
+                                    # data-table, appeared only after data range selection on fig-loss-cluster-cls by user
+                                    html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-cls'),
+                                    html.Div(id='alert-to-reset-loss-cluster-cls'),
+                                    html.Div(id='table-title-features-loss-cluster'),
+                                    html.Div(id='show-feat-table-loss-cluster', className='div__table-proba-misspred'),
+                                    html.Br(),
+                                    html.Div(id='table-title-probs-loss-cluster'),
+                                    html.Div(id='show-prob-table-loss-cluster', className='div__table-proba-misspred'),
                                     html.Br()], fluid=True)
             return lloss_clusters
 
     def callbacks(self):
+        # callback on param - select no. of clusters [ regression ]
         @app.callback(
             Output('loading-output-loss-cluster-reg', 'children'),
             Output('text-score-cluster-reg', 'children'),
             Output('fig-loss-cluster-reg', 'figure'),
-            Input('button-select-num-cluster-reg', 'n_clicks'),
+            Input('button-num-cluster-update-reg', 'n_clicks'),
             State('select-num-cluster-reg', 'value'))
         def update_fig_based_on_selected_num_cluster(click_count, selected_no_cluster):
             if click_count > 0:
-                _, fig_obj_cluster_usr, ls_cluster_score_usr, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
-                score_text_usr = _display_score(ls_cluster_score_usr, self.model_names)
-                return '', score_text_usr, fig_obj_cluster_usr
+                _, fig_obj_cluster_reg, ls_cluster_score_reg, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
+                score_text_reg = _display_score(ls_cluster_score_reg, self.model_names)
+                return '', score_text_reg, fig_obj_cluster_reg
             else:
                 raise PreventUpdate
 
+        # callback from fig-obj to data-table [ regression ]
         @app.callback(
             Output('alert-to-reset-cluster-reg', 'children'),
             Output('table-feat-prob-cluster-reg', 'children'),
@@ -287,5 +381,146 @@ class LossClusters:
                     data_relayout_reg = df_final.to_dict('records')
                     table_obj_reg = table_with_relayout_datapoints(data_relayout_reg, self.cols_table_reg, default_header, 'csv')
                 return alert_obj_reg, table_obj_reg
+            else:
+                raise PreventUpdate
+
+        # callback on all params selection [ classification ]
+        @app.callback(
+            Output('loading-output-misspred-dataset-cls', 'children'),
+            Output('loading-output-loss-cluster-cls', 'children'),
+            Output('alert-clustering-error-cls', 'children'),
+            Output('title-after-misspred-dataset-selection-cls', 'children'),
+            Output('fig-cls-optimum-cluster', 'figure'),
+            Output('title-after-losscluster-params-selection-cls', 'children'),
+            Output('text-score-cluster-cls', 'children'),
+            Output('fig-loss-cluster-cls', 'figure'),
+            Input('button-misspred-dataset-update-cls', 'n_clicks'),
+            Input('button-logloss-update-cls', 'n_clicks'),
+            State('select-misspred-dataset-cls', 'value'),
+            State('select-num-cluster-cls', 'value'),
+            State('select-log-method-cls', 'value'))
+        def update_loss_cluster_tab_based_on_selected_misspred_dataset(click_count_dataset,
+                                                                        click_count_params,
+                                                                        selected_dataset,
+                                                                        selected_cluster,
+                                                                        selected_method):
+            ctx = dash.callback_context
+            triggered_button = ctx.triggered[0]['prop_id'].split('.')[0]
+            triggered_button_value = ctx.triggered[0]['value']
+
+            current_dataset_name = ctx.states['select-misspred-dataset-cls.value']
+            specific_dataset = current_dataset_name.replace('class ', '') if 'class' in current_dataset_name else current_dataset_name
+            cluster_err_alert = style_configs.no_cluster_error_alert()
+
+            # for click action on dataset selection
+            if (triggered_button == 'button-misspred-dataset-update-cls') and (triggered_button_value > 0):
+                title_aft_misspred_dataset = f'Loss Cluster Analysis for {selected_dataset.capitalize()} Miss Predictions'
+                title_aft_params = f'Log-Loss Clustering via KMean on {selected_dataset.capitalize()} Miss Predictions'
+
+                # pre-requisite to check if dataset is valid with sufficient data-points for auto-clustering
+                ls_dfs_prob_misspred = IntLossClusterer(self.data_loader).extract_misspredictions()
+                if specific_dataset != 'All' and any(len(df[df['yPred-label'] == specific_dataset]) < 8 for df in ls_dfs_prob_misspred):
+                    cluster_err_alert = style_configs.activate_cluster_error_alert(specific_dataset)
+                    return dash.no_update, dash.no_update, cluster_err_alert, dash.no_update, \
+                            dash.no_update, dash.no_update, dash.no_update, dash.no_update
+
+                outputs_callback_dataset = fig_plot_logloss_clusters_cls(self.data_loader,
+                                                                        num_cluster=int(selected_cluster),
+                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        specific_dataset=specific_dataset)
+
+                fig_obj_cluster_cls, ls_cluster_score_cls = outputs_callback_dataset[1], outputs_callback_dataset[2]
+                fig_obj_elbow_cls = outputs_callback_dataset[3]
+                text_score_cls = _display_score(ls_cluster_score_cls, self.model_names)
+                return '', dash.no_update, cluster_err_alert, title_aft_misspred_dataset, fig_obj_elbow_cls, \
+                        title_aft_params, text_score_cls, fig_obj_cluster_cls
+
+            # for click action on num_cluster and log_method selection
+            elif (triggered_button == 'button-logloss-update-cls') and (triggered_button_value > 0):
+                outputs_callback_params = fig_plot_logloss_clusters_cls(self.data_loader,
+                                                                        num_cluster=int(selected_cluster),
+                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        specific_dataset=specific_dataset)
+
+                fig_obj_cluster_cls_params, ls_cluster_score_cls_params = outputs_callback_params[1], outputs_callback_params[2]
+                text_score_cls_params = _display_score(ls_cluster_score_cls_params, self.model_names)
+                return dash.no_update, '', cluster_err_alert, dash.no_update, dash.no_update, dash.no_update, \
+                        text_score_cls_params, fig_obj_cluster_cls_params
+
+            else:
+                raise PreventUpdate
+
+        # callback from fig-obj to data-table [ classification ]
+        @app.callback(
+            Output('alert-to-reset-loss-cluster-cls', 'children'),
+            Output('table-title-features-loss-cluster', 'children'),
+            Output('show-feat-table-loss-cluster', 'children'),
+            Output('table-title-probs-loss-cluster', 'children'),
+            Output('show-prob-table-loss-cluster', 'children'),
+            Input('fig-loss-cluster-cls', 'relayoutData'),
+            Input('fig-loss-cluster-cls', 'restyleData'),
+            State('select-misspred-dataset-cls', 'value'),
+            State('select-num-cluster-cls', 'value'),
+            State('select-log-method-cls', 'value'))
+        def display_table_based_on_selected_range_cls(relayout_data, restyle_data, selected_dataset, selected_cluster, selected_method):
+            default_title = style_configs.DEFAULT_TITLE_STYLE
+            title_table_features_cls = html.H6('Feature Values :', style=default_title, className='title__table-misspred-cls')
+            title_table_probs_cls = html.H6('Probabilities Overview :', style=default_title, className='title__table-misspred-cls')
+
+            if relayout_data is not None:
+                specific_dataset = selected_dataset.replace('class ', '') if 'class' in selected_dataset else selected_dataset
+                outputs_callback_fig_action = fig_plot_logloss_clusters_cls(self.data_loader,
+                                                                        num_cluster=int(selected_cluster),
+                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        specific_dataset=specific_dataset)
+                dfs_viz, df_features = outputs_callback_fig_action[0], outputs_callback_fig_action[6]
+
+                try:
+                    df_features = df_features.round(2)  # limit long decimals on feature values
+                    dfs_viz[0] = dfs_viz[0].round(4)  # standardize prob values to 4 decimals
+                    if self.is_bimodal:
+                        dfs_viz[1] = dfs_viz[1].round(4)
+                except TypeError:
+                    df_features
+                    dfs_viz
+
+                df_features = insert_index_col(df_features)
+                dfs_viz = [insert_index_col(df) for df in dfs_viz]
+
+                if is_reset(relayout_data):
+                    alert_obj_cls = None
+                    title_table_features_cls = None
+                    table_obj_features_cls = None
+                    title_table_probs_cls = None
+                    table_obj_probs_cls = None
+
+                elif is_active_trace(relayout_data):
+                    models = self.model_names
+                    if restyle_data is not None:  # [{'visible': ['legendonly']}, [1]]
+                        if detected_legend_filtration(restyle_data):
+                            model_to_exclude_from_view = self.model_names[restyle_data[1][0]]
+                            models = [model for model in self.model_names if model != model_to_exclude_from_view]
+
+                    default_header = style_configs.default_header_style()
+                    alert_obj_cls = style_configs.activate_alert()
+
+                    # dfs_viz adjusted to the correct df according to the filtered model following click action on legend
+                    dfs_viz_adjusted = get_adjusted_dfs_based_on_legend_filtration(dfs_viz, models)
+                    df_final_features, df_final_probs = convert_cluster_relayout_data_to_df_cls(relayout_data,
+                                                                                                dfs_viz_adjusted,
+                                                                                                df_features,
+                                                                                                models)
+
+                    data_relayout_features_cls = df_final_features.to_dict('records')
+                    data_relayout_prob_cls = df_final_probs.to_dict('recorfs')
+                    table_obj_features_cls = table_with_relayout_datapoints(data_relayout_features_cls,
+                                                                            df_final_features.columns,
+                                                                            default_header,
+                                                                            'csv')
+                    table_obj_probs_cls = table_with_relayout_datapoints(data_relayout_prob_cls,
+                                                                        df_final_probs.columns,
+                                                                        default_header,
+                                                                        'csv')
+                return alert_obj_cls, title_table_features_cls, table_obj_features_cls, title_table_probs_cls, table_obj_probs_cls
             else:
                 raise PreventUpdate
