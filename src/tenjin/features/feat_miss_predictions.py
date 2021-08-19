@@ -366,8 +366,8 @@ class MissPredictions:
             Output('show-feat-table', 'children'),
             Output('table-title-misspred-probs', 'children'),
             Output('show-prob-table', 'children'),
-            Input({"index": ALL, "type": "fig-obj-prob-spread"}, 'relayoutData'),
-            Input({"index": ALL, "type": "fig-obj-prob-spread"}, 'restyleData'))
+            Input({'index': ALL, 'type': 'fig-obj-prob-spread'}, 'relayoutData'),
+            Input({'index': ALL, 'type': 'fig-obj-prob-spread'}, 'restyleData'))
         def display_relayout_data_cls(relayout_data, restyle_data):
             fig_obj_ids = [fig_id_dict['id']['index'] for fig_id_dict in dash.callback_context.inputs_list[0]]
 
