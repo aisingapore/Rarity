@@ -77,5 +77,6 @@ class GapAnalyzer:
                 return html.Div([html.H3('feature page {}'.format(pathname))], style={'padding-left': '30px'})
 
         MissPredictions(self.data_loader).callback()
+        LossClusters(self.data_loader).callbacks()
 
         app.run_server(debug=False, port=8000)
