@@ -8,16 +8,12 @@ import dash_bootstrap_components as dbc
 from tenjin.app import app
 from tenjin.interpreters.structured_data import IntMissPredictions
 from tenjin.visualizers import miss_predictions as viz_misspred
-
-
-INSTRUCTION_TEXT_SHARED = 'Click and drag on the graph to select the range of data points to inspect feature values.'
-INSTRUCTION_TEXT_REG = 'To reset back to default settings, hover over icons on the top right of the graph and click "Autoscale" icon.'
-WARNING_TEXT = 'To inspect new range of datapoints in different graph, please first reset the earlier selection by clicking "Autoscale" icon ' \
-                'at the top right corner of the graph.'
-
-DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d', 'border': '1px solid rgb(229, 211, 197)'}
-DEFAULT_TITLE_STYLE = {'visibility': 'visible'}
-DEFAULT_PLOT_NAME_STYLE = {'visibility': 'visible'}
+from tenjin.visualizers import shared_viz_component as viz_shared
+from tenjin.utils import style_configs
+from tenjin.utils.common_functions import (identify_active_trace, is_active_trace, is_reset, detected_legend_filtration, detected_unique_figure,
+                                        detected_more_than_1_unique_figure, detected_single_xaxis, detected_single_yaxis, 
+                                        get_min_max_index, get_min_max_offset, get_adjusted_xy_coordinate, 
+                                        conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice, insert_index_col)
 
 
 def fig_plot_prediction_offset_overview(data_loader):
@@ -50,7 +46,7 @@ def fig_probabilities_spread_pattern(data_loader):
 
 
 def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
-    tab_obj = viz_misspred.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
+    tab_obj = viz_shared.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
     return tab_obj
 
 
@@ -66,20 +62,20 @@ def convert_relayout_data_to_df_reg(relayout_data, df, models):
         pandas dataframe
         -- dataframe fit for the responsive table-graph filtering
     """
-    if _detected_single_xaxis(relayout_data):
+    if detected_single_xaxis(relayout_data):
         x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
         x_stop_idx = int(relayout_data['xaxis.range[1]']) if relayout_data['xaxis.range[1]'] <= len(df) - 1 else len(df) - 1
         df_filtered_x = df.iloc[df.index[x_start_idx]:df.index[x_stop_idx]]
 
-        y_start_idx, y_stop_idx = _get_min_max_offset(df_filtered_x, models)
-        df_final = _dataframe_prep_on_model_count_by_yaxis_slice(df_filtered_x, models, y_start_idx, y_stop_idx)
+        y_start_idx, y_stop_idx = get_min_max_offset(df_filtered_x, models)
+        df_final = dataframe_prep_on_model_count_by_yaxis_slice(df_filtered_x, models, y_start_idx, y_stop_idx)
 
-    elif _detected_single_yaxis(relayout_data):
+    elif detected_single_yaxis(relayout_data):
         y_start_idx = relayout_data['yaxis.range[0]']
         y_stop_idx = relayout_data['yaxis.range[1]']
-        df_filtered_y = _dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx)
+        df_filtered_y = dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx)
 
-        x_start_idx, x_stop_idx = _get_min_max_index(df_filtered_y, models, y_start_idx, y_stop_idx)
+        x_start_idx, x_stop_idx = get_min_max_index(df_filtered_y, models, y_start_idx, y_stop_idx)
         x_start_idx = x_start_idx if x_start_idx >= 0 else 0
         x_stop_idx = x_stop_idx if x_stop_idx <= len(df_filtered_y) - 1 else len(df_filtered_y) - 1
         df_final = df_filtered_y.iloc[df_filtered_y.index[x_start_idx]:df_filtered_y.index[x_stop_idx]]
@@ -91,7 +87,7 @@ def convert_relayout_data_to_df_reg(relayout_data, df, models):
         y_stop_idx = relayout_data['yaxis.range[1]']
 
         df_filtered = df.iloc[df.index[x_start_idx]:df.index[x_stop_idx]]
-        df_final = _dataframe_prep_on_model_count_by_yaxis_slice(df_filtered, models, y_start_idx, y_stop_idx)
+        df_final = dataframe_prep_on_model_count_by_yaxis_slice(df_filtered, models, y_start_idx, y_stop_idx)
     return df_final
 
 
@@ -109,190 +105,19 @@ def convert_relayout_data_to_df_cls(fig_class_label, relayout_data, df_feature, 
         -- dataframe fit for the responsive table-graph filtering
     """
     relayout_dict = relayout_data[1]  # active relayout_data selected by user
-    x_start_idx, x_stop_idx, y_start_idx, y_stop_idx = _get_adjusted_xy_coordinate(relayout_dict, df_feature)
+    x_start_idx, x_stop_idx, y_start_idx, y_stop_idx = get_adjusted_xy_coordinate(relayout_dict, df_feature)
 
     lower_spec_limit_x = (df_viz_specific['index'] >= x_start_idx)
     upper_spec_limit_x = (df_viz_specific['index'] <= x_stop_idx)
-    df_filtered = _conditional_sliced_df(df_viz_specific, lower_spec_limit_x, upper_spec_limit_x)
+    df_filtered = conditional_sliced_df(df_viz_specific, lower_spec_limit_x, upper_spec_limit_x)
 
     lower_spec_limit_y = (df_filtered[fig_class_label] >= y_start_idx)
     upper_spec_limit_y = (df_filtered[fig_class_label] <= y_stop_idx)
-    df_final_prob = _conditional_sliced_df(df_filtered, lower_spec_limit_y, upper_spec_limit_y)
+    df_final_prob = conditional_sliced_df(df_filtered, lower_spec_limit_y, upper_spec_limit_y)
 
     final_filtered_idx = list(df_final_prob.index)
     df_final_feature = df_feature[df_feature['index'].isin(final_filtered_idx)]
     return df_final_feature, df_final_prob
-
-
-def _insert_index_col(df):
-    df.insert(0, 'index', list(df.index))
-    return df
-
-
-def _valid_fig_key_ls(relayout_data):
-    valid_key_ls = []
-    for rd in relayout_data:
-        try:
-            if rd is None:
-                valid_key_ls.append(0)
-            elif 'xaxis.range[0]' in rd.keys() or 'yaxis.range[0]' in rd.keys():
-                valid_key_ls.append(1)
-        except KeyError:  # related to 'xaxis.range[0]'
-            valid_key_ls.append(0)
-    return valid_key_ls
-
-
-def _identify_active_trace(relayout_data):
-    '''
-    only 1 unique trace should be in relayout_data
-    this function is to retrieve the position info of the unique trace
-    '''
-    for idx, rdata in enumerate(relayout_data):
-        if rdata is not None:
-            if _is_active_trace(rdata):
-                specific_layout = idx, rdata
-        else:
-            continue
-    return specific_layout
-
-
-def _is_active_trace(relayout_data):
-    if 'xaxis.range[0]' in relayout_data.keys() or 'yaxis.range[0]' in relayout_data.keys():
-        return True
-    else:
-        return False
-
-
-def _is_reset(relayout_data):
-    if 'xaxis.autorange' in relayout_data.keys():
-        return True
-    else:
-        return False
-
-
-def _detected_single_xaxis(relayout_data):
-    if 'yaxis.range[0]' not in relayout_data.keys():
-        return True
-    else:
-        return False
-
-
-def _detected_single_yaxis(relayout_data):
-    if 'xaxis.range[0]' not in relayout_data.keys():
-        return True
-    else:
-        return False
-
-
-def _detected_complete_pair_xaxis_yaxis(relayout_data):
-    if 'xaxis.range[0]' in relayout_data.keys() and 'yaxis.range[0]' in relayout_data.keys():
-        return True
-    else:
-        return False
-
-
-def _detected_legend_filtration(restyle_data):
-    if restyle_data[0]['visible'] == ['legendonly']:
-        return True
-    elif restyle_data[0]['visible'] == [True]:
-        return False
-    else:
-        return False
-
-
-def _detected_unique_figure(relayout_data):
-    if sum(_valid_fig_key_ls(relayout_data)) == 1:
-        return True
-    else:
-        return False
-
-
-def _detected_more_than_1_unique_figure(relayout_data):
-    if sum(_valid_fig_key_ls(relayout_data)) > 1:
-        return True
-    else:
-        return False
-
-
-def _conditional_sliced_df(df, condition1, condition2):
-    df_sliced = df[condition1 & condition2]
-    return df_sliced
-
-
-def _get_min_max_offset(df, models):
-    min_offset = df[f'offset_{models[0]}'].min()
-    max_offset = df[f'offset_{models[0]}'].max()
-
-    if len(models) == 2:
-        min_offset_m2 = df[f'offset_{models[1]}'].min()
-        min_offset = min(min_offset, min_offset_m2)
-
-        max_offset_m2 = df[f'offset_{models[1]}'].max()
-        max_offset = max(max_offset, max_offset_m2)
-    return min_offset, max_offset
-
-
-def _get_min_max_index(df, models, y_start_idx, y_stop_idx):
-    condition_y_min = (df[f'offset_{models[0]}'] >= y_start_idx)
-    condition_y_max = (df[f'offset_{models[0]}'] <= y_stop_idx)
-    df_temp = _conditional_sliced_df(df, condition_y_min, condition_y_max)
-    min_index = min(list(df_temp.index))
-    max_index = max(list(df_temp.index))
-
-    if len(models) == 2:
-        condition_y_min_m2 = (df[f'offset_{models[1]}'] >= y_start_idx)
-        condition_y_max_m2 = (df[f'offset_{models[1]}'] <= y_stop_idx)
-        df_temp_m2 = _conditional_sliced_df(df, condition_y_min_m2, condition_y_max_m2)
-        min_index_m2 = min(list(df_temp_m2.index))
-        min_index = min(min_index, min_index_m2)
-
-        max_index_m2 = max(list(df_temp_m2.index))
-        max_index = max(max_index, max_index_m2)
-    return min_index, max_index
-
-
-def _get_adjusted_xy_coordinate(relayout_data, df):
-    if _detected_single_xaxis(relayout_data):
-        x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
-        x_stop_idx = int(relayout_data['xaxis.range[1]']) if relayout_data['xaxis.range[1]'] <= len(df) - 1 else len(df) - 1
-        y_start_idx = 0
-        y_stop_idx = 1
-
-    elif _detected_single_yaxis(relayout_data):
-        x_start_idx = 0
-        x_stop_idx = len(df) - 1
-        y_start_idx = relayout_data['yaxis.range[0]'] if relayout_data['yaxis.range[0]'] >= 0 else 0
-        y_stop_idx = relayout_data['yaxis.range[1]'] if relayout_data['yaxis.range[1]'] <= 1 else 1
-
-    elif _detected_complete_pair_xaxis_yaxis(relayout_data):
-        x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
-        x_stop_idx = int(relayout_data['xaxis.range[1]']) if relayout_data['xaxis.range[1]'] <= len(df) - 1 else len(df) - 1
-        y_start_idx = relayout_data['yaxis.range[0]'] if relayout_data['yaxis.range[0]'] > 0 else 0
-        y_stop_idx = relayout_data['yaxis.range[1]'] if relayout_data['yaxis.range[1]'] < 1 else 1
-    return x_start_idx, x_stop_idx, y_start_idx, y_stop_idx
-
-
-def _dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx):
-    offset_cols = [col for col in df.columns if 'offset_' in col]
-    condition_m1_1 = (df[offset_cols[0]] >= y_start_idx)
-    condition_m1_2 = (df[offset_cols[0]] <= y_stop_idx)
-
-    if len(models) == 2:
-        condition_m2_1 = (df[offset_cols[1]] >= y_start_idx)
-        condition_m2_2 = (df[offset_cols[1]] <= y_stop_idx)
-        df_final_m1 = _conditional_sliced_df(df, condition_m1_1, condition_m1_2)
-        df_final_m2 = _conditional_sliced_df(df, condition_m2_1, condition_m2_2)
-
-        final_filtered_idx = set(df_final_m1.index).union(set(df_final_m2.index))
-        df_final = df[df['index'].isin(list(final_filtered_idx))]
-    else:
-        if offset_cols[0].replace('offset_', '') == models[0]:
-            df_final = _conditional_sliced_df(df, condition_m1_1, condition_m1_2)
-        else:
-            condition_m2_1 = (df[offset_cols[1]] >= y_start_idx)
-            condition_m2_2 = (df[offset_cols[1]] <= y_stop_idx)
-            df_final = _conditional_sliced_df(df, condition_m2_1, condition_m2_2)
-    return df_final
 
 
 class MissPredictions:
@@ -310,13 +135,13 @@ class MissPredictions:
             compact_outputs = fig_probabilities_spread_pattern(self.data_loader)
             self.probs_pattern, self.label_state = compact_outputs[0], compact_outputs[1]
             self.dfs_viz, self.df_features, self.class_labels = compact_outputs[2], compact_outputs[3], compact_outputs[4]
-            self.df_features = _insert_index_col(self.df_features)
-            self.dfs_viz = [_insert_index_col(df) for df in self.dfs_viz]
+            self.df_features = insert_index_col(self.df_features)
+            self.dfs_viz = [insert_index_col(df) for df in self.dfs_viz]
 
     def show(self):
         if self.analysis_type == 'regression':
             miss_preds = dbc.Container([
-                                html.Div(html.H6(INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-reg'),
+                                html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-reg'),
                                 dbc.Row(dcc.Graph(id='fig-reg',
                                                 figure=self.preds_offset,),
                                                 justify='center',
@@ -330,7 +155,7 @@ class MissPredictions:
             fig_objs_model_1 = self.probs_pattern[0]
             tables_model_1 = self.label_state[0]
 
-            instruction_txt_shared = [html.Div(html.H6(INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-cls')]
+            instruction_txt_shared = [html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-cls')]
             dash_table_ls_shared = [html.Div(id='main-title-plot-name'),
                                     html.Div(id='alert-to-reset-cls'),
                                     html.Div(id='table-title-misspred-features'),
@@ -470,7 +295,7 @@ class MissPredictions:
                                     ])], className='border__common-misspred-cls-single-binary')
 
                 instruction_txt_cls_single_binary = [html.Div(
-                                                        html.H6(INSTRUCTION_TEXT_SHARED),
+                                                        html.H6(style_configs.INSTRUCTION_TEXT_SHARED),
                                                         className='h6__dash-table-instruction-cls-single-binary')]
 
                 compiled_fig_table_objs = instruction_txt_cls_single_binary + [dash_fig_ls] + dash_table_ls_shared
@@ -508,26 +333,27 @@ class MissPredictions:
                 except TypeError:
                     self.df
 
-                if _is_reset(relayout_data):
-                    DEFAULT_HEADER_STYLE['border'] = 'none'
-                    DEFAULT_HEADER_STYLE['visibility'] = 'collapse'
-                    table_obj_reg = table_with_relayout_datapoints('', self.cols_table_reg, DEFAULT_HEADER_STYLE, 'none')
-                    alert_obj_reg = dbc.Alert(color="light", style={'visibility': 'hidden'})
+                if is_reset(relayout_data):
+                    collapsed_header = style_configs.collapse_header_style()
 
-                elif _is_active_trace(relayout_data):
+                    table_obj_reg = table_with_relayout_datapoints('', self.cols_table_reg, collapsed_header, 'none')
+                    alert_obj_reg = style_configs.dummy_alert()
+
+                elif is_active_trace(relayout_data):
                     models = self.model_names
                     if restyle_data is not None:  # [{'visible': ['legendonly']}, [1]]
-                        if _detected_legend_filtration(restyle_data):
+                        if detected_legend_filtration(restyle_data):
                             model_to_exclude_from_view = self.model_names[restyle_data[1][0]]
                             models = [model for model in self.model_names if model != model_to_exclude_from_view]
 
                     df_final = convert_relayout_data_to_df_reg(relayout_data, self.df, models)
                     df_final.columns = self.cols_table_reg  # to have customized column names displayed on table
 
-                    DEFAULT_HEADER_STYLE['visibility'] = 'visible'
+                    # DEFAULT_HEADER_STYLE['visibility'] = 'visible'
+                    default_header = style_configs.default_header_style()
                     data_relayout_reg = df_final.to_dict('records')
-                    table_obj_reg = table_with_relayout_datapoints(data_relayout_reg, self.cols_table_reg, DEFAULT_HEADER_STYLE, 'csv')
-                    alert_obj_reg = dbc.Alert(INSTRUCTION_TEXT_REG, color="secondary", className='alert__note-reg')
+                    table_obj_reg = table_with_relayout_datapoints(data_relayout_reg, self.cols_table_reg, default_header, 'csv')
+                    alert_obj_reg = style_configs.activate_alert()
                 return alert_obj_reg, table_obj_reg
             else:
                 raise PreventUpdate
@@ -545,9 +371,11 @@ class MissPredictions:
         def display_relayout_data_cls(relayout_data, restyle_data):
             fig_obj_ids = [fig_id_dict['id']['index'] for fig_id_dict in dash.callback_context.inputs_list[0]]
 
-            title_main_plot_name = html.H5('', style=DEFAULT_PLOT_NAME_STYLE, className='title__main-plot-name-cls')
-            title_table_features = html.H6('Feature Values :', style=DEFAULT_TITLE_STYLE, className='title__table-misspred-cls')
-            title_table_probs = html.H6('Probabilities Overview :', style=DEFAULT_TITLE_STYLE, className='title__table-misspred-cls')
+            default_plot_name = style_configs.DEFAULT_PLOT_NAME_STYLE
+            default_title = style_configs.DEFAULT_TITLE_STYLE
+            title_main_plot_name = html.H5('', style=default_plot_name, className='title__main-plot-name-cls')
+            title_table_features = html.H6('Feature Values :', style=default_title, className='title__table-misspred-cls')
+            title_table_probs = html.H6('Probabilities Overview :', style=default_title, className='title__table-misspred-cls')
 
             if not all(item is None for item in relayout_data):
                 try:
@@ -561,23 +389,22 @@ class MissPredictions:
 
                 models_ref_dict = {model: i for i, model in enumerate(self.model_names)}
 
-                # default to invisible for reset / Autoscale scenario
-                DEFAULT_HEADER_STYLE['border'] = 'none'
-                DEFAULT_HEADER_STYLE['visibility'] = 'collapse'
-                DEFAULT_TITLE_STYLE['visibility'] = 'hidden'
-                DEFAULT_PLOT_NAME_STYLE['visibility'] = 'hidden'
+                collapsed_header = style_configs.collapse_header_style()
+                default_title = style_configs.hidden_title_style()
+                default_plot_name = style_configs.hidden_plot_name_style()
 
-                table_obj_cls_features = table_with_relayout_datapoints('', list(self.df_features.columns), DEFAULT_HEADER_STYLE, 'none')
-                table_obj_cls_probs = table_with_relayout_datapoints('', list(self.dfs_viz[0].columns), DEFAULT_HEADER_STYLE, 'none')
+                table_obj_cls_features = table_with_relayout_datapoints('', list(self.df_features.columns), collapsed_header, 'none')
+                table_obj_cls_probs = table_with_relayout_datapoints('', list(self.dfs_viz[0].columns), collapsed_header, 'none')
 
-                if _detected_unique_figure(relayout_data):  # unique fig trace (only one fig is used to generate info table)
-                    specific_relayout = _identify_active_trace(relayout_data)  # output as tuple (idx, relayout_data)
+                if detected_unique_figure(relayout_data):  # unique fig trace (only one fig is used to generate info table)
+                    specific_relayout = identify_active_trace(relayout_data)  # output as tuple (idx, relayout_data)
 
                     fig_id = fig_obj_ids[specific_relayout[0]]
                     fig_class_label = fig_id.split('-cls-')[-1].split('-labelcls-')[-1]
                     model_in_view = fig_id.split('-cls-')[-1].split('-labelcls-')[0]
                     title_main_plot_name = html.H5(f'Currently inspecting : class {fig_class_label} [ {model_in_view} ]',
-                                                    style=DEFAULT_PLOT_NAME_STYLE,
+                                                    # style=DEFAULT_PLOT_NAME_STYLE,
+                                                    style=default_plot_name,
                                                     className='title__main-plot-name-cls')
 
                     specific_df_viz_id = models_ref_dict[model_in_view]
@@ -586,7 +413,7 @@ class MissPredictions:
 
                     specific_restyle_data = restyle_data[specific_relayout[0]]
                     if specific_restyle_data is not None:
-                        if _detected_legend_filtration(specific_restyle_data):
+                        if detected_legend_filtration(specific_restyle_data):
                             if specific_restyle_data[1][0] == 1:
                                 data_field_to_exclude = 'miss-predict'
                             else:
@@ -604,26 +431,29 @@ class MissPredictions:
                     data_relayout_features = df_filtered_feature.to_dict('records')
 
                     # activate visibility to prepare rendering of data table upon completion of range selection and/or legend filtration
-                    DEFAULT_HEADER_STYLE['visibility'] = 'visible'
-                    DEFAULT_TITLE_STYLE['visibility'] = 'visible'
-                    DEFAULT_PLOT_NAME_STYLE['visibility'] = 'visible'
+                    default_header = style_configs.default_header_style()
+                    default_title['visibility'] = 'visible'
+                    default_plot_name['visibility'] = 'visible'
 
                     title_main_plot_name = html.H5(f'Currently inspecting : class {fig_class_label} [ {model_in_view} ]',
-                                                    style=DEFAULT_PLOT_NAME_STYLE,
+                                                    # style=DEFAULT_PLOT_NAME_STYLE,
+                                                    style=default_plot_name,
                                                     className='title__main-plot-name-cls')
                     table_obj_cls_features = table_with_relayout_datapoints(data_relayout_features,
                                                                             list(self.df_features.columns),
-                                                                            DEFAULT_HEADER_STYLE,
+                                                                            # DEFAULT_HEADER_STYLE,
+                                                                            default_header,
                                                                             'csv')
 
                     data_relayout_probs = df_filtered_viz.to_dict('records')
                     table_obj_cls_probs = table_with_relayout_datapoints(data_relayout_probs,
                                                                         list(df_filtered_viz.columns),
-                                                                        DEFAULT_HEADER_STYLE,
+                                                                        # DEFAULT_HEADER_STYLE,
+                                                                        default_header,
                                                                         'csv')
                     alert_obj_cls = dbc.Alert(color="light")
-                elif _detected_more_than_1_unique_figure(relayout_data):
-                    alert_obj_cls = dbc.Alert(WARNING_TEXT, color="danger", style={'text-align': 'center'})
+                elif detected_more_than_1_unique_figure(relayout_data):
+                    alert_obj_cls = dbc.Alert(style_configs.WARNING_TEXT, color="danger", style={'text-align': 'center'})
                 else:  # user reset data range
                     alert_obj_cls = dbc.Alert(color="light")
 

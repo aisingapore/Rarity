@@ -13,7 +13,7 @@ def identify_active_trace(relayout_data):
 
 
 def is_active_trace(relayout_data):
-    if 'xaxis.range[0]' in relayout_data.keys() or 'yaxis.range[0]' in relayout_data.keys():
+    if ('xaxis.range[0]' in relayout_data.keys() or 'yaxis.range[0]' in relayout_data.keys()) and 'xaxis.autorange' not in relayout_data.keys():
         return True
     else:
         return False
@@ -198,7 +198,7 @@ def _valid_fig_key_ls(relayout_data):
         try:
             if rd is None:
                 valid_key_ls.append(0)
-            elif 'xaxis.range[0]' in rd.keys() or 'yaxis.range[0]' in rd.keys():
+            elif ('xaxis.range[0]' in rd.keys() or 'yaxis.range[0]' in rd.keys()) and 'xaxis.autorange' not in rd.keys():
                 valid_key_ls.append(1)
         except KeyError:  # related to 'xaxis.range[0]'
             valid_key_ls.append(0)
