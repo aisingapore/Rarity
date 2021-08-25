@@ -104,6 +104,58 @@
     border-radius: 15px;
 }
 
+.border__common-left {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 12px 20px 25px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__common-right {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 25px 20px 12px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__common-gen-metrics-reg-left {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 12px 20px 25px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__common-gen-metrics-reg-right {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 0px 25px 20px 12px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
 .border__common-misspred-reg {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
@@ -133,7 +185,7 @@
 .border__common-cluster-plot-reg {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 25px 25px 0px 30px;
+    margin: 25px 11% 0px 10%;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -146,7 +198,7 @@
 .border__common-cluster-plot-cls {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 30px 25px 0px 30px;
+    margin: 35px 11% 0px 10%;
     padding: 10px;
     background: rgb(255, 255, 255);
     border-width: 1px;
@@ -159,8 +211,60 @@
 .border__optimum-cluster {
     box-sizing: border-box;
     box-shadow: rgb(229, 211, 197) 0px 1px 3px;
-    margin: 2px 25px 30px 30px;
+    margin: 5px 11% 30px 10%;
     padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__specific-feat-dist {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 5px 15% 30px 16%;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__kl-div-figs {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 2px 15% 30px 16%;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__kl-div-figs-both-left {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 2px 0px 30px 12px;
+    padding: 10px;
+    background: rgb(255, 255, 255);
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(229, 211, 197);
+    border-image: initial;
+    border-radius: 15px;
+}
+
+.border__kl-div-figs-both-right {
+    box-sizing: border-box;
+    box-shadow: rgb(229, 211, 197) 0px 1px 3px;
+    margin: 2px 12px 30px 0px;
+    padding: 10px 10px 10px 35px;
     background: rgb(255, 255, 255);
     border-width: 1px;
     border-style: solid;
@@ -173,7 +277,7 @@
     box-sizing: border-box;
     margin: 2px 25px 30px 30px;
     padding: 10px 10px 20px 10px;
-    background: rgb(236, 197, 197);
+    background: rgb(240, 218, 218);
     border-width: 1px;
     border-style: solid;
     border-color: rgb(236, 197, 197);
@@ -208,6 +312,28 @@
     padding-left: 25px;
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-left: 10%;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.h6__dash-table-instruction-misspred-cls {
+    padding-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #687e94;
+    font-style: italic;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.h6__dash-table-instruction-cluster-reg {
+    padding-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left:9%;
     color: #687e94;
     font-style: italic;
     display: inline-block;
@@ -223,8 +349,26 @@
     font-weight: 500;
 }
 
-.h6__cluster-instruction {
+.h6__cluster-instruction, .h6__feature-to-exclude {
     padding-left: 15px;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 5px;
+    color: rgb(124, 109, 109);
+    font-style: italic;
+    display: inline-block;
+}
+
+.h6__display-top-bottom-n {
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 5px;
+    color: rgb(124, 109, 109);
+    font-style: italic;
+    display: inline-block;
+}
+
+.h6__enter-data-range {
     margin-top: 5px;
     margin-left: 2px;
     margin-bottom: 5px;
@@ -249,12 +393,23 @@
     margin-top: 5px;
     margin-left: 28px;
     margin-bottom: -18px;
-    /* margin-bottom: -2.5rem; */
     color: floralwhite;
     font-weight: 400;
     background-color: #a80202;
     border: #a80202;
     display: inline-block;
+}
+
+.h4__title-kl-div-rank-num-top {
+    font-weight: bold;
+    color:#a80202;
+    text-align: center;
+}
+
+.h4__title-kl-div-rank-num-bottom {
+    font-weight: bold;
+    color:#538536;
+    text-align: center;
 }
 
 .params__select-cluster {
@@ -308,7 +463,8 @@ table .cell-table {
     color: #687e94;
     font-style: italic;
     margin-bottom: 0.5rem;
-    margin-right: 1.5rem;
+    /* margin-right: 1.5rem; */
+    margin-right: 11%;
     font-weight: 500;
     line-height: 1.2;
     font-size: 0.8rem;
@@ -321,7 +477,8 @@ table .cell-table {
     right: 20px;
     color: #687e94;
     font-style: italic;
-    margin-right: 1.5rem;
+    /* margin-right: 1.5rem; */
+    margin-right: 11%;
     margin-bottom: -2.5rem;
     font-weight: 500;
     line-height: 1.2;
@@ -377,4 +534,67 @@ table .cell-table {
     background-color: #ccc1ba;
     outline: none;
     border: 2px solid lightgrey;
+}
+
+.rc-slider {
+    margin-left: -18px;
+
+}
+
+.rc-slider-track {
+    background-color: #a80202;
+}
+
+.rc-slider-handle {
+    border: solid 2px #a80202;
+}
+
+.rc-slider-handle:hover {
+    border-color: #a80202;
+  }
+
+.rc-slider-dot-active {
+    border-color: #a80202;
+}
+
+.rc-slider-dot-active {
+    border-color: #a80202;
+    border: solid 2px #a80202;
+  }
+
+.rc-slider-handle-active:active, .rc-slider-handle-active:focus {
+    border-color: #a80202;
+  }
+
+  input[type='radio'] {
+    -webkit-appearance:none;
+    width:20px;
+    height:20px;
+    border:1px solid darkgray;
+    border-radius:50%;
+    outline:none;
+}
+input[type='radio']:hover {
+    border:1px solid #a80202;
+}
+input[type='radio']:before {
+    content:'';
+    display:block;
+    width:60%;
+    height:60%;
+    margin: 20% auto;
+    border-radius:50%;
+}
+input[type='radio']:checked::before {
+    background: #a80202;
+    border:1px solid #a80202;
+}
+
+div.Select-value {
+    color: #aa5a5a;
+}
+
+.dropdown__feat-to-exclude {
+    margin-left: 2px;
+    width: max-content;
 }
