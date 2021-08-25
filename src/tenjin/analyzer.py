@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
-from tenjin.features import GeneralMetrics, MissPredictions, LossClusters
+from tenjin.features import GeneralMetrics, MissPredictions, LossClusters, FeatureDistribution
 from tenjin.app import app
 
 
@@ -73,6 +73,8 @@ class GapAnalyzer:
                 return MissPredictions(self.data_loader).show()
             elif pathname == 'loss-clust':
                 return LossClusters(self.data_loader).show()
+            elif pathname == 'xfeat-dist':
+                return FeatureDistribution(self.data_loader).show()
             else:
                 return html.Div([html.H3('feature page {}'.format(pathname))], style={'padding-left': '30px'})
 
