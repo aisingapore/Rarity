@@ -6,7 +6,7 @@ from tenjin.interpreters.common import calculate_kl_div, get_optimum_bin_size
 from tenjin.utils.common_functions import insert_index_col
 
 
-class IntFeatureDist(BaseInterpreters):
+class IntFeatureDistribution(BaseInterpreters):
     def __init__(self, data_loader):
         super().__init__(data_loader)
         self.df_features = insert_index_col(self.data_loader.get_features())
