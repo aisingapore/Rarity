@@ -48,7 +48,7 @@ def _plot_common_clusters(df, models, analysis_type):
     fig.update_layout(
         title_x=0.5,
         xaxis_title='Cluster',
-        width=1250,
+        width=1000,
         height=550,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         violingap=0.2, violingroupgap=0.3, violinmode='overlay')
