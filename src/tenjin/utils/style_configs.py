@@ -6,10 +6,12 @@ INSTRUCTION_TEXT_REG = 'To reset back to default settings, hover over icons on t
 WARNING_TEXT = 'To inspect new range of datapoints in different graph, please first reset the earlier selection by clicking "Autoscale" icon ' \
                 'at the top right corner of the graph.'
 
-
 DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d', 'border': '1px solid rgb(229, 211, 197)'}
 DEFAULT_TITLE_STYLE = {'visibility': 'visible'}
 DEFAULT_PLOT_NAME_STYLE = {'visibility': 'visible'}
+
+DEFAULT_RANGE_SELECTION_TEXT_REG = "Enter range of data to compare distribution ( default slicing - last 20% of dataset) :"
+DEFAULT_RANGE_SELECTION_TEXT_CLS = "Enter range of data to compare distribution ( default slicing - full range ):"
 
 
 def default_header_style():
