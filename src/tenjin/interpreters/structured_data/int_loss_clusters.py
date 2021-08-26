@@ -7,7 +7,12 @@ class IntLossClusterer(BaseInterpreters):
     def __init__(self, data_loader):
         super().__init__(data_loader)
 
-    def xform(self, num_cluster, log_func, specific_label):
+    def extract_misspredictions(self):
+        ls_dfs_prob, _ = super().get_df_with_probability_values()
+        ls_dfs_prob_misspred = [df.loc[lambda x: x['pred_state'] == 'miss-predict', :] for df in ls_dfs_prob]
+        return ls_dfs_prob_misspred
+
+    def xform(self, num_cluster, log_func, specific_dataset):
         if self.analysis_type == 'regression':
             df = super().get_df_with_offset_values()
             df.insert(0, 'index', df.index)  # for ease of user to trace the datapoint in raw dataframe
@@ -25,9 +30,9 @@ class IntLossClusterer(BaseInterpreters):
                 df[f'cluster_{self.models[1]}'] = cluster_groups_m2
 
                 cluster_range_m2, sum_squared_distance_m2 = find_optimum_num_clusters(df[f'offset_{self.models[1]}'], num_cluster)
-                ls_score = [cluster_score_m1, cluster_score_m2]
-                ls_cluster_range = [cluster_range_m1, cluster_range_m2]
-                ls_ssd = [sum_squared_distance_m1, sum_squared_distance_m2]
+                ls_score.append(cluster_score_m2)
+                ls_cluster_range.append(cluster_range_m2)
+                ls_ssd.append(sum_squared_distance_m2)
 
             return df, ls_score, self.analysis_type, ls_cluster_range, ls_ssd
 
@@ -50,12 +55,13 @@ class IntLossClusterer(BaseInterpreters):
             ls_dfs_viz = []
             ls_cluster_range = []
             ls_ssd = []
+
             for df in ls_dfs_prob_misspred:
                 df['eff_prob_for_loss_cal'] = [df[df['yTrue'].astype('str').values[i]].values[i] for i in range(len(df))]
 
-                if specific_label != 'All':
+                if specific_dataset != 'All':
                     try:
-                        df_viz = df.loc[lambda x: x['yTue'].astype('str') == specific_label, :]
+                        df_viz = df.loc[lambda x: x['yTrue'].astype('str') == specific_dataset, :]
                     except ValueError:
                         pass  # # **** need to check error at this point
                 else:
