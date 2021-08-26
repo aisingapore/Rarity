@@ -66,6 +66,61 @@ class IntFeatureDistribution(BaseInterpreters):
         probs_df_sliced = df_kl_div['df_sliced_counts_pct']
         return probs_df_ref, probs_df_sliced
 
+    def _get_df_feature_with_pred_state_cls(self, df_overall):
+        '''
+        For classification task
+        '''
+        ls_dfs_viz, _ = super().get_df_with_probability_values()
+
+        ls_dfs_viz_featdist = []
+        for df_viz in ls_dfs_viz:
+            df_viz = insert_index_col(df_viz)
+            df_predstate = df_viz[['index', 'yTrue', 'yPred-label', 'pred_state', 'model']]
+            df_viz_interim = df_overall.merge(df_predstate, how='left', on='index')
+            ls_dfs_viz_featdist.append(df_viz_interim)
+        return ls_dfs_viz_featdist
+
+    def _get_probabilities_by_feature(self, df_viz, specific_feature):
+        '''
+        For classification task
+        '''
+        df_pivot = pd.pivot_table(
+            df_viz[[specific_feature, 'pred_state', 'model']],
+            index=specific_feature,
+            values='model',
+            columns='pred_state',
+            aggfunc='count',
+            fill_value=1e-15)  # to avoid inf due to zero division for those NA or zero
+
+        # set up new columns to get the percentage of each subvalue of x_colName
+        df_pivot['correct'] = df_pivot['correct'].replace(0, 1e-15)  # to avoid division by zero
+        df_pivot['miss-predict'] = df_pivot['miss-predict'].replace(0, 1e-15)  # to avoid division by zero
+        df_pivot['correct_pct'] = [v / sum(df_pivot['correct']) for v in df_pivot['correct']]
+        df_pivot['misspredict_pct'] = [v / sum(df_pivot['miss-predict']) for v in df_pivot['miss-predict']]
+
+        probs_correct = df_pivot['correct_pct']
+        probs_misspred = df_pivot['misspredict_pct']
+        return probs_correct, probs_misspred
+
+    def _generate_kl_div_info_base(self, df, feature_to_exclude):
+        kl_div_dict = {}
+        for feat in self.features:
+            if feat not in feature_to_exclude:
+                if self.analysis_type == 'regression':
+                    df_viz_specific_feat, optimum_bin_size = self._get_single_feature_df_with_binning(df, feat)
+                    probs_df_ref, probs_df_sliced = self._get_probabilities_by_bin_group(df_viz_specific_feat, optimum_bin_size)
+                    kl_div = calculate_kl_div(probs_df_ref, probs_df_sliced)
+                    kl_div_dict[feat] = [kl_div, df_viz_specific_feat]
+
+                elif 'classification' in self.analysis_type:
+                    df_viz_specific_feat = df[[feat, 'pred_state', 'model']]
+                    probs_correct, probs_misspred = self._get_probabilities_by_feature(df, feat)
+                    kl_div = calculate_kl_div(probs_correct, probs_misspred)
+                    kl_div_dict[feat] = [kl_div, df_viz_specific_feat]
+
+        kl_div_dict_sorted = dict(sorted(kl_div_dict.items(), key=lambda x: x[1][0], reverse=True))
+        return kl_div_dict_sorted
+
     def xform(self, feature_to_exclude=None, start_idx=None, stop_idx=None):
         if isinstance(feature_to_exclude, list):
             feature_to_exclude = feature_to_exclude
@@ -82,16 +137,16 @@ class IntFeatureDistribution(BaseInterpreters):
         df_overall['dataset_type'] = ['df_sliced' if idx in idx_sliced_df else 'df_reference' for idx in df_overall.index]
 
         if self.analysis_type == 'regression':
-            kl_div_dict = {}
-            for feat in self.features:
-                if feat not in feature_to_exclude:
-                    df_viz_specific_feat, optimum_bin_size = self._get_single_feature_df_with_binning(df_overall, feat)
-                    probs_df_ref, probs_df_sliced = self._get_probabilities_by_bin_group(df_viz_specific_feat, optimum_bin_size)
-
-                    kl_div = calculate_kl_div(probs_df_ref, probs_df_sliced)
-                    kl_div_dict[feat] = [kl_div, df_viz_specific_feat]
-
-            kl_div_dict_sorted = dict(sorted(kl_div_dict.items(), key=lambda x: x[1][0], reverse=True))
+            kl_div_dict_sorted = self._generate_kl_div_info_base(df_overall, feature_to_exclude)
             kl_div_dict_sorted.pop('index')
+            return kl_div_dict_sorted
 
-        return kl_div_dict_sorted
+        elif 'classification' in self.analysis_type:
+            ls_dfs_viz_featdist = self._get_df_feature_with_pred_state_cls(df_overall)
+
+            ls_kl_div_dict_sorted = []
+            for df_viz in ls_dfs_viz_featdist:
+                kl_div_dict_sorted = self._generate_kl_div_info_base(df_viz, feature_to_exclude)
+                kl_div_dict_sorted.pop('index')
+                ls_kl_div_dict_sorted.append(kl_div_dict_sorted)
+        return ls_kl_div_dict_sorted
