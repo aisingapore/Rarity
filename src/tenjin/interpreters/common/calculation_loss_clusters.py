@@ -9,9 +9,10 @@ def create_clusters(loss_list, num_cluster):
     cluster creation for single model
     """
     loss_array = np.array(loss_list).reshape(-1, 1)
+
     kmean = KMeans(n_clusters=num_cluster, random_state=42).fit(loss_array)
 
-    # this lookup index is to ensure the same clustering results (cluster groups) even though Kmean randomized the initalization at diff centroid
+    # this lookup index is to ensure the same clustering results (cluster groups) even if Kmean randomized the initalization at diff centroid
     # reference: https://stackoverflow.com/questions/44888415/how-to-set-k-means-clustering-labels-from-highest-to-lowest-with-python
     idx = np.argsort(kmean.cluster_centers_.sum(axis=1))
     lookup = np.zeros_like(idx)

@@ -244,6 +244,19 @@
     border: #a80202;
 }
 
+.h5__cluster-section-title-kmean {
+    padding: 5px 10px;
+    margin-top: 5px;
+    margin-left: 28px;
+    margin-bottom: -18px;
+    /* margin-bottom: -2.5rem; */
+    color: floralwhite;
+    font-weight: 400;
+    background-color: #a80202;
+    border: #a80202;
+    display: inline-block;
+}
+
 .params__select-cluster {
     margin-left: 15px;
 }
@@ -313,10 +326,10 @@ table .cell-table {
     font-weight: 500;
     line-height: 1.2;
     font-size: 0.8rem;
+    display: inline-block;
 }
 
-.loading__loss-cluster-reg {
-    /* color: #a80202; */
+.loading__loss-cluster {
     margin-bottom: -40px;
     display: inline-block;
 }

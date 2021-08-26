@@ -138,6 +138,12 @@ def get_effective_xaxis_cluster(relayout_data):
     return x_cluster
 
 
+def get_adjusted_dfs_based_on_legend_filtration(dfs, models):
+    if models[0] != dfs[0]['model'].values[0]:
+        dfs[0] = dfs[1]
+    return dfs
+
+
 def get_adjusted_xy_coordinate(relayout_data, df):
     if detected_single_xaxis(relayout_data):
         x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
@@ -160,6 +166,9 @@ def get_adjusted_xy_coordinate(relayout_data, df):
 
 
 def dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx):
+    '''
+    For regression task
+    '''
     offset_cols = [col for col in df.columns if 'offset_' in col]
     condition_m1_1 = (df[offset_cols[0]] >= y_start_idx)
     condition_m1_2 = (df[offset_cols[0]] <= y_stop_idx)
@@ -180,6 +189,15 @@ def dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop
             condition_m2_2 = (df[offset_cols[1]] <= y_stop_idx)
             df_final = conditional_sliced_df(df, condition_m2_1, condition_m2_2)
     return df_final
+
+
+def new_dataframe_prep_based_on_effective_index(df, df_ref):
+    '''
+    For classification - loss cluster
+    '''
+    effective_index = list(df_ref['index'].unique())
+    df_new = df[df['index'].isin(effective_index)]
+    return df_new
 
 
 def conditional_sliced_df(df, condition1, condition2):
