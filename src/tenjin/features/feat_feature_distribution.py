@@ -138,7 +138,6 @@ def _fig_objs_layout_based_on_specific_feature(specific_feature, fig_objs_specif
 def _model_pair_fig_objs_layout_on_specific_feature(specific_feature, ls_fig_objs_specific):
     fig_objs_specific_feature_combined = []
     if len(specific_feature) > 0:
-        # for i, fig_objs_specific in enumerate(ls_fig_objs_specific):
         for i, (specific_fig_m1, specific_fig_m2) in enumerate(zip(ls_fig_objs_specific[0], ls_fig_objs_specific[1])):
             single_displot_specific_model_pair = [dbc.Row([
                                                         dbc.Col(dbc.Row([
@@ -191,7 +190,7 @@ class FeatureDistribution:
         if self.analysis_type == 'regression' or (('classification' in self.analysis_type) and not detected_bimodal(self.model_names)):
             if isinstance(self.fig_obj_dict, list):
                 self.fig_obj_dict = self.fig_obj_dict[0]
-            if isinstance(self.fig_objs_specific, list):
+            if 'classification' in self.analysis_type:
                 self.fig_objs_specific = self.fig_objs_specific[0]
 
             self.fig_objs_display_combined = _fig_objs_layout_based_on_display_option(self.fig_obj_dict, self.display_option)
