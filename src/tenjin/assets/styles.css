@@ -375,6 +375,9 @@
     color: rgb(124, 109, 109);
     font-style: italic;
     display: inline-block;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: inherit;
 }
 
 .h5__cluster-section-title {
@@ -502,8 +505,33 @@ table .cell-table {
     display: inline-block;
 }
 
+.text__range-header-kldiv-featfist {
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-style: italic;
+    font-weight: 500;
+    color: rgb(124, 109, 109);
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
 .loading__loss-cluster {
     margin-bottom: -40px;
+    display: inline-block;
+}
+
+.loading__kldiv-featdist {
+    margin-bottom: 15px;
+    /* margin-right: -280px; */
+    margin-left: 70%;
+    padding-right: 0px;
+    display: inline-block;
+}
+
+.loading__specific-feat-featdist {
+    margin-top: 120%;
+    margin-left: 70%;
+    padding-right: 0px;
     display: inline-block;
 }
     
@@ -613,4 +641,11 @@ div.Select-value {
 .dropdown__feat-to-exclude {
     margin-left: 2px;
     width: max-content;
+}
+
+.html_Pre__alert-message {
+    color: #856404;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 400;
 }
