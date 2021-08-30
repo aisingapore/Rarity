@@ -1,11 +1,16 @@
+import dash
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+from tenjin.app import app
 from tenjin.interpreters.structured_data import IntFeatureDistribution
 from tenjin.visualizers.xfeature_distribution import plot_distribution_by_specific_feature, plot_distribution_by_kl_div_ranking
 from tenjin.utils import style_configs
-from tenjin.utils.common_functions import detected_bimodal
+from tenjin.utils.common_functions import detected_bimodal, invalid_slicing_range, invalid_slicing_range_sequence, \
+                                            invalid_min_max_limit, incomplete_range_entry
 
 
 def fig_plot_distribution_by_kl_div_ranking(data_loader, feature_to_exclude, start_idx, stop_idx, display_option, display_value):
@@ -153,6 +158,66 @@ def _model_pair_fig_objs_layout_on_specific_feature(specific_feature, ls_fig_obj
     return fig_objs_specific_feature_combined
 
 
+def _second_level_validity_check_on_user_input_range(range_list, df):
+    range_input_err_alert = ''
+    if incomplete_range_entry(range_list):
+        range_input_err_alert = style_configs.activate_incomplete_range_entry_alert()
+    elif invalid_slicing_range_sequence(range_list):
+        range_input_err_alert = style_configs.activate_range_input_error_alert()
+    elif invalid_min_max_limit(range_list, df):
+        range_input_err_alert = style_configs.activate_invalid_limit_alert(df)
+    return range_input_err_alert
+
+
+def _get_max_value_on_slider(df_features):
+    max_value = len(list(df_features.columns))
+    if len(list(df_features.columns)) > 10:
+        max_value = 10
+    return max_value
+
+
+def _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input, df_features, default_start_idx, default_stop_idx):
+    if slicing_input is not None:
+        if invalid_slicing_range(slicing_input):
+            range_input_err_alert = style_configs.activate_range_input_error_alert()
+            return '', range_input_err_alert, dash.no_update
+
+        else:
+            range_list = slicing_input.split(':')
+            if '%' in slicing_input:
+                if not all('%' in idx for idx in range_list):
+                    range_input_err_alert = style_configs.activate_range_input_error_alert()
+                    return '', range_input_err_alert, dash.no_update
+
+                else:
+                    range_input_err_obj = _second_level_validity_check_on_user_input_range(range_list, df_features)
+                    if range_input_err_obj != '':
+                        return '', range_input_err_obj, dash.no_update
+
+                    start_pct = int(range_list[0].replace('%', '')) / 100
+                    start_idx = int(len(df_features) * start_pct)
+                    stop_pct = int(range_list[1].replace('%', '')) / 100
+                    stop_idx = int(len(df_features) * stop_pct)
+                    return start_idx, stop_idx
+            else:
+                if range_list == ['']:
+                    start_idx = default_start_idx
+                    stop_idx = default_stop_idx
+                    return start_idx, stop_idx
+                else:
+                    range_input_err_obj = _second_level_validity_check_on_user_input_range(range_list, df_features)
+                    if range_input_err_obj != '':
+                        return '', range_input_err_obj, dash.no_update
+
+                    start_idx, stop_idx = int(range_list[0]), int(range_list[1])
+                    return start_idx, stop_idx
+
+    elif slicing_input is None or slicing_input == '':
+        start_idx = default_start_idx
+        stop_idx = default_stop_idx
+        return start_idx, stop_idx
+
+
 class FeatureDistribution:
     def __init__(self, data_loader):
         self.data_loader = data_loader
@@ -161,8 +226,8 @@ class FeatureDistribution:
         self.is_bimodal = True if len(self.model_names) > 1 else False
         self.feature_to_exclude = None
         self.df_features = data_loader.get_features()
-        self.specific_feature = [self.df_features.columns[0]]
-        self.display_option = 'both'
+        self.specific_feature = []
+        self.display_option = 'top'
         self.display_value = 3
         if self.analysis_type == 'regression':
             self.start_idx = int(len(self.df_features) * 0.8)
@@ -210,7 +275,7 @@ class FeatureDistribution:
                     # params selection section: feature_to_exclude, select topN/BottomN/Both, define slicing range
                     html.Div([
                         dbc.Row(html.Div(html.H6('Select feature to exclude ( if applicable ) :'), className='h6__feature-to-exclude')),
-                        dbc.Col(dcc.Dropdown(id='select-feature-to-exclude-reg',
+                        dbc.Col(dcc.Dropdown(id='select-feature-to-exclude-featdist',
                                             options=options_feature_ls_reg,
                                         value=[], multi=True)),
                         html.Br(),
@@ -225,31 +290,42 @@ class FeatureDistribution:
                                                     {'label': 'Top N only', 'value': 'top'},
                                                     {'label': 'Bottom N only', 'value': 'bottom'},
                                                     {'label': 'Top N and Bottom N', 'value': 'both'}],
-                                                value='both',
-                                                id="select-radioitems-dist-top-or-bottom",
+                                                value='top',
+                                                id="select-radioitems-kldiv-top-or-bottom",
                                                 inline=True, inputClassName='radiobutton__select-top-bottom-n', custom=False)])),
-                                dcc.Slider(id='select-slider-top-n-reg', min=1, max=10, step=1, value=3,
+                                dcc.Slider(id='select-slider-top-bottom-range-featdist',
+                                            min=1,
+                                            max=_get_max_value_on_slider(self.df_features),  # max at 10
+                                            step=1,
+                                            value=3,
                                             marks=slider_range_topN_bottomN)], width=6),
                             dbc.Col([
                                 dbc.Row(html.Div(html.H6(self.range_selection_header), className='h6__enter-data-range')),
-                                dbc.Row(dbc.Input(id="input-range-to-slice-reg", placeholder="start_index:stop_index", type="text"))],
+                                dbc.Row(dbc.Input(id='input-range-to-slice-kldiv-featdist',
+                                                    placeholder='start_index:stop_index',
+                                                    type='text',
+                                                    value=None)),
+                                dbc.Row(html.Div(html.Pre(style_configs.input_range_subnote(self.df_features),
+                                                            className='text__range-header-kldiv-featfist')))],
                                 width=6)]),
 
                         html.Br(),
                         dbc.Row([
+                            dbc.Col(width=10),
                             dbc.Col(dbc.Row(
-                                        dcc.Loading(id='loading-output-misspred-dataset-cls',
+                                        dcc.Loading(id='loading-output-kldiv-featdist',
                                                     type='circle', color='#a80202'),
-                                    justify='left', className='loading__loss-cluster'), width=1),
+                                    justify='right', className='loading__kldiv-featdist'), width=1),
                             dbc.Col(dbc.Row(
                                         dbc.Button("Update",
-                                                    id='button-misspred-dataset-update-cls',
+                                                    id='button-featdist-kldiv-update',
                                                     n_clicks=0,
                                                     className='button__update-dataset'),
                                     justify='right'))]),
                     ], className='border__select-dataset'),
 
-                    html.Div(self.fig_objs_display_combined),
+                    html.Div(id='alert-range-input-error-kldiv-featdist'),
+                    html.Div(self.fig_objs_display_combined, id='fig-objs-kl-div-by-ranking'),
                     dbc.Row(html.H5('Distribution of Specific Feature of Interest',
                                     id='title-specific-feat-dist-reg',
                                     className='h5__cluster-section-title')),
@@ -258,26 +334,107 @@ class FeatureDistribution:
                     html.Div([
                         dbc.Row(html.Div(html.H6('Select specific feature of interest to inspect'),
                                         className='h6__cluster-instruction')),
-                        dbc.Col(dcc.Dropdown(id='select-specific-feature-to-inspect-reg',
+                        dbc.Col(dcc.Dropdown(id='select-specific-feature-featdist',
                                             options=options_feature_ls_reg,
-                                            value=[options_feature_ls_reg[0]], multi=True)),
+                                            value=[], multi=True)),
                         html.Br(),
                         dbc.Row([
                             dbc.Col([
                                 dbc.Row(html.Div(html.H6(self.range_selection_header), className='h6__enter-data-range')),
-                                dbc.Row(dbc.Input(id="input-range-to-slice-reg", placeholder="start_index:stop_index", type="text"))],
+                                dbc.Row(dbc.Input(id='input-range-to-slice-specific-feat-featdist',
+                                                placeholder='start_index:stop_index',
+                                                    type='text')),
+                                dbc.Row(html.Div(html.Pre(style_configs.input_range_subnote(self.df_features),
+                                                            className='text__range-header-kldiv-featfist')))],
                                 width=6),
+                            dbc.Col(width=4),
                             dbc.Col(dbc.Row(
-                                        dcc.Loading(id='loading-output-misspred-dataset-cls',
+                                        dcc.Loading(id='loading-output-specific-feat-featdist',
                                                     type='circle', color='#a80202'),
-                                    justify='left', className='loading__loss-cluster'), width=1),
+                                    justify='left', className='loading__specific-feat-featdist'), width=1),
                             dbc.Col(dbc.Row(
-                                            dbc.Button("Update",
-                                                        id='button-misspred-dataset-update-cls',
-                                                        n_clicks=0,
-                                                        className='button__update-dataset'), justify='right'))
+                                        dbc.Button("Update",
+                                                    id='button-featdist-specific-feat-update',
+                                                    n_clicks=0,
+                                                    className='button__update-dataset'), justify='right'), )
                         ])
                     ], className='border__select-dataset'),
-                    html.Div(self.fig_objs_specific_feature_combined),
+                    html.Div(id='alert-range-input-error-spedific-feat-featdist'),
+                    html.Div(self.fig_objs_specific_feature_combined, id='fig-objs-kl-div-specific-feat'),
                     html.Br()], fluid=True)
         return distplot
+
+    def callbacks(self):
+        # callback on params related to top-n, botton-n / both
+        @app.callback(
+            Output('loading-output-kldiv-featdist', 'children'),
+            Output('alert-range-input-error-kldiv-featdist', 'children'),
+            Output('fig-objs-kl-div-by-ranking', 'children'),
+            Input('button-featdist-kldiv-update', 'n_clicks'),
+            State('select-feature-to-exclude-featdist', 'value'),
+            State('select-radioitems-kldiv-top-or-bottom', 'value'),
+            State('select-slider-top-bottom-range-featdist', 'value'),
+            State('input-range-to-slice-kldiv-featdist', 'value'))
+        def update_fig_based_on_topbtm_exclusion_idx_range_params(click_count, feature_to_exclude, display_option, display_value, slicing_input):
+            if click_count > 0:
+                range_input_err_alert = style_configs.no_error_alert()
+                compact_outputs_kldiv = _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input,
+                                                                                                self.df_features,
+                                                                                                self.start_idx,
+                                                                                                self.stop_idx)
+                if len(compact_outputs_kldiv) == 2:
+                    start_idx, stop_idx = compact_outputs_kldiv[0], compact_outputs_kldiv[1]
+
+                    fig_obj_dict = fig_plot_distribution_by_kl_div_ranking(self.data_loader,
+                                                                            feature_to_exclude,
+                                                                            start_idx,
+                                                                            stop_idx,
+                                                                            display_option,
+                                                                            display_value)
+                    if self.analysis_type == 'regression' or \
+                            (('classification' in self.analysis_type) and not detected_bimodal(self.model_names)):
+                        if isinstance(fig_obj_dict, list):
+                            fig_obj_dict = fig_obj_dict[0]
+                        fig_objs_display_combined = _fig_objs_layout_based_on_display_option(fig_obj_dict, display_option)
+
+                    elif ('classification' in self.analysis_type) and detected_bimodal(self.model_names):
+                        fig_objs_display_combined = _model_pair_fig_objs_layout_on_display_option(fig_obj_dict, display_option)
+                    return '', range_input_err_alert, fig_objs_display_combined
+                else:
+                    return compact_outputs_kldiv[0], compact_outputs_kldiv[1], compact_outputs_kldiv[2]
+            else:
+                raise PreventUpdate
+
+        # callback on params related to specific feature chosen by user
+        @app.callback(
+            Output('loading-output-specific-feat-featdist', 'children'),
+            Output('alert-range-input-error-spedific-feat-featdist', 'children'),
+            Output('fig-objs-kl-div-specific-feat', 'children'),
+            Input('button-featdist-specific-feat-update', 'n_clicks'),
+            State('select-specific-feature-featdist', 'value'),
+            State('input-range-to-slice-specific-feat-featdist', 'value'))
+        def update_fig_based_on_specific_feat_idx_range_params(click_count, specific_feature, slicing_input):
+            if click_count > 0:
+                range_input_err_alert = style_configs.no_error_alert()
+                compact_outputs_specific_feat = _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input,
+                                                                                                self.df_features,
+                                                                                                self.start_idx,
+                                                                                                self.stop_idx)
+                if len(compact_outputs_specific_feat) == 2:
+                    start_idx, stop_idx = compact_outputs_specific_feat[0], compact_outputs_specific_feat[1]
+                    fig_objs_specific = fig_plot_distribution_by_specific_feature(self.data_loader, specific_feature, start_idx, stop_idx)
+
+                    if (self.analysis_type == 'regression') or \
+                            (('classification' in self.analysis_type) and not detected_bimodal(self.model_names)):
+                        if 'classification' in self.analysis_type:
+                            fig_objs_specific = fig_objs_specific[0]
+                        fig_objs_specific_feature_combined = _fig_objs_layout_based_on_specific_feature(specific_feature, fig_objs_specific)
+
+                    elif ('classification' in self.analysis_type) and detected_bimodal(self.model_names):
+                        fig_objs_specific_feature_combined = _model_pair_fig_objs_layout_on_specific_feature(specific_feature, fig_objs_specific)
+                    return '', range_input_err_alert, fig_objs_specific_feature_combined
+                else:
+                    return compact_outputs_specific_feat[0], compact_outputs_specific_feat[1], compact_outputs_specific_feat[2]
+
+            else:
+                raise PreventUpdate
