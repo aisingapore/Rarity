@@ -411,7 +411,7 @@ class LossClusters:
 
             current_dataset_name = ctx.states['select-misspred-dataset-cls.value']
             specific_dataset = current_dataset_name.replace('class ', '') if 'class' in current_dataset_name else current_dataset_name
-            cluster_err_alert = style_configs.no_cluster_error_alert()
+            cluster_err_alert = style_configs.no_error_alert()
 
             # for click action on dataset selection
             if (triggered_button == 'button-misspred-dataset-update-cls') and (triggered_button_value > 0):
