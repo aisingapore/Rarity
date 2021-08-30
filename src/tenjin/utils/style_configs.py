@@ -1,4 +1,5 @@
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 
 
 INSTRUCTION_TEXT_SHARED = 'Click and drag on the graph to select the range of data points to inspect feature values.'
@@ -10,7 +11,7 @@ DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor
 DEFAULT_TITLE_STYLE = {'visibility': 'visible'}
 DEFAULT_PLOT_NAME_STYLE = {'visibility': 'visible'}
 
-DEFAULT_RANGE_SELECTION_TEXT_REG = "Enter range of data to compare distribution ( default slicing - last 20% of dataset) :"
+DEFAULT_RANGE_SELECTION_TEXT_REG = "Enter range of data to compare distribution ( default slicing - last 20% of dataset ) :"
 DEFAULT_RANGE_SELECTION_TEXT_CLS = "Enter range of data to compare distribution ( default slicing - full range ):"
 
 
@@ -35,6 +36,10 @@ def collapse_header_style():
     return DEFAULT_HEADER_STYLE
 
 
+def input_range_subnote(df):
+    return f'Available dataset range : from 0 to max at {len(df)}'
+
+
 def dummy_alert():
     alert_obj = dbc.Alert(color="light", style={'visibility': 'hidden'})
     return alert_obj
@@ -52,6 +57,27 @@ def activate_cluster_error_alert(label_class):
     return alert_obj
 
 
-def no_cluster_error_alert():
+def activate_range_input_error_alert():
+    err_message = 'Invalid data range detected. ' \
+                    'Please input a valid data range format ' \
+                    '(  example:   start_idx:stop_idx   =>   200:1000   or   25%:75%    with   start_idx  <  stop_idx  )'
+    alert_obj = dbc.Alert(html.Pre(err_message, className='html_Pre__alert-message'), color='warning', dismissable=True, is_open=True)
+    return alert_obj
+
+
+def activate_invalid_limit_alert(df):
+    err_message = f'Invalid data range detected. Allowable index range for slicing :   0 to {len(df)}   or   0% to 100%'
+    alert_obj = dbc.Alert(html.Pre(err_message, className='html_Pre__alert-message'), color='warning', dismissable=True, is_open=True)
+    return alert_obj
+
+
+def activate_incomplete_range_entry_alert():
+    err_message = 'Invalid data range detected. Please enter a complete range ' \
+                    '(  example:   start_idx:stop_idx   =>   200:1000   or   25%:75%    with   start_idx  <  stop_idx  )'
+    alert_obj = dbc.Alert(html.Pre(err_message, className='html_Pre__alert-message'), color='warning', dismissable=True, is_open=True)
+    return alert_obj
+
+
+def no_error_alert():
     alert_obj = dbc.Alert('', color='warning', dismissable=True, is_open=False)
     return alert_obj
