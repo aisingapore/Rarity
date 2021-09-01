@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.interpreters.common import calculate_kl_div, get_optimum_bin_size
-from tenjin.utils.common_functions import insert_index_col
+from tenjin.utils.methods import calculate_kl_div, get_optimum_bin_size
+from tenjin.utils.common_functions import insert_index_col, is_regression, is_classification
 
 
 class IntFeatureDistribution(BaseInterpreters):
@@ -22,7 +22,7 @@ class IntFeatureDistribution(BaseInterpreters):
         elif start_idx is not None and stop_idx is not None:
             df_sliced = self.df_features.iloc[np.r_[start_idx:stop_idx, :]]
         else:  # range is not specified
-            if self.analysis_type == 'regression':
+            if is_regression(self.analysis_type):
                 df_sliced = self.df_default_range
             else:
                 df_sliced = self.df_features
@@ -106,13 +106,13 @@ class IntFeatureDistribution(BaseInterpreters):
         kl_div_dict = {}
         for feat in self.features:
             if feat not in feature_to_exclude:
-                if self.analysis_type == 'regression':
+                if is_regression(self.analysis_type):
                     df_viz_specific_feat, optimum_bin_size = self._get_single_feature_df_with_binning(df, feat)
                     probs_df_ref, probs_df_sliced = self._get_probabilities_by_bin_group(df_viz_specific_feat, optimum_bin_size)
                     kl_div = calculate_kl_div(probs_df_ref, probs_df_sliced)
                     kl_div_dict[feat] = [kl_div, df_viz_specific_feat]
 
-                elif 'classification' in self.analysis_type:
+                elif is_classification(self.analysis_type):
                     df_viz_specific_feat = df[[feat, 'pred_state', 'model']]
                     try:
                         probs_correct, probs_misspred = self._get_probabilities_by_feature(df, feat)
@@ -139,12 +139,12 @@ class IntFeatureDistribution(BaseInterpreters):
         df_overall = self.df_features.copy()
         df_overall['dataset_type'] = ['df_sliced' if idx in idx_sliced_df else 'df_reference' for idx in df_overall.index]
 
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             kl_div_dict_sorted = self._generate_kl_div_info_base(df_overall, feature_to_exclude)
             kl_div_dict_sorted.pop('index')
             return kl_div_dict_sorted
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             if start_idx is not None and stop_idx is not None:  # user has specified a slicing range to inspect
                 df_overall = df_overall.loc[lambda x: x['dataset_type'] == 'df_sliced', :]
 
