@@ -13,14 +13,11 @@ from tenjin.interpreters.structured_data import IntLossClusterer
 from tenjin.visualizers import loss_clusters as viz_clusters
 from tenjin.visualizers import shared_viz_component as viz_shared
 from tenjin.utils import style_configs
-from tenjin.utils.common_functions import (is_active_trace, is_reset, detected_legend_filtration, detected_single_xaxis, detected_single_yaxis,
-                                        detected_bimodal, get_min_max_offset, get_min_max_cluster, get_effective_xaxis_cluster,
-                                        get_adjusted_dfs_based_on_legend_filtration, conditional_sliced_df, insert_index_col,
-                                        dataframe_prep_on_model_count_by_yaxis_slice, new_dataframe_prep_based_on_effective_index)
-
-
-OPTIONS_NO_OF_CLUSTERS = [{'label': f'{n}', 'value': f'{n}'} for n in range(2, 9)]  # option 2 to 8
-LOG_METHOD_DICT = {'log': math.log, 'log1p': math.log1p, 'log2': math.log2, 'log10': math.log10}
+from tenjin.utils.common_functions import (is_active_trace, is_reset, is_regression, is_classification,
+                                            detected_legend_filtration, detected_single_xaxis, detected_single_yaxis,
+                                            detected_bimodal, get_min_max_offset, get_min_max_cluster, get_effective_xaxis_cluster,
+                                            get_adjusted_dfs_based_on_legend_filtration, conditional_sliced_df, insert_index_col,
+                                            dataframe_prep_on_model_count_by_yaxis_slice, new_dataframe_prep_based_on_effective_index)
 
 
 def fig_plot_offset_clusters_reg(data_loader, num_cluster):
@@ -191,14 +188,15 @@ class LossClusters:
         self.is_bimodal = True if len(self.model_names) > 1 else False
         self.num_cluster = 4
 
-        if self.analysis_type == 'regression':
+        # instantiate at this stage due to shared use with callbacks
+        if is_regression(self.analysis_type):
             self.compact_outputs_reg = fig_plot_offset_clusters_reg(self.data_loader, self.num_cluster)
             self.df, self.offset_clusters_reg = self.compact_outputs_reg[0], self.compact_outputs_reg[1]
             self.ls_cluster_score, self.optimum_elbow_reg = self.compact_outputs_reg[2], self.compact_outputs_reg[3]
             self.cols_table_reg = [col.replace('_', ' ') for col in self.df.columns]
             self.score_text = _display_score(self.ls_cluster_score, self.model_names)
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             self.log_func = math.log
             self.specific_dataset = 'All'
 
@@ -209,7 +207,7 @@ class LossClusters:
             self.score_text = _display_score(self.ls_cluster_score, self.model_names)
 
     def show(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             lloss_clusters = dbc.Container([
                                     dbc.Row(html.Div(
                                         html.H5('Optimum Cluster via Elbow Method', className='h5__cluster-section-title'))),
@@ -222,13 +220,14 @@ class LossClusters:
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
                                                 dbc.Row(dbc.Select(id='select-num-cluster-reg',
-                                                            options=OPTIONS_NO_OF_CLUSTERS,
+                                                            options=style_configs.OPTIONS_NO_OF_CLUSTERS,
                                                             value='4'), className='params__select-cluster')
                                             ], width=6),
+                                            dbc.Col(width=4),
                                             dbc.Col(
                                                 dbc.Row(dcc.Loading(id='loading-output-loss-cluster-reg',
                                                                     type='circle', color='#a80202'),
-                                                        justify='left', className='loading__loss-cluster'), width=1),
+                                                        justify='right', className='loading__loss-cluster'), width=1),
                                             dbc.Col(
                                                 dbc.Row(dbc.Button("Update",
                                                                     id='button-num-cluster-update-reg',
@@ -251,7 +250,7 @@ class LossClusters:
                                     html.Br()], fluid=True)
             return lloss_clusters
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             options_misspred_dataset = [{'label': 'All', 'value': 'All'}] + \
                                         [{'label': f'class {label}', 'value': f'class {label}'} for label in self.ls_class_labels_misspred]
 
@@ -266,10 +265,11 @@ class LossClusters:
                                                         options=options_misspred_dataset,
                                                         value='All'), className='params__select-cluster')
                                         ], width=4),
+                                        dbc.Col(width=6),
                                         dbc.Col(
                                                 dbc.Row(dcc.Loading(id='loading-output-misspred-dataset-cls',
                                                                     type='circle', color='#a80202'),
-                                                        justify='left', className='loading__loss-cluster'), width=1),
+                                                        justify='right', className='loading__loss-cluster'), width=1),
                                         dbc.Col(
                                             dbc.Row(dbc.Button("Update",
                                                                 id='button-misspred-dataset-update-cls',
@@ -287,7 +287,7 @@ class LossClusters:
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
                                             dbc.Row(dbc.Select(id='select-num-cluster-cls',
-                                                        options=OPTIONS_NO_OF_CLUSTERS,
+                                                        options=style_configs.OPTIONS_NO_OF_CLUSTERS,
                                                         value='4'), className='params__select-cluster')
                                         ], width=4),
                                         dbc.Col([
@@ -299,10 +299,11 @@ class LossClusters:
                                                                 {'label': 'LOG10', 'value': 'log10'}],
                                                         value='log'), className='params__select-cluster')
                                         ], width=4),
+                                        dbc.Col(width=2),
                                         dbc.Col(
                                                 dbc.Row(dcc.Loading(id='loading-output-loss-cluster-cls',
                                                                     type='circle', color='#a80202'),
-                                                        justify='left', className='loading__loss-cluster'), width=1),
+                                                        justify='right', className='loading__loss-cluster'), width=1),
                                         dbc.Col(
                                             dbc.Row(dbc.Button("Update",
                                                                 id='button-logloss-update-cls',
@@ -427,7 +428,7 @@ class LossClusters:
 
                 outputs_callback_dataset = fig_plot_logloss_clusters_cls(self.data_loader,
                                                                         num_cluster=int(selected_cluster),
-                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        log_func=style_configs.LOG_METHOD_DICT[selected_method],
                                                                         specific_dataset=specific_dataset)
 
                 fig_obj_cluster_cls, ls_cluster_score_cls = outputs_callback_dataset[1], outputs_callback_dataset[2]
@@ -440,7 +441,7 @@ class LossClusters:
             elif (triggered_button == 'button-logloss-update-cls') and (triggered_button_value > 0):
                 outputs_callback_params = fig_plot_logloss_clusters_cls(self.data_loader,
                                                                         num_cluster=int(selected_cluster),
-                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        log_func=style_configs.LOG_METHOD_DICT[selected_method],
                                                                         specific_dataset=specific_dataset)
 
                 fig_obj_cluster_cls_params, ls_cluster_score_cls_params = outputs_callback_params[1], outputs_callback_params[2]
@@ -472,7 +473,7 @@ class LossClusters:
                 specific_dataset = selected_dataset.replace('class ', '') if 'class' in selected_dataset else selected_dataset
                 outputs_callback_fig_action = fig_plot_logloss_clusters_cls(self.data_loader,
                                                                         num_cluster=int(selected_cluster),
-                                                                        log_func=LOG_METHOD_DICT[selected_method],
+                                                                        log_func=style_configs.LOG_METHOD_DICT[selected_method],
                                                                         specific_dataset=specific_dataset)
                 dfs_viz, df_features = outputs_callback_fig_action[0], outputs_callback_fig_action[6]
 
