@@ -146,10 +146,10 @@ class GeneralMetrics:
                                 dbc.Row([
                                     dbc.Col([
                                         dcc.Graph(figure=self.pred_actual)
-                                    ], className="border__common"), 
+                                    ], className="border__common-gen-metrics-reg-left"),
                                     dbc.Col([
                                         dcc.Graph(figure=self.pred_offset)
-                                    ], className="border__common"), 
+                                    ], className="border__common-gen-metrics-reg-right"),
                                 ]), 
 
                                 html.Div(html.Div(self.std_error_metrics, className="div__std-err")),
@@ -163,12 +163,12 @@ class GeneralMetrics:
                                         dbc.Col([
                                             dcc.Graph(figure=self.conf_matrix[0]),
                                             dcc.Graph(figure=self.cls_report[0]),
-                                        ], className="border__common"), 
+                                        ], className="border__common-left"),
 
                                         dbc.Col([
                                             dcc.Graph(figure=self.conf_matrix[1]),
                                             dcc.Graph(figure=self.cls_report[1]),
-                                        ], className="border__common")
+                                        ], className="border__common-right")
                                     ]), 
 
                                     html.Div(html.Div(dcc.Graph(figure=self.roc), 
@@ -182,8 +182,8 @@ class GeneralMetrics:
             elif len(self.conf_matrix) == 1:
                 gen_metrics = dbc.Container([
                                     html.Div(dbc.Row([
-                                        dbc.Col(dcc.Graph(figure=self.conf_matrix[0]), className="border__common"), 
-                                        dbc.Col(dcc.Graph(figure=self.cls_report[0]), className="border__common")
+                                        dbc.Col(dcc.Graph(figure=self.conf_matrix[0]), className="border__common-left"),
+                                        dbc.Col(dcc.Graph(figure=self.cls_report[0]), className="border__common-right")
                                     ]), className="boundary__common"), 
 
                                     html.Div(html.Div(dcc.Graph(figure=self.roc), 

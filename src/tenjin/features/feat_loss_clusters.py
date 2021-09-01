@@ -245,6 +245,7 @@ class LossClusters:
                                                     figure=self.offset_clusters_reg),
                                         justify='center', className='border__common-cluster-plot-reg'),
 
+                                    html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-cluster-reg'),
                                     html.Div(id='alert-to-reset-cluster-reg'),
                                     html.Div(id='table-feat-prob-cluster-reg', className='div__table-proba-misspred'),
                                     html.Br()], fluid=True)

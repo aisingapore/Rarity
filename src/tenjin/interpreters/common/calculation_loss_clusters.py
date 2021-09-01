@@ -35,7 +35,7 @@ def calculate_logloss(yTrue, yPred, log_func=math.log, eps=1e-15):
     return loss_single_datapoint
 
 
-def find_optimum_num_clusters(loss_list, num_cluster):
+def get_optimum_num_clusters(loss_list, num_cluster):
     loss_array = np.array(loss_list).reshape(-1, 1)
     cluster_range = list(range(1, 10))
 
