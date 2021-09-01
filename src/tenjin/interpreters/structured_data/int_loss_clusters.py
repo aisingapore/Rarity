@@ -1,6 +1,6 @@
-# import numpy as np
 from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.interpreters.common import create_clusters, calculate_logloss, get_optimum_num_clusters
+from tenjin.utils.methods import create_clusters, calculate_logloss, get_optimum_num_clusters
+from tenjin.utils.common_functions import is_regression, is_classification
 
 
 class IntLossClusterer(BaseInterpreters):
@@ -13,7 +13,7 @@ class IntLossClusterer(BaseInterpreters):
         return ls_dfs_prob_misspred
 
     def xform(self, num_cluster, log_func, specific_dataset):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             df = super().get_df_with_offset_values()
             df.insert(0, 'index', df.index)  # for ease of user to trace the datapoint in raw dataframe
 
@@ -36,7 +36,7 @@ class IntLossClusterer(BaseInterpreters):
 
             return df, ls_score, self.analysis_type, ls_cluster_range, ls_ssd
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             ls_dfs_prob, ls_class_labels = super().get_df_with_probability_values()
             ls_dfs_prob_misspred = [df.loc[lambda x: x['pred_state'] == 'miss-predict', :] for df in ls_dfs_prob]
             ls_class_labels_misspred = [list(df['yTrue'].astype('str').unique()) for df in ls_dfs_prob_misspred]
