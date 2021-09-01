@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 
 from tenjin.interpreters.structured_data import IntGeneralMetrics
 from tenjin.visualizers import general_metrics as viz_general
+from tenjin.utils.common_functions import is_regression, is_classification
 
 
 def fig_confusion_matrix(data_loader):
@@ -130,18 +131,11 @@ class GeneralMetrics:
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
 
-        if self.analysis_type == 'regression':
+    def show(self):
+        if is_regression(self.analysis_type):
             self.pred_actual = fig_prediction_actual_comparison(self.data_loader)
             self.pred_offset = fig_prediction_offset_overview(self.data_loader)
             self.std_error_metrics = fig_standard_error_metrics(self.data_loader)
-        elif 'classification' in self.analysis_type:
-            self.conf_matrix = fig_confusion_matrix(self.data_loader)
-            self.cls_report = fig_classification_report(self.data_loader)
-            self.roc = fig_roc_curve(self.data_loader)
-            self.prec_recall = fig_precisionRecall_curve(self.data_loader)
-
-    def show(self):
-        if self.analysis_type == 'regression':
             gen_metrics = dbc.Container([
                                 dbc.Row([
                                     dbc.Col([
@@ -156,7 +150,11 @@ class GeneralMetrics:
                                 html.Br(),
                         ], fluid=True)
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
+            self.conf_matrix = fig_confusion_matrix(self.data_loader)
+            self.cls_report = fig_classification_report(self.data_loader)
+            self.roc = fig_roc_curve(self.data_loader)
+            self.prec_recall = fig_precisionRecall_curve(self.data_loader)
             if len(self.conf_matrix) > 1:
                 gen_metrics = dbc.Container([
                                     dbc.Row([
