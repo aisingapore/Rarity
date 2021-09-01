@@ -10,10 +10,11 @@ from tenjin.interpreters.structured_data import IntMissPredictions
 from tenjin.visualizers import miss_predictions as viz_misspred
 from tenjin.visualizers import shared_viz_component as viz_shared
 from tenjin.utils import style_configs
-from tenjin.utils.common_functions import (identify_active_trace, is_active_trace, is_reset, detected_legend_filtration, detected_unique_figure,
-                                        detected_more_than_1_unique_figure, detected_single_xaxis, detected_single_yaxis, 
-                                        get_min_max_index, get_min_max_offset, get_adjusted_xy_coordinate, 
-                                        conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice, insert_index_col)
+from tenjin.utils.common_functions import (identify_active_trace, is_active_trace, is_reset, is_regression, is_classification,
+                                            detected_legend_filtration, detected_unique_figure, detected_more_than_1_unique_figure,
+                                            detected_single_xaxis, detected_single_yaxis, get_min_max_index, get_min_max_offset,
+                                            get_adjusted_xy_coordinate, conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice,
+                                            insert_index_col)
 
 
 def fig_plot_prediction_offset_overview(data_loader):
@@ -127,11 +128,12 @@ class MissPredictions:
         self.model_names = data_loader.get_model_list()
         self.is_bimodal = True if len(self.model_names) > 1 else False
 
-        if self.analysis_type == 'regression':
+        # instantiate here instead of under def show() as it will be used in callbacks as well
+        if is_regression(self.analysis_type):
             self.preds_offset, self.df = fig_plot_prediction_offset_overview(self.data_loader)
             self.cols_table_reg = [col.replace('_', ' ') for col in self.df.columns]
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             compact_outputs = fig_probabilities_spread_pattern(self.data_loader)
             self.probs_pattern, self.label_state = compact_outputs[0], compact_outputs[1]
             self.dfs_viz, self.df_features, self.class_labels = compact_outputs[2], compact_outputs[3], compact_outputs[4]
@@ -139,7 +141,7 @@ class MissPredictions:
             self.dfs_viz = [insert_index_col(df) for df in self.dfs_viz]
 
     def show(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             miss_preds = dbc.Container([
                                 html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-reg'),
                                 dbc.Row(dcc.Graph(id='fig-reg',
@@ -151,7 +153,7 @@ class MissPredictions:
                                 html.Br()
                         ], fluid=True)
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             fig_objs_model_1 = self.probs_pattern[0]
             tables_model_1 = self.label_state[0]
 
@@ -165,9 +167,8 @@ class MissPredictions:
                                     html.Div(id='table-title-misspred-probs'),
                                     html.Div(id='show-prob-table', className='div__table-proba-misspred'),
                                     html.Br()]
-            # temp_storage_shared = [dcc.Store(id='previous-active-trace')]
 
-            if self.is_bimodal and 'classification' in self.analysis_type:  # cover bimodal_binary and bimodal_multiclass
+            if self.is_bimodal and is_classification(self.analysis_type):  # cover bimodal_binary and bimodal_multiclass
                 fig_objs_model_2 = self.probs_pattern[1]
                 tables_model_2 = self.label_state[1]
 
@@ -350,7 +351,6 @@ class MissPredictions:
                     df_final = convert_relayout_data_to_df_reg(relayout_data, self.df, models)
                     df_final.columns = self.cols_table_reg  # to have customized column names displayed on table
 
-                    # DEFAULT_HEADER_STYLE['visibility'] = 'visible'
                     default_header = style_configs.default_header_style()
                     data_relayout_reg = df_final.to_dict('records')
                     table_obj_reg = table_with_relayout_datapoints(data_relayout_reg, self.cols_table_reg, default_header, 'csv')
@@ -404,7 +404,6 @@ class MissPredictions:
                     fig_class_label = fig_id.split('-cls-')[-1].split('-labelcls-')[-1]
                     model_in_view = fig_id.split('-cls-')[-1].split('-labelcls-')[0]
                     title_main_plot_name = html.H5(f'Currently inspecting : class {fig_class_label} [ {model_in_view} ]',
-                                                    # style=DEFAULT_PLOT_NAME_STYLE,
                                                     style=default_plot_name,
                                                     className='title__main-plot-name-cls')
 
@@ -437,19 +436,16 @@ class MissPredictions:
                     default_plot_name['visibility'] = 'visible'
 
                     title_main_plot_name = html.H5(f'Currently inspecting : class {fig_class_label} [ {model_in_view} ]',
-                                                    # style=DEFAULT_PLOT_NAME_STYLE,
                                                     style=default_plot_name,
                                                     className='title__main-plot-name-cls')
                     table_obj_cls_features = table_with_relayout_datapoints(data_relayout_features,
                                                                             list(self.df_features.columns),
-                                                                            # DEFAULT_HEADER_STYLE,
                                                                             default_header,
                                                                             'csv')
 
                     data_relayout_probs = df_filtered_viz.to_dict('records')
                     table_obj_cls_probs = table_with_relayout_datapoints(data_relayout_probs,
                                                                         list(df_filtered_viz.columns),
-                                                                        # DEFAULT_HEADER_STYLE,
                                                                         default_header,
                                                                         'csv')
                     alert_obj_cls = dbc.Alert(color="light")
