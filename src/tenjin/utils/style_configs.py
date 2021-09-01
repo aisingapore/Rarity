@@ -1,3 +1,4 @@
+import math
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
@@ -15,6 +16,9 @@ DEFAULT_RANGE_SELECTION_TEXT_REG = "Enter range of data to compare distribution 
 DEFAULT_RANGE_SELECTION_TEXT_CLS = "Enter range of data to compare distribution ( default slicing - full range ):"
 
 DEFAULT_SLIDER_RANGE = {n: str(n) for n in range(1, 11)}
+
+OPTIONS_NO_OF_CLUSTERS = [{'label': f'{n}', 'value': f'{n}'} for n in range(2, 9)]  # option 2 to 8
+LOG_METHOD_DICT = {'log': math.log, 'log1p': math.log1p, 'log2': math.log2, 'log10': math.log10}
 
 
 def default_header_style():
