@@ -24,12 +24,10 @@ class IntMissPredictions(BaseInterpreters):
         super().__init__(data_loader)
 
     def xform(self):
-        # if self.analysis_type == 'regression':
         if is_regression(self.analysis_type):
             df = super().get_df_with_offset_values()
             return df
 
-        # elif 'classification' in self.analysis_type:
         elif is_classification(self.analysis_type):
             ls_dfs_viz, ls_class_labels = super().get_df_with_probability_values()
 
