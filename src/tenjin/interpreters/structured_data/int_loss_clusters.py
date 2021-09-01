@@ -1,6 +1,6 @@
 # import numpy as np
 from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.interpreters.common import create_clusters, calculate_logloss, find_optimum_num_clusters
+from tenjin.interpreters.common import create_clusters, calculate_logloss, get_optimum_num_clusters
 
 
 class IntLossClusterer(BaseInterpreters):
@@ -20,7 +20,7 @@ class IntLossClusterer(BaseInterpreters):
             cluster_groups_m1, cluster_score_m1 = create_clusters(df[f'offset_{self.models[0]}'], num_cluster)
             df[f'cluster_{self.models[0]}'] = cluster_groups_m1
 
-            cluster_range_m1, sum_squared_distance_m1 = find_optimum_num_clusters(df[f'offset_{self.models[0]}'], num_cluster)
+            cluster_range_m1, sum_squared_distance_m1 = get_optimum_num_clusters(df[f'offset_{self.models[0]}'], num_cluster)
             ls_score = [cluster_score_m1]
             ls_cluster_range = [cluster_range_m1]
             ls_ssd = [sum_squared_distance_m1]
@@ -29,7 +29,7 @@ class IntLossClusterer(BaseInterpreters):
                 cluster_groups_m2, cluster_score_m2 = create_clusters(df[f'offset_{self.models[1]}'], num_cluster)
                 df[f'cluster_{self.models[1]}'] = cluster_groups_m2
 
-                cluster_range_m2, sum_squared_distance_m2 = find_optimum_num_clusters(df[f'offset_{self.models[1]}'], num_cluster)
+                cluster_range_m2, sum_squared_distance_m2 = get_optimum_num_clusters(df[f'offset_{self.models[1]}'], num_cluster)
                 ls_score.append(cluster_score_m2)
                 ls_cluster_range.append(cluster_range_m2)
                 ls_ssd.append(sum_squared_distance_m2)
@@ -74,7 +74,7 @@ class IntLossClusterer(BaseInterpreters):
                 cluster_groups, cluster_score = create_clusters(df_viz['lloss'], num_cluster)
                 df_viz['cluster'] = cluster_groups
 
-                cluster_range, sum_squared_distance = find_optimum_num_clusters(df_viz['lloss'], num_cluster)
+                cluster_range, sum_squared_distance = get_optimum_num_clusters(df_viz['lloss'], num_cluster)
 
                 ls_score.append(cluster_score)
                 ls_dfs_viz.append(df_viz)

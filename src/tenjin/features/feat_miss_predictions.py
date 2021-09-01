@@ -155,7 +155,8 @@ class MissPredictions:
             fig_objs_model_1 = self.probs_pattern[0]
             tables_model_1 = self.label_state[0]
 
-            instruction_txt_shared = [html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-cls')]
+            instruction_txt_shared = [html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED),
+                                                        className='h6__dash-table-instruction-misspred-cls')]
             dash_table_ls_shared = [html.Div(id='main-title-plot-name'),
                                     html.Div(id='alert-to-reset-cls'),
                                     html.Div(id='table-title-misspred-features'),
@@ -201,7 +202,7 @@ class MissPredictions:
                                                         justify='center')
                                                 ]),
                                             ])
-                                        ], className='border__common'),
+                                        ], className='border__common-left'),
 
                                         dbc.Col([
                                             dbc.Row([
@@ -230,7 +231,7 @@ class MissPredictions:
                                                         justify='center')
                                                 ]),
                                             ])
-                                        ], className='border__common')
+                                        ], className='border__common-right')
                                     ])
                         dash_fig_ls.append(fig_pair)
 
