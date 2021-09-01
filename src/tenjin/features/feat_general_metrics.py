@@ -2,8 +2,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from ..interpreters.structured_data import IntGeneralMetrics
-from ..visualizers import general_metrics as viz_general
+from tenjin.interpreters.structured_data import IntGeneralMetrics
+from tenjin.visualizers import general_metrics as viz_general
 
 
 def fig_confusion_matrix(data_loader):
