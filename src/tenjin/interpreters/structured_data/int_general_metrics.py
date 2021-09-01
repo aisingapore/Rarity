@@ -50,7 +50,6 @@ class IntGeneralMetrics:
 
     def xform(self):
         if is_regression(self.analysis_type):
-            # if self.analysis_type == 'regression':
             if self.viz_plot == 'stdErr':
                 yTrue = self.data_loader.get_yTrue()
                 yPreds = self.data_loader.get_yPreds()
@@ -66,7 +65,6 @@ class IntGeneralMetrics:
             return df
 
         elif is_classification(self.analysis_type):
-            # elif 'classification' in self.analysis_type:
             model_names = self.data_loader.get_model_list()
             yTrue = self.data_loader.get_yTrue()
             yTrue = yTrue['yTrue'].astype('string')
