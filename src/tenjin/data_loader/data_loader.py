@@ -1,4 +1,5 @@
 import pandas as pd
+from tenjin.utils.common_functions import is_regression, is_classification
 
 
 class CSVDataLoader:
@@ -33,7 +34,7 @@ class CSVDataLoader:
 
     def get_yPreds(self):
         yPred_ls = [pd.read_csv(yPred) for yPred in self.yPreds]
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             yPred_df = pd.concat(yPred_ls, axis=1)
             if len(self.models) > 1:
                 yPred_df.rename(columns={yPred_df.columns[0]: f'yPred_{self.models[0]}', 
@@ -41,7 +42,7 @@ class CSVDataLoader:
             elif len(self.models) == 1:
                 yPred_df.rename(columns={yPred_df.columns[0]: f'yPred_{self.models[0]}'}, inplace=True)
             return yPred_df
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             for i in range(len(self.models)):
                 yPred_ls[i]['model'] = self.models[i]
                 yPred_ls[i]['yPred-label'] = yPred_ls[i][list(yPred_ls[i].columns)[:-1]].idxmax(axis=1)
@@ -54,10 +55,10 @@ class CSVDataLoader:
         return self.analysis_type
 
     def get_all(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             df = pd.concat([self.get_features(), self.get_yTrue(), self.get_yPreds()], axis=1)
             return df
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             df_ls = []
             for i in range(len(self.models)):
                 df = pd.concat([self.get_features(), self.get_yTrue(), self.get_yPreds()[i]], axis=1)
@@ -96,7 +97,7 @@ class DataframeLoader:
         return self.yTrue
 
     def get_yPreds(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             yPred_df = pd.concat(self.yPreds, axis=1)
             if len(self.models) > 1:
                 yPred_df.rename(columns={yPred_df.columns[0]: f'yPred_{self.models[0]}', 
@@ -104,7 +105,7 @@ class DataframeLoader:
             elif len(self.models) == 1:
                 yPred_df.rename(columns={yPred_df.columns[0]: f'yPred_{self.models[0]}'}, inplace=True)
             return yPred_df
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             for i in range(len(self.models)):
                 self.yPreds[i]['model'] = self.models[i]
                 self.yPreds[i]['yPred-label'] = self.yPreds[i][list(self.yPreds[i].columns)[:2]].idxmax(axis=1)
@@ -117,10 +118,10 @@ class DataframeLoader:
         return self.analysis_type
 
     def get_all(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             df = pd.concat([self.get_features(), self.get_yTrue(), self.get_yPreds()], axis=1)
             return df
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             df_ls = []
             for i in range(len(self.models)):
                 df = pd.concat([self.xFeatures, self.get_yTrue(), self.get_yPreds()[i]], axis=1)
