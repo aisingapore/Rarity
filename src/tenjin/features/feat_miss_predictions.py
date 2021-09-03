@@ -322,7 +322,7 @@ class MissPredictions:
         return miss_preds
 
     # callback for regression tasks
-    def callback(self):
+    def callbacks(self):
         @app.callback(
             Output('alert-to-reset-reg', 'children'),
             Output('show-feat-prob-table-reg', 'children'),
