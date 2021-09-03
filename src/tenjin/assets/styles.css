@@ -580,6 +580,13 @@ table .cell-table {
     padding-right: 0px;
     display: inline-block;
 }
+
+.loading__similaritiesCF {
+    margin-top: 100%;
+    margin-left: 70%;
+    padding-right: 0px;
+    display: inline-block;
+}
     
 .export {
     border-radius: 5px;
