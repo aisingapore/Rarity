@@ -84,6 +84,13 @@ def activate_incomplete_range_entry_alert():
     return alert_obj
 
 
+def activate_invalid_index_input_alert(df):
+    err_message = f'Invalid data index detected. Allowable index range :   0 to {len(df)}   ' \
+                    'separate index with  ","  if want to inspect more than 1 index ( example: 1, 23, 456 )'
+    alert_obj = dbc.Alert(html.Pre(err_message, className='html_Pre__alert-message'), color='warning', dismissable=True, is_open=True)
+    return alert_obj
+
+
 def no_error_alert():
     alert_obj = dbc.Alert('', color='warning', dismissable=True, is_open=False)
     return alert_obj
