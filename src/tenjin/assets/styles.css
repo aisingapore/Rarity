@@ -413,6 +413,27 @@
     display: inline-block;
 }
 
+.h5__counterfactuals-section-title {
+    padding: 5px 10px;
+    margin-top: 25px;
+    margin-left: 22px;
+    margin-bottom: -5px;
+    color: floralwhite;
+    font-weight: 400;
+    background-color: #a80202;
+    border: #a80202;
+    display: inline-block;
+}
+
+.h5__counterfactual-model {
+    color: blue;
+    margin-left: 15px;
+    padding-bottom: 0px;
+    margin-top: 30px;
+    margin-bottom: -5px;
+    display: inline-block;
+}
+
 .h4__title-kl-div-rank-num-top {
     font-weight: bold;
     color:#a80202;
