@@ -256,6 +256,9 @@ class LossClusters:
                                         [{'label': f'class {label}', 'value': f'class {label}'} for label in self.ls_class_labels_misspred]
 
             lloss_clusters = dbc.Container([
+                                    dbc.Row(html.H5('Loss Cluster Analysis for ALL Miss Predictions',
+                                        id='title-after-misspred-dataset-selection-cls',
+                                        className='h5__cluster-section-title')),
                                     dbc.Row([
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select Miss-Predict Dataset'), className='h6__cluster-instruction')),
@@ -275,11 +278,11 @@ class LossClusters:
                                                                 className='button__update-dataset'),
                                                     justify='right'))], className='border__select-dataset'),
                                     html.Div(id='alert-clustering-error-cls'),
-                                    dbc.Row(html.H5('Loss Cluster Analysis for ALL Miss Predictions',
-                                                    id='title-after-misspred-dataset-selection-cls',
-                                                    className='h5__cluster-section-title')),
                                     dbc.Row(dcc.Graph(id='fig-cls-optimum-cluster', figure=self.optimum_elbow_cls,),
                                         justify='center', className='border__optimum-cluster'),
+                                    dbc.Row(html.H5('Log-Loss Clustering via KMean on ALL Miss Predictions',
+                                                    id='title-after-losscluster-params-selection-cls',
+                                                    className='h5__cluster-section-title-kmean')),
                                     dbc.Row([
                                         dbc.Col([
                                             dbc.Row(html.Div(html.H6('Select No. of Cluster'), className='h6__cluster-instruction')),
@@ -307,9 +310,6 @@ class LossClusters:
                                                                 color="info",
                                                                 className='button__update-dataset'),
                                                     justify='right'))], className='border__select-dataset'),
-                                    dbc.Row(html.H5('Log-Loss Clustering via KMean on ALL Miss Predictions',
-                                                    id='title-after-losscluster-params-selection-cls',
-                                                    className='h5__cluster-section-title-kmean')),
                                     dbc.Row(dbc.Col(dbc.Row(
                                         html.Div(self.score_text,
                                                 id='text-score-cluster-cls',
