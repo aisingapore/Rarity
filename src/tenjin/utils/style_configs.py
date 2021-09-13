@@ -37,9 +37,10 @@ def hidden_plot_name_style():
 
 
 def collapse_header_style():
-    DEFAULT_HEADER_STYLE['border'] = 'none'
-    DEFAULT_HEADER_STYLE['visibility'] = 'collapse'
-    return DEFAULT_HEADER_STYLE
+    COLLAPSE_HEADER_STYLE = DEFAULT_HEADER_STYLE.copy()
+    COLLAPSE_HEADER_STYLE['border'] = 'none'
+    COLLAPSE_HEADER_STYLE['visibility'] = 'collapse'
+    return COLLAPSE_HEADER_STYLE
 
 
 def input_range_subnote(df):
