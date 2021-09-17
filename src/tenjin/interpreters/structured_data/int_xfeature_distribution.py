@@ -114,8 +114,11 @@ class IntFeatureDistribution(BaseInterpreters):
 
                 elif 'classification' in self.analysis_type:
                     df_viz_specific_feat = df[[feat, 'pred_state', 'model']]
-                    probs_correct, probs_misspred = self._get_probabilities_by_feature(df, feat)
-                    kl_div = calculate_kl_div(probs_correct, probs_misspred)
+                    try:
+                        probs_correct, probs_misspred = self._get_probabilities_by_feature(df, feat)
+                        kl_div = calculate_kl_div(probs_correct, probs_misspred)
+                    except KeyError:  # KeyError: 'miss-predict' => no miss-predict for the selected idx range
+                        kl_div = 0  # no comparison is feasible, therefore divergence is 0
                     kl_div_dict[feat] = [kl_div, df_viz_specific_feat]
 
         kl_div_dict_sorted = dict(sorted(kl_div_dict.items(), key=lambda x: x[1][0], reverse=True))
@@ -142,6 +145,9 @@ class IntFeatureDistribution(BaseInterpreters):
             return kl_div_dict_sorted
 
         elif 'classification' in self.analysis_type:
+            if start_idx is not None and stop_idx is not None:  # user has specified a slicing range to inspect
+                df_overall = df_overall.loc[lambda x: x['dataset_type'] == 'df_sliced', :]
+
             ls_dfs_viz_featdist = self._get_df_feature_with_pred_state_cls(df_overall)
 
             ls_kl_div_dict_sorted = []

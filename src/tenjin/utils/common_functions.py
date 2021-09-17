@@ -1,3 +1,6 @@
+import string
+
+
 def identify_active_trace(relayout_data):
     '''
     only 1 unique trace should be in relayout_data
@@ -208,6 +211,54 @@ def conditional_sliced_df(df, condition1, condition2):
 def insert_index_col(df):
     df.insert(0, 'index', list(df.index))
     return df
+
+
+def invalid_slicing_range(slicing_input):
+    special_characters = list(string.punctuation.replace(':', '').replace('%', ''))
+    letters = list(string.ascii_letters)
+    try:
+        if slicing_input.split(':') == ['']:  # when user does not enter any index range info
+            invalid_1 = False
+        else:
+            invalid_1 = ':' not in slicing_input
+    except AttributeError:  # 'NoneType' object has no attribute 'split' (NoneType occurs during first spin up of this app)
+        invalid_1 = True
+
+    invalid_2 = any(char in letters for char in slicing_input)
+    invalid_3 = any(char in list(slicing_input) for char in special_characters)
+    if any([invalid_1, invalid_2, invalid_3]) is True:
+        return True
+    else:
+        return False
+
+
+def invalid_slicing_range_sequence(range_list):
+    start = int(range_list[0].replace('%', ''))
+    stop = int(range_list[1].replace('%', ''))
+    if start > stop:
+        return True
+    else:
+        return False
+
+
+def invalid_min_max_limit(range_list, df):
+    start = int(range_list[0].replace('%', ''))
+    stop = int(range_list[1].replace('%', ''))
+
+    if start < 0 or stop > len(df):
+        return True
+    else:
+        return False
+
+
+def incomplete_range_entry(range_list):
+    '''
+    Either only start_idx is provided or stop_idx is provided by user
+    '''
+    if (any(v == '' for v in range_list)) and (range_list.count('') != 2):
+        return True
+    else:
+        return False
 
 
 def _valid_fig_key_ls(relayout_data):
