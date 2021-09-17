@@ -80,5 +80,6 @@ class GapAnalyzer:
 
         MissPredictions(self.data_loader).callback()
         LossClusters(self.data_loader).callbacks()
+        FeatureDistribution(self.data_loader).callbacks()
 
         app.run_server(debug=False, port=8000)
