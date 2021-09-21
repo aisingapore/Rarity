@@ -1,3 +1,4 @@
+import math
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 
@@ -7,12 +8,17 @@ INSTRUCTION_TEXT_REG = 'To reset back to default settings, hover over icons on t
 WARNING_TEXT = 'To inspect new range of datapoints in different graph, please first reset the earlier selection by clicking "Reset axes" icon ' \
                 'at the top right corner of the graph.'
 
-DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d', 'border': '1px solid rgb(229, 211, 197)'}
+DEFAULT_HEADER_STYLE = {'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d', 'border': '1px solid white', 'height': '45px'}
 DEFAULT_TITLE_STYLE = {'visibility': 'visible'}
 DEFAULT_PLOT_NAME_STYLE = {'visibility': 'visible'}
 
 DEFAULT_RANGE_SELECTION_TEXT_REG = "Enter range of data to compare distribution ( default slicing - last 20% of dataset ) :"
 DEFAULT_RANGE_SELECTION_TEXT_CLS = "Enter range of data to compare distribution ( default slicing - full range ):"
+
+DEFAULT_SLIDER_RANGE = {n: str(n) for n in range(1, 11)}
+
+OPTIONS_NO_OF_CLUSTERS = [{'label': f'{n}', 'value': f'{n}'} for n in range(2, 9)]  # option 2 to 8
+LOG_METHOD_DICT = {'log': math.log, 'log1p': math.log1p, 'log2': math.log2, 'log10': math.log10}
 
 
 def default_header_style():

@@ -7,7 +7,7 @@ draft 3.0 [ 5 July 2021 - dash ]
 import pandas as pd
 import numpy as np
 from sklearn import metrics
-
+from tenjin.utils.common_functions import is_regression, is_classification
 
 ERR_DESC = ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error', 'R Squared']
 ERR_NAMES = ['MAE', 'MSE', 'RMSE', 'R2']
@@ -49,7 +49,7 @@ class IntGeneralMetrics:
         return [int(mae), int(mse), int(rmse), round(r2_score, 4)]
 
     def xform(self):
-        if self.analysis_type == 'regression':
+        if is_regression(self.analysis_type):
             if self.viz_plot == 'stdErr':
                 yTrue = self.data_loader.get_yTrue()
                 yPreds = self.data_loader.get_yPreds()
@@ -64,7 +64,7 @@ class IntGeneralMetrics:
                 df = self.data_loader.get_all()
             return df
 
-        elif 'classification' in self.analysis_type:
+        elif is_classification(self.analysis_type):
             model_names = self.data_loader.get_model_list()
             yTrue = self.data_loader.get_yTrue()
             yTrue = yTrue['yTrue'].astype('string')

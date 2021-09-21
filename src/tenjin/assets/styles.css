@@ -359,6 +359,16 @@
     display: inline-block;
 }
 
+.h6__similaritiesCF-index {
+    padding-left: 0px;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 5px;
+    color: rgb(124, 109, 109);
+    font-style: italic;
+    display: inline-block;
+}
+
 .h6__display-top-bottom-n {
     margin-top: 5px;
     margin-left: 2px;
@@ -476,6 +486,10 @@ table .cell-table {
     margin: -1.5% 0.5% 0.6% 93%;
 }
 
+.dash-spreadsheet.dash-freeze-left {
+    max-width: none !important;
+}
+
 .text__score-cluster-reg {
     position: absolute;
     top: 5px;
@@ -515,14 +529,25 @@ table .cell-table {
     margin-left: 10px;
 }
 
+.text__display-header-similaritiesCF {
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-style: italic;
+    font-weight: 500;
+    color: rgb(124, 109, 109);
+    margin: -8px 5px 15px;
+}
+
 .loading__loss-cluster {
-    margin-bottom: -40px;
+    margin-top:55px;
+    margin-left: 60px;
+    padding-right: 0px;
+    text-align: end;
     display: inline-block;
 }
 
 .loading__kldiv-featdist {
     margin-bottom: 15px;
-    /* margin-right: -280px; */
     margin-left: 70%;
     padding-right: 0px;
     display: inline-block;
@@ -563,8 +588,7 @@ table .cell-table {
     display: inline-block;
 }
 
-.export:hover, .export:active, .export:focus,
-.button__update-cluster:hover, .button__update-cluster:active {
+.export:hover, .export:active, .export:focus {
     color: #75706c;
     box-shadow: 0px 1px 3px lightgrey;
     background-color: #f3c8c0;
@@ -572,6 +596,7 @@ table .cell-table {
     border: none;
 }
 
+.button__update-cluster:hover, .button__update-cluster:active,
 .button__update-dataset:hover, .button__update-dataset:active {
     color: floralwhite;
     box-shadow: 0px 1px 3px lightgrey;
