@@ -80,8 +80,9 @@ class GapAnalyzer:
             else:
                 return html.Div([html.H3('feature page {}'.format(pathname))], style={'padding-left': '30px'})
 
-        MissPredictions(self.data_loader).callback()
+        MissPredictions(self.data_loader).callbacks()
         LossClusters(self.data_loader).callbacks()
         FeatureDistribution(self.data_loader).callbacks()
+        SimilaritiesCF(self.data_loader).callbacks()
 
         app.run_server(debug=False, port=8000)
