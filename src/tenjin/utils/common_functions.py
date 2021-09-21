@@ -29,6 +29,20 @@ def is_reset(relayout_data):
         return False
 
 
+def is_regression(analysis_type):
+    if analysis_type == 'regression':
+        return True
+    else:
+        return False
+
+
+def is_classification(analysis_type):
+    if 'classification' in analysis_type:
+        return True
+    else:
+        return False
+
+
 def detected_bimodal(models):
     if len(models) == 2:
         return True
@@ -166,6 +180,19 @@ def get_adjusted_xy_coordinate(relayout_data, df):
         y_start_idx = relayout_data['yaxis.range[0]'] if relayout_data['yaxis.range[0]'] > 0 else 0
         y_stop_idx = relayout_data['yaxis.range[1]'] if relayout_data['yaxis.range[1]'] < 1 else 1
     return x_start_idx, x_stop_idx, y_start_idx, y_stop_idx
+
+
+def get_max_value_on_slider(df, component):
+    if component == 'feat-dist':
+        max_value = len(list(df.columns))
+        if len(list(df.columns)) > 10:
+            max_value = 10
+        return max_value
+    elif component == 'similaritiesCF':
+        max_value = len(df)
+        if len(df) > 10:
+            max_value = 10
+        return max_value
 
 
 def dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx):
