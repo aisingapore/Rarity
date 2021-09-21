@@ -1,13 +1,18 @@
 import pandas as pd
 
+import dash
+from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+from tenjin.app import app
 from tenjin.interpreters.structured_data import IntSimilaritiesCounterFactuals
 from tenjin.visualizers import shared_viz_component as viz_shared
-from tenjin.utils.common_functions import is_regression, is_classification, get_max_value_on_slider, detected_bimodal
 from tenjin.utils import style_configs
+from tenjin.utils.common_functions import is_regression, is_classification, get_max_value_on_slider, \
+                                            detected_bimodal, detected_invalid_index_inputs
 
 
 def generate_similarities(data_loader, user_defined_idx, feature_to_exclude=None, top_n=3):
@@ -88,15 +93,71 @@ def _base_df_by_calculated_distance(df, idx_sorted_by_distance, calculated_dista
     return df_top_n
 
 
+def _table_objs_similarities(data_loader, user_defined_idx, feature_to_exclude, top_n):
+    table_objs_similarities = []
+    for idx in str(user_defined_idx).replace(' ', '').split(','):
+        table_obj_similarities = generate_similarities(data_loader, int(idx), feature_to_exclude, top_n)
+        row_layout_single_idx_table_obj = dbc.Row(
+                                                html.Div(table_obj_similarities,
+                                                        className='div__table-proba-misspred'),
+                                                justify='center')
+        table_objs_similarities.append(row_layout_single_idx_table_obj)
+    return table_objs_similarities
+
+
+def _table_objs_counterfactuals(data_loader, user_defined_idx, feature_to_exclude, top_n):
+    models = data_loader.get_model_list()
+    table_objs_counterfactuals = []
+    for idx in str(user_defined_idx).replace(' ', '').split(','):
+        table_objs_cf_single_idx = generate_counterfactuals(data_loader, int(idx), feature_to_exclude, top_n)
+        table_objs_counterfactuals.append(table_objs_cf_single_idx)
+
+    viz_table_objs_counterfactuals = []
+    for table_objs_cf in table_objs_counterfactuals:
+        if detected_bimodal(models):
+            cf_table_obj_single_idx = [dbc.Row([html.H5('Counter-Factuals for model : ',
+                                                        id='title-after-topn-bottomn-reg',
+                                                        className='h5__counterfactuals-section-title'),
+                                                        html.H5(f'{models[0]}', className='h5__counterfactual-model')]),
+                                                dbc.Row(
+                                                    html.Div(table_objs_cf[0],
+                                                            id='table-obj-similarities-bm-1',
+                                                            className='div__table-proba-misspred'),
+                                                    justify='center'),
+                                                html.Br(),
+                                                dbc.Row([dbc.Row(html.H5('Counter-Factuals for model : ',
+                                                                id='title-after-topn-bottomn-reg',
+                                                                className='h5__counterfactuals-section-title')),
+                                                        dbc.Row(html.H5(f'{models[1]}', className='h5__counterfactual-model'))]),
+                                                dbc.Row(
+                                                    html.Div(table_objs_cf[1],
+                                                            id='table-obj-similarities-bm-2',
+                                                            className='div__table-proba-misspred'),
+                                                    justify='center')]
+            viz_table_objs_counterfactuals += cf_table_obj_single_idx
+        else:
+            cf_table_obj_single_idx = [dbc.Row([html.H5('Counter-Factuals for model : ',
+                                                        id='title-after-topn-bottomn-reg',
+                                                        className='h5__counterfactuals-section-title'),
+                                                        html.H5(f'{models[0]}', className='h5__counterfactual-model')]),
+                                                dbc.Row(
+                                                    html.Div(table_objs_cf[0],
+                                                            id='table-obj-similarities-sm',
+                                                            className='div__table-proba-misspred'),
+                                                    justify='center')]
+            viz_table_objs_counterfactuals += cf_table_obj_single_idx
+    return viz_table_objs_counterfactuals
+
+
 class SimilaritiesCF:
     def __init__(self, data_loader):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.df_features = data_loader.get_features()
         self.feature_to_exclude = []
-        self.user_defined_idx = 1
+        self.user_defined_idx = '1'
         self.top_n = 3
-        self.table_obj_similarities = generate_similarities(self.data_loader, self.user_defined_idx, self.feature_to_exclude, self.top_n)
+        self.table_objs_similarities = _table_objs_similarities(self.data_loader, self.user_defined_idx, self.feature_to_exclude, self.top_n)
 
     def show(self):
         options_feature_ls = [{'label': f'{col}', 'value': f'{col}'} for col in self.df_features.columns]
@@ -106,18 +167,19 @@ class SimilaritiesCF:
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Specify data index ( default index: 1 ) :'),
                                                                         className='h6__similaritiesCF-index')),
-                                                dbc.Row(dbc.Input(id='input-range-to-slice-kldiv-featdist',
+                                                dbc.Row(dbc.Input(id='input-specific-idx-similaritiesCF',
                                                                     placeholder='example:  1   OR   12, 123, 1234',
                                                                     type='text',
-                                                                    value=None))], width=6),
+                                                                    value=None)),
+                                                dbc.Row(html.Div(html.Pre(style_configs.input_range_subnote(self.df_features),
+                                                                            className='text__range-header-kldiv-featfist')))], width=6),
                                             dbc.Col([
                                                 dbc.Row(html.Div(html.H6('Select feature to exclude from similarities calculation '
                                                                         '( if applicable ) :'),
                                                                         className='h6__feature-to-exclude')),
-                                                dbc.Row(dbc.Col(dcc.Dropdown(id='select-feature-to-exclude-featdist', 
+                                                dbc.Row(dbc.Col(dcc.Dropdown(id='select-feature-to-exclude-similaritiesCF', 
                                                                             options=options_feature_ls,
                                                                             value=[], multi=True)))], width=6)]),
-                                        html.Br(),
                                         html.Br(),
                                         dbc.Row([
                                             dbc.Col([
@@ -126,62 +188,72 @@ class SimilaritiesCF:
                                                 dbc.Row(html.Div(html.Span('( ranked by calculated distance on overall feature similarites '
                                                                             'referencing to the index defined above ):'),
                                                                 className='text__display-header-similaritiesCF')),
-                                                dcc.Slider(id='select-slider-top-bottom-range-featdist',
+                                                dcc.Slider(id='select-slider-top-n-similaritiesCF',
                                                     min=1,
                                                     max=get_max_value_on_slider(self.df_features, 'similaritiesCF'),  # max at 10
                                                     step=1,
                                                     value=3,
                                                     marks=style_configs.DEFAULT_SLIDER_RANGE)], width=10),
                                             dbc.Col(dbc.Row(
-                                                        dcc.Loading(id='loading-output-specific-feat-featdist',
+                                                        dcc.Loading(id='loading-output-similaritiesCF',
                                                             type='circle', color='#a80202'),
-                                                    justify='left', className='loading__specific-feat-featdist'), width=1),
+                                                    justify='left', className='loading__similaritiesCF'), width=1),
                                             dbc.Col(dbc.Row(
                                                         dbc.Button("Update",
-                                                                    id='button-featdist-specific-feat-update',
+                                                                    id='button-similaritiesCF-update',
                                                                     n_clicks=0,
                                                                     className='button__update-dataset'), justify='right'))])
                                     ], className='border__select-dataset'),
+                                    html.Div(id='alert-index-input-error-similaritiesCF'),
                                     html.Br(),
                                     dbc.Row(html.H5('Comparison based on Feature Similarities',
                                                     id='title-after-topn-bottomn-reg',
-                                                    className='h5__counterfactuals-section-title')),
-                                    dbc.Row(
-                                        html.Div(self.table_obj_similarities, className='div__table-proba-misspred'),
-                                        justify='center')
-                                ]
+                                                    className='h5__counterfactuals-section-title'))
+                                ] + [html.Div(self.table_objs_similarities, id='table-objs-similarities-shared')]
+
         if is_regression(self.analysis_type):
-            similaritiesCF = dbc.Container(shared_layout_reg_cls, fluid=True)
+            similaritiesCF = dbc.Container(shared_layout_reg_cls + [html.Div(id='table-objs-counter-factuals')], fluid=True)
 
         elif is_classification(self.analysis_type):
             self.models = self.data_loader.get_model_list()
-            self.table_objs_similaritiesCF = generate_counterfactuals(self.data_loader,
-                                                                    self.user_defined_idx,
-                                                                    self.feature_to_exclude,
-                                                                    self.top_n)
-            if detected_bimodal(self.models):
-                counter_factuals_table_obj = [dbc.Row([html.H5('Counter-Factuals for model : ',
-                                                        id='title-after-topn-bottomn-reg',
-                                                        className='h5__counterfactuals-section-title'),
-                                                        html.H5(f'{self.models[0]}', className='h5__counterfactual-model')]),
-                                                dbc.Row(
-                                                    html.Div(self.table_objs_similaritiesCF[0], className='div__table-proba-misspred'),
-                                                    justify='center'),
-                                                html.Br(),
-                                                dbc.Row([dbc.Row(html.H5('Counter-Factuals for model : ',
-                                                                id='title-after-topn-bottomn-reg',
-                                                                className='h5__counterfactuals-section-title')),
-                                                        dbc.Row(html.H5(f'{self.models[1]}', className='h5__counterfactual-model'))]),
-                                                dbc.Row(
-                                                    html.Div(self.table_objs_similaritiesCF[1], className='div__table-proba-misspred'),
-                                                    justify='center')]
-            else:
-                counter_factuals_table_obj = [dbc.Row([html.H5('Counter-Factuals for model : ',
-                                                        id='title-after-topn-bottomn-reg',
-                                                        className='h5__counterfactuals-section-title'),
-                                                        html.H5(f'{self.models[0]}', className='h5__counterfactual-model')]),
-                                                dbc.Row(
-                                                    html.Div(self.table_objs_similaritiesCF[0], className='div__table-proba-misspred'),
-                                                    justify='center')]
-            similaritiesCF = dbc.Container(shared_layout_reg_cls + [html.Br(), html.Div(counter_factuals_table_obj)], fluid=True)
+            self.table_objs_counterfactuals = _table_objs_counterfactuals(self.data_loader,
+                                                                            self.user_defined_idx,
+                                                                            self.feature_to_exclude,
+                                                                            self.top_n)
+
+            combined_layouts_similaritiesCF = shared_layout_reg_cls + [html.Br(),
+                                                                        html.Div(self.table_objs_counterfactuals,
+                                                                                id='table-objs-counter-factuals')]
+            similaritiesCF = dbc.Container(combined_layouts_similaritiesCF, fluid=True)
         return similaritiesCF
+
+    def callbacks(self):
+        # callback on params related to top-n, botton-n / both on regression and classification tasks
+        @app.callback(
+            Output('loading-output-similaritiesCF', 'children'),
+            Output('alert-index-input-error-similaritiesCF', 'children'),
+            Output('table-objs-similarities-shared', 'children'),
+            Output('table-objs-counter-factuals', 'children'),
+            Input('button-similaritiesCF-update', 'n_clicks'),
+            State('input-specific-idx-similaritiesCF', 'value'),
+            State('select-feature-to-exclude-similaritiesCF', 'value'),
+            State('select-slider-top-n-similaritiesCF', 'value'))
+        def generate_table_objs_based_on_user_selected_params(click_count, specific_idx, feature_to_exclude, top_n):
+            if click_count > 0:
+                if specific_idx is None:  # during first spin-up
+                    specific_idx = self.user_defined_idx  # default value
+                idx_input_err_alert = style_configs.no_error_alert()
+
+                if detected_invalid_index_inputs(specific_idx, self.df_features):
+                    idx_input_err_alert = style_configs.activate_invalid_index_input_alert(self.df_features)
+                    return '', idx_input_err_alert, dash.no_update, dash.no_update
+
+                if is_regression(self.analysis_type):
+                    table_objs_similarities = _table_objs_similarities(self.data_loader, specific_idx, feature_to_exclude, top_n)
+                    return '', idx_input_err_alert, table_objs_similarities, ''
+                elif is_classification(self.analysis_type):
+                    table_objs_similarities = _table_objs_similarities(self.data_loader, specific_idx, feature_to_exclude, top_n)
+                    table_objs_counterfactuals = _table_objs_counterfactuals(self.data_loader, specific_idx, feature_to_exclude, top_n)
+                    return '', idx_input_err_alert, table_objs_similarities, table_objs_counterfactuals
+            else:
+                raise PreventUpdate

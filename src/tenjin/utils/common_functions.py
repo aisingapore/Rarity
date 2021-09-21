@@ -50,6 +50,17 @@ def detected_bimodal(models):
         return False
 
 
+def detected_invalid_index_inputs(specific_idx, df):
+    special_characters = list(string.punctuation.replace(',', ''))
+    letters = list(string.ascii_letters)
+    if any(sp_char for sp_char in special_characters if sp_char in specific_idx):
+        return True
+    elif any(letter for letter in letters if letter in specific_idx):
+        return True
+    elif any(idx for idx in specific_idx.replace(' ', '').split(',') if (int(idx) > len(df)) or (int(idx) < 0)):
+        return True
+
+
 def detected_legend_filtration(restyle_data):
     if restyle_data[0]['visible'] == ['legendonly']:
         return True
