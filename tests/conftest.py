@@ -20,41 +20,41 @@ def pytest_setup_options():
 
 @pytest.fixture
 def csv_loader_single_modal_reg():
-    SAMPLE_DATA_DIR = "./tests/sample_data/regression/"
+    SAMPLE_DATA_DIR = './tests/sample_data/regression/'
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_features.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'reg_yPreds_modelA.csv')
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, 
-                                Y_TRUE_FILE, 
-                                yPred_file_list=[Y_PRED_FILE_1], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = CSVDataLoader(FEATURES_FILE,
+                                Y_TRUE_FILE,
+                                yPred_file_ls=[Y_PRED_FILE_1],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
 
 @pytest.fixture
 def csv_loader_single_modal_cls():
-    SAMPLE_DATA_DIR = "./tests/sample_data/classification/binary/"
+    SAMPLE_DATA_DIR = './tests/sample_data/classification/binary/'
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_features.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'binary_yPreds_modelA.csv')
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, 
-                                Y_TRUE_FILE, 
-                                yPred_file_list=[Y_PRED_FILE_1], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = CSVDataLoader(FEATURES_FILE,
+                                Y_TRUE_FILE,
+                                yPred_file_ls=[Y_PRED_FILE_1],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
 
 @pytest.fixture
 def csv_loader_bimodal_reg():
-    SAMPLE_DATA_DIR = "./tests/sample_data/regression/"
+    SAMPLE_DATA_DIR = './tests/sample_data/regression/'
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_features.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'reg_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'reg_yPreds_modelA.csv')
@@ -62,17 +62,17 @@ def csv_loader_bimodal_reg():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, 
-                                Y_TRUE_FILE, 
-                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = CSVDataLoader(FEATURES_FILE,
+                                Y_TRUE_FILE,
+                                yPred_file_ls=[Y_PRED_FILE_1, Y_PRED_FILE_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
 
 @pytest.fixture
 def csv_loader_bimodal_cls():
-    SAMPLE_DATA_DIR = "./tests/sample_data/classification/binary/"
+    SAMPLE_DATA_DIR = './tests/sample_data/classification/binary/'
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_features.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'binary_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'binary_yPreds_modelA.csv')
@@ -80,17 +80,17 @@ def csv_loader_bimodal_cls():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, 
-                                Y_TRUE_FILE, 
-                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = CSVDataLoader(FEATURES_FILE,
+                                Y_TRUE_FILE,
+                                yPred_file_ls=[Y_PRED_FILE_1, Y_PRED_FILE_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
 
 @pytest.fixture
 def csv_loader_bimodal_cls_multi():
-    SAMPLE_DATA_DIR = "./tests/sample_data/classification/multiclass/"
+    SAMPLE_DATA_DIR = './tests/sample_data/classification/multiclass/'
     FEATURES_FILE = os.path.join(SAMPLE_DATA_DIR, 'multiclass_features.csv')
     Y_TRUE_FILE = os.path.join(SAMPLE_DATA_DIR, 'multiclass_yTrue.csv')
     Y_PRED_FILE_1 = os.path.join(SAMPLE_DATA_DIR, 'multiclass_yPreds_modelA.csv')
@@ -98,10 +98,10 @@ def csv_loader_bimodal_cls_multi():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Multiclass-Classification'
 
-    data_loader = CSVDataLoader(FEATURES_FILE, 
-                                Y_TRUE_FILE, 
-                                yPred_file_list=[Y_PRED_FILE_1, Y_PRED_FILE_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = CSVDataLoader(FEATURES_FILE,
+                                Y_TRUE_FILE,
+                                yPred_file_ls=[Y_PRED_FILE_1, Y_PRED_FILE_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
@@ -114,10 +114,10 @@ def dataframe_loader_single_modal_reg():
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = DataframeLoader(DF_FEATURES, 
-                                DF_Y_TRUE, 
-                                df_yPred_list=[DF_Y_PRED_1], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = DataframeLoader(DF_FEATURES,
+                                DF_Y_TRUE,
+                                df_yPred_ls=[DF_Y_PRED_1],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
@@ -130,10 +130,10 @@ def dataframe_loader_single_modal_cls():
     MODEL_NAMES = ['model_A']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, 
-                                DF_Y_TRUE, 
-                                df_yPred_list=[DF_Y_PRED_1], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = DataframeLoader(DF_FEATURES,
+                                DF_Y_TRUE,
+                                df_yPred_ls=[DF_Y_PRED_1],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
@@ -147,10 +147,10 @@ def dataframe_loader_bimodal_reg():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Regression'
 
-    data_loader = DataframeLoader(DF_FEATURES, 
-                                DF_Y_TRUE, 
-                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = DataframeLoader(DF_FEATURES,
+                                DF_Y_TRUE,
+                                df_yPred_ls=[DF_Y_PRED_1, DF_Y_PRED_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
@@ -164,10 +164,10 @@ def dataframe_loader_bimodal_cls():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Binary-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, 
-                                DF_Y_TRUE, 
-                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = DataframeLoader(DF_FEATURES,
+                                DF_Y_TRUE,
+                                df_yPred_ls=[DF_Y_PRED_1, DF_Y_PRED_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
 
@@ -181,9 +181,9 @@ def dataframe_loader_bimodal_cls_multi():
     MODEL_NAMES = ['model_A', 'model_B']
     ANALYSIS_TYPE = 'Multiclass-Classification'
 
-    data_loader = DataframeLoader(DF_FEATURES, 
-                                DF_Y_TRUE, 
-                                df_yPred_list=[DF_Y_PRED_1, DF_Y_PRED_2], 
-                                model_names_list=MODEL_NAMES, 
+    data_loader = DataframeLoader(DF_FEATURES,
+                                DF_Y_TRUE,
+                                df_yPred_ls=[DF_Y_PRED_1, DF_Y_PRED_2],
+                                model_names_ls=MODEL_NAMES,
                                 analysis_type=ANALYSIS_TYPE)
     return data_loader
