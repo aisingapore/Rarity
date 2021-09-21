@@ -207,7 +207,7 @@ class DataframeLoader(BaseLoader):
         model_names_ls: List[str] = [],
         analysis_type: str = None
     ):
-        super().__init__(df_xFeatures, df_yTrue, df_yPred_ls=[], model_names_ls=[], analysis_type=None)
+        super().__init__(df_xFeatures, df_yTrue, df_yPred_ls, model_names_ls, analysis_type)
         self.yTrue = df_yTrue.copy()
         self.yPreds = [df.copy() for df in df_yPred_ls]
         self.analysis_type = analysis_type.lower().replace(' ', '-')
