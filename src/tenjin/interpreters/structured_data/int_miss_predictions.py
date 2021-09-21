@@ -1,29 +1,40 @@
+from typing import Union
 import pandas as pd
 
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
 from tenjin.utils.common_functions import is_regression, is_classification
 
 
 class IntMissPredictions(BaseInterpreters):
-    """
-    - Transform raw data into input format suitable for plotting with plotly
+    '''
+    Transform raw data into input format suitable for visualization on miss-prediction points
 
     Arguments:
-        data_loader {class object} -- class object from data_loader pipeline
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        if analysis_type == 'regression'
-            df {dataframe} -- dataframe storing info needed for visualizer
-        elif analysis_type == 'classification'
-            ls_dfs_viz {list} -- list of dataframes for overview
-            ls_class_labels {list} -- list of class labels
-            ls_dfs_by_label {list} -- list of dataframes by individual label class
-            ls_dfs_by_label_state {list} -- list of dataframes storing basic stats of each label class
-        """
-    def __init__(self, data_loader):
+        :obj:`~pd.DataFrame`: Dataframe with essential info suitable for visualization on regression task
+
+    .. note::
+
+        if classification, returns:
+
+            Compact outputs consist of the followings
+
+            - ls_dfs_viz (:obj:`List[~pd.DataFrame]`): list of dataframes for overview visualization need
+            - ls_class_labels (:obj:`List[str]`): list of class labels
+            - ls_dfs_by_label  (:obj:`List[~pd.DataFrame]`): list of dataframes by individual label class
+            - ls_dfs_by_label_state (:obj:`List[~pd.DataFrame]`): list of dataframes storing basic stats of each label class
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         super().__init__(data_loader)
 
     def xform(self):
+        '''
+        Core transformation function to tap-out data into input format suitable for plotly graph
+        '''
         if is_regression(self.analysis_type):
             df = super().get_df_with_offset_values()
             return df
