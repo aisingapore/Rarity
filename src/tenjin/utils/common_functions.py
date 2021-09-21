@@ -1,7 +1,9 @@
+from typing import Dict, List
 import string
+import pandas as pd
 
 
-def identify_active_trace(relayout_data):
+def identify_active_trace(relayout_data: Dict):
     '''
     only 1 unique trace should be in relayout_data
     this function is to retrieve the position info of the unique trace
@@ -15,42 +17,42 @@ def identify_active_trace(relayout_data):
     return specific_layout
 
 
-def is_active_trace(relayout_data):
+def is_active_trace(relayout_data: Dict):
     if ('xaxis.range[0]' in relayout_data.keys() or 'yaxis.range[0]' in relayout_data.keys()) and 'xaxis.autorange' not in relayout_data.keys():
         return True
     else:
         return False
 
 
-def is_reset(relayout_data):
+def is_reset(relayout_data: Dict):
     if 'xaxis.autorange' in relayout_data.keys():
         return True
     else:
         return False
 
 
-def is_regression(analysis_type):
+def is_regression(analysis_type: str):
     if analysis_type == 'regression':
         return True
     else:
         return False
 
 
-def is_classification(analysis_type):
+def is_classification(analysis_type: str):
     if 'classification' in analysis_type:
         return True
     else:
         return False
 
 
-def detected_bimodal(models):
+def detected_bimodal(models: List[str]):
     if len(models) == 2:
         return True
     else:
         return False
 
 
-def detected_invalid_index_inputs(specific_idx, df):
+def detected_invalid_index_inputs(specific_idx: str, df: pd.DataFrame):
     special_characters = list(string.punctuation.replace(',', ''))
     letters = list(string.ascii_letters)
     if any(sp_char for sp_char in special_characters if sp_char in specific_idx):
@@ -61,7 +63,7 @@ def detected_invalid_index_inputs(specific_idx, df):
         return True
 
 
-def detected_legend_filtration(restyle_data):
+def detected_legend_filtration(restyle_data: Dict):
     if restyle_data[0]['visible'] == ['legendonly']:
         return True
     elif restyle_data[0]['visible'] == [True]:
@@ -70,42 +72,42 @@ def detected_legend_filtration(restyle_data):
         return False
 
 
-def detected_unique_figure(relayout_data):
+def detected_unique_figure(relayout_data: Dict):
     if sum(_valid_fig_key_ls(relayout_data)) == 1:
         return True
     else:
         return False
 
 
-def detected_more_than_1_unique_figure(relayout_data):
+def detected_more_than_1_unique_figure(relayout_data: Dict):
     if sum(_valid_fig_key_ls(relayout_data)) > 1:
         return True
     else:
         return False
 
 
-def detected_single_xaxis(relayout_data):
+def detected_single_xaxis(relayout_data: Dict):
     if 'yaxis.range[0]' not in relayout_data.keys():
         return True
     else:
         return False
 
 
-def detected_single_yaxis(relayout_data):
+def detected_single_yaxis(relayout_data: Dict):
     if 'xaxis.range[0]' not in relayout_data.keys():
         return True
     else:
         return False
 
 
-def detected_complete_pair_xaxis_yaxis(relayout_data):
+def detected_complete_pair_xaxis_yaxis(relayout_data: Dict):
     if 'xaxis.range[0]' in relayout_data.keys() and 'yaxis.range[0]' in relayout_data.keys():
         return True
     else:
         return False
 
 
-def get_min_max_offset(df, models):
+def get_min_max_offset(df: pd.DataFrame, models: List[str]):
     min_offset = df[f'offset_{models[0]}'].min()
     max_offset = df[f'offset_{models[0]}'].max()
 
@@ -118,7 +120,7 @@ def get_min_max_offset(df, models):
     return min_offset, max_offset
 
 
-def get_min_max_index(df, models, y_start_idx, y_stop_idx):
+def get_min_max_index(df: pd.DataFrame, models: List[str], y_start_idx: int, y_stop_idx: int):
     condition_y_min = (df[f'offset_{models[0]}'] >= y_start_idx)
     condition_y_max = (df[f'offset_{models[0]}'] <= y_stop_idx)
     df_temp = conditional_sliced_df(df, condition_y_min, condition_y_max)
@@ -137,7 +139,7 @@ def get_min_max_index(df, models, y_start_idx, y_stop_idx):
     return min_index, max_index
 
 
-def get_min_max_cluster(df, models, y_start_idx, y_stop_idx):
+def get_min_max_cluster(df: pd.DataFrame, models: List[str], y_start_idx: int, y_stop_idx: int):
     condition_y_min = (df[f'offset_{models[0]}'] >= y_start_idx)
     condition_y_max = (df[f'offset_{models[0]}'] <= y_stop_idx)
     df_temp = conditional_sliced_df(df, condition_y_min, condition_y_max)
@@ -156,7 +158,7 @@ def get_min_max_cluster(df, models, y_start_idx, y_stop_idx):
     return min_cluster, max_cluster
 
 
-def get_effective_xaxis_cluster(relayout_data):
+def get_effective_xaxis_cluster(relayout_data: Dict):
     if relayout_data['xaxis.range[0]'] > 1 and relayout_data['xaxis.range[0]'] < 8:
         x_cluster = int(relayout_data['xaxis.range[0]']) + 1
     elif relayout_data['xaxis.range[0]'] <= 1:
@@ -166,13 +168,13 @@ def get_effective_xaxis_cluster(relayout_data):
     return x_cluster
 
 
-def get_adjusted_dfs_based_on_legend_filtration(dfs, models):
+def get_adjusted_dfs_based_on_legend_filtration(dfs: List[pd.DataFrame], models: List[str]):
     if models[0] != dfs[0]['model'].values[0]:
         dfs[0] = dfs[1]
     return dfs
 
 
-def get_adjusted_xy_coordinate(relayout_data, df):
+def get_adjusted_xy_coordinate(relayout_data: Dict, df: pd.DataFrame):
     if detected_single_xaxis(relayout_data):
         x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
         x_stop_idx = int(relayout_data['xaxis.range[1]']) if relayout_data['xaxis.range[1]'] <= len(df) - 1 else len(df) - 1
@@ -193,7 +195,7 @@ def get_adjusted_xy_coordinate(relayout_data, df):
     return x_start_idx, x_stop_idx, y_start_idx, y_stop_idx
 
 
-def get_max_value_on_slider(df, component):
+def get_max_value_on_slider(df: pd.DataFrame, component: str):
     if component == 'feat-dist':
         max_value = len(list(df.columns))
         if len(list(df.columns)) > 10:
@@ -206,7 +208,7 @@ def get_max_value_on_slider(df, component):
         return max_value
 
 
-def dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop_idx):
+def dataframe_prep_on_model_count_by_yaxis_slice(df: pd.DataFrame, models: List[str], y_start_idx: int, y_stop_idx: int):
     '''
     For regression task
     '''
@@ -232,7 +234,7 @@ def dataframe_prep_on_model_count_by_yaxis_slice(df, models, y_start_idx, y_stop
     return df_final
 
 
-def new_dataframe_prep_based_on_effective_index(df, df_ref):
+def new_dataframe_prep_based_on_effective_index(df: pd.DataFrame, df_ref: pd.DataFrame):
     '''
     For classification - loss cluster
     '''
@@ -241,7 +243,7 @@ def new_dataframe_prep_based_on_effective_index(df, df_ref):
     return df_new
 
 
-def conditional_sliced_df(df, condition1, condition2):
+def conditional_sliced_df(df: pd.DataFrame, condition1, condition2):
     df_sliced = df[condition1 & condition2]
     return df_sliced
 
@@ -251,7 +253,7 @@ def insert_index_col(df):
     return df
 
 
-def invalid_slicing_range(slicing_input):
+def invalid_slicing_range(slicing_input: str):
     special_characters = list(string.punctuation.replace(':', '').replace('%', ''))
     letters = list(string.ascii_letters)
     try:
@@ -270,7 +272,7 @@ def invalid_slicing_range(slicing_input):
         return False
 
 
-def invalid_slicing_range_sequence(range_list):
+def invalid_slicing_range_sequence(range_list: List[str]):
     start = int(range_list[0].replace('%', ''))
     stop = int(range_list[1].replace('%', ''))
     if start > stop:
@@ -279,7 +281,7 @@ def invalid_slicing_range_sequence(range_list):
         return False
 
 
-def invalid_min_max_limit(range_list, df):
+def invalid_min_max_limit(range_list: List[str], df: pd.DataFrame):
     start = int(range_list[0].replace('%', ''))
     stop = int(range_list[1].replace('%', ''))
 
@@ -289,7 +291,7 @@ def invalid_min_max_limit(range_list, df):
         return False
 
 
-def incomplete_range_entry(range_list):
+def incomplete_range_entry(range_list: List[str]):
     '''
     Either only start_idx is provided or stop_idx is provided by user
     '''
@@ -299,7 +301,7 @@ def incomplete_range_entry(range_list):
         return False
 
 
-def _valid_fig_key_ls(relayout_data):
+def _valid_fig_key_ls(relayout_data: Dict):
     valid_key_ls = []
     for rd in relayout_data:
         try:
