@@ -1,15 +1,30 @@
+from typing import Union
 import numpy as np
+
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 
 
 class BaseInterpreters:
-    def __init__(self, data_loader):
+    '''
+    Class to tapout base dataframe that combines all xfeatures, yTrue and yPred that fits for next level of input transformation
+    based on the integration need of specific feature component.
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.models = data_loader.get_model_list()
 
     def get_df_with_offset_values(self):
         '''
-        For use in regression task only
+        For use in regression task only.
+        Include offset values into main combined df collating together with xFeatures, yTrue and yPred
+
+        Returns:
+            :obj:`~pandas.DataFrame`
         '''
         df = self.data_loader.get_all()
         df[f'offset_{self.models[0]}'] = df[f'yPred_{self.models[0]}'] - df['yTrue']
@@ -19,7 +34,13 @@ class BaseInterpreters:
 
     def get_df_with_probability_values(self):
         '''
-        For use in classification task only
+        For use in classification task only.
+        Include prediction state indicating if prediction is correct or miss-predict into main combined df
+        collating together with yTrue and probabilities value of each class label
+
+        Returns :
+            ls_dfs_viz (:obj:`List[~pd.DataFrame]`) - List of dfs with prediction state info included for each model
+            ls_class_labels (:obj:`List[str]`) - List of class labels
         '''
         # extract list of class labels
         df_tmp = self.data_loader.get_all()[0]
