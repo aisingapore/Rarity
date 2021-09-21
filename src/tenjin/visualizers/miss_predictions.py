@@ -1,26 +1,28 @@
+import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import dash_table
 
 
-def plot_probabilities_spread_pattern(df_specific_label):
+def plot_probabilities_spread_pattern(df_specific_label: pd.DataFrame):
     '''
     Display scatter plot for probabilities comparison on correct data point vs miss-predicted data point
     for each class label
 
     Arguments:
-        df -- output from interpreter [int_miss_predictions], dataframe of 1 specific label of 1 model type
+        df_specific_label (:obj:`~pd.DataFrame`): dataframe of 1 specific label of 1 model type, output from int_miss_predictions
 
     Returns:
-        plotly scatter plot 
+        :obj:`~plotly.graph_objects.Figure`:
+        figure displaying scatter plot outlining probabilities comparison on correct data point vs miss-predicted data point for each class label
     '''
     label = list(df_specific_label.columns)[1]
     model_name = df_specific_label['model'].values[0]
 
-    fig = px.scatter(df_specific_label, 
-                     x=list(df_specific_label.index), 
-                     y=df_specific_label[label], 
-                     color='pred_state', 
+    fig = px.scatter(df_specific_label,
+                     x=list(df_specific_label.index),
+                     y=df_specific_label[label],
+                     color='pred_state',
                      category_orders={"pred_state": ["correct", "miss-predict"]},
                      color_discrete_sequence=px.colors.qualitative.D3)
 
@@ -55,15 +57,15 @@ def plot_probabilities_spread_pattern(df_specific_label):
     return fig
 
 
-def plot_simple_probs_spread_overview(df_label_state):
+def plot_simple_probs_spread_overview(df_label_state: pd.DataFrame):
     '''
     Display data table listing simple stats on ss, %correct, % wrong, accuracy for each label class
 
     Arguments:
-        df -- output from interpreter [int_general_metrics]
+        df_label_state (:obj:`~pd.DataFrame`): dataframe containing info on simple stats, output from int_miss_predictions
 
     Returns:
-        dash table
+        :obj:`~dash_table.DataTable`: table object outlining simple stats on ss, %correct, % wrong, accuracy for each label class
     '''
     fig = dash_table.DataTable(
         id='table', 
@@ -81,15 +83,16 @@ def plot_simple_probs_spread_overview(df_label_state):
     return fig
 
 
-def plot_prediction_offset_overview(df):
+def plot_prediction_offset_overview(df: pd.DataFrame):
     '''
     Display scatter plot for overview on prediction offset values
 
     Arguments:
-        df -- output from interpreter [int_general_metrics]
+        df (:obj:`~pd.DataFrame`): dataframe containing calculated offset values, output from int_miss_predictions
 
     Returns:
-        plotly scatter plot 
+        :obj:`~plotly.graph_objects.Figure`:
+        figure displaying scatter plot outlining overview on prediction offset values by index
     '''
     pred_cols = [col for col in df.columns if 'yPred_' in col]
     offset_cols = [col for col in df.columns if 'offset_' in col]
