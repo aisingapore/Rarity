@@ -1,11 +1,11 @@
 # Refer to gitlab CI job configuration docs for details
 # https://docs.gitlab.com/ee/ci/yaml/
 
-image: registry.aisingapore.net/brickworks/brickworks-vizlibrary-tenjin3:v3
+image: registry.aisingapore.net/brickworks/brickworks-vizlibrary-rarity:v1
 
 stages:
   - code_check
-  - tests
+  # - tests
 
 code_check:
   stage: code_check
@@ -15,13 +15,13 @@ code_check:
     - pip install flake8
     - flake8 . --count --show-source --statistics
 
-tests:
-  stage: tests
-  script:
-    - echo "Running tests on Tenjin package"
-    - pip install --upgrade pip
-    - pip install -e .
-    - pip install -r ci/_requirements.txt
-    - pip install pytest pytest-cov dash[testing]
-    - pytest --cov-report term-missing --cov --headless -v tests/
+# tests:
+#   stage: tests
+#   script:
+#     - echo "Running tests on Rarity package"
+#     - pip install --upgrade pip
+#     - pip install -e .
+#     - pip install -r ci/_requirements.txt
+#     - pip install pytest pytest-cov dash[testing]
+#     - pytest --cov-report term-missing --cov --headless -v tests/
     
