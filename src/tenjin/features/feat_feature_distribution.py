@@ -1,3 +1,6 @@
+from typing import Union, List, Dict
+import pandas as pd
+
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -6,6 +9,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 from tenjin.app import app
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data import IntFeatureDistribution
 from tenjin.visualizers.xfeature_distribution import plot_distribution_by_specific_feature, plot_distribution_by_kl_div_ranking
 from tenjin.utils import style_configs
@@ -14,7 +18,41 @@ from tenjin.utils.common_functions import is_regression, is_classification, dete
                                             incomplete_range_entry, get_max_value_on_slider
 
 
-def fig_plot_distribution_by_kl_div_ranking(data_loader, feature_to_exclude, start_idx, stop_idx, display_option, display_value):
+def fig_plot_distribution_by_kl_div_ranking(data_loader: Union[CSVDataLoader, DataframeLoader],
+                                            feature_to_exclude: List[str],
+                                            start_idx: int,
+                                            stop_idx: int,
+                                            display_option: str,
+                                            display_value: int):
+    '''
+    Integration of kl-divergence scores to corresponding fig-object
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        feature_to_exclude (List of :obj:`str`, `optional`):
+            A list of features to be excluded from the kl-div calculation and visualization
+        start_idx (:obj:`int`, `optional`):
+            Integer number indicating the start index position to slice dataframe
+        stop_idx (:obj:`int`, `optional`):
+            Integer number indicating the stop index position to slice dataframe
+        display_option (str):
+            - info to indicate if to display distribution plot by top-N / bottom-N or both top-N + bottom-N
+            - Available options: 'top', 'bottom' or 'both'
+        display_value (int):
+            - number indicates the limit of graph to be displayed, max at 10
+            - if dataset consists of < 10 features, the limit == no. of features the dataset has
+
+    Returns:
+        :obj:`Dict[~plotly.graph_objects.Figure]`:
+            dictionary storing distribution figures by display_option
+
+    .. note::
+
+            if classification, returns:
+
+                :obj:`List[Dict[~plotly.graph_objects.Figure]]`: list of dictionary storing distribution figures by display_option
+    '''
     if is_regression(data_loader.analysis_type):
         kl_div_dict_sorted = IntFeatureDistribution(data_loader).xform(feature_to_exclude, start_idx, stop_idx)
         fig_obj_dict = plot_distribution_by_kl_div_ranking(kl_div_dict_sorted, display_option, display_value, 'dataset_type', None)
@@ -28,7 +66,24 @@ def fig_plot_distribution_by_kl_div_ranking(data_loader, feature_to_exclude, sta
         return ls_fig_obj_dict
 
 
-def fig_plot_distribution_by_specific_feature(data_loader, ls_specific_feature, start_idx, stop_idx):
+def fig_plot_distribution_by_specific_feature(data_loader: Union[CSVDataLoader, DataframeLoader], ls_specific_feature, start_idx, stop_idx):
+    '''
+    Integration of kl-divergence scores to specific fig-object
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        ls_specific_feature (List of :obj:`str`):
+            A list of features to be displayed along with the corresponding kl-div score
+        start_idx (:obj:`int`, `optional`):
+            Integer number indicating the start index position to slice dataframe
+        stop_idx (:obj:`int`, `optional`):
+            Integer number indicating the stop index position to slice dataframe
+
+    Returns:
+        :obj:`List[~plotly.graph_objects.Figure]`:
+            list of figure objects displaying the distribution plot based on kl-divergence score
+    '''
     if is_regression(data_loader.analysis_type):
         kl_div_dict_sorted = IntFeatureDistribution(data_loader).xform(None, start_idx, stop_idx)
         fig_objs_specific = plot_distribution_by_specific_feature(ls_specific_feature, kl_div_dict_sorted, 'dataset_type', None)
@@ -42,7 +97,10 @@ def fig_plot_distribution_by_specific_feature(data_loader, ls_specific_feature, 
         return ls_fig_objs_specific
 
 
-def _fig_layout_top_n(fig_obj_dict, display_option, model_pair=True):
+def _fig_layout_top_n(fig_obj_dict: Dict, display_option: int, model_pair: bool = True):
+    '''
+    Internal function to tapout dash html layout for top-n figures
+    '''
     fig_objs_display_combined = []
     if model_pair:
         for n in range(len(fig_obj_dict[0][display_option])):
@@ -71,7 +129,10 @@ def _fig_layout_top_n(fig_obj_dict, display_option, model_pair=True):
     return fig_objs_display_combined
 
 
-def _fig_layout_bottom_n(fig_obj_dict, display_option, model_pair=True):
+def _fig_layout_bottom_n(fig_obj_dict: Dict, display_option: str, model_pair: bool = True):
+    '''
+    Internal function to tapout dash html layout for bottom-n figures
+    '''
     fig_objs_display_combined = []
     if model_pair:
         for n in range(len(fig_obj_dict[0][display_option])):
@@ -100,7 +161,10 @@ def _fig_layout_bottom_n(fig_obj_dict, display_option, model_pair=True):
     return fig_objs_display_combined
 
 
-def _model_pair_fig_objs_layout_on_display_option(ls_fig_obj_dict, display_option):
+def _model_pair_fig_objs_layout_on_display_option(ls_fig_obj_dict: List[Dict], display_option: str):
+    '''
+    Internal function to collate figure layouts based on display option for bimodal scenario
+    '''
     fig_objs_pairs_display_combined = []
     if display_option == 'top':
         fig_objs_pairs_display_combined = _fig_layout_top_n(ls_fig_obj_dict, display_option, model_pair=True)
@@ -114,10 +178,11 @@ def _model_pair_fig_objs_layout_on_display_option(ls_fig_obj_dict, display_optio
     return fig_objs_pairs_display_combined
 
 
-def _fig_objs_layout_based_on_display_option(fig_obj_dict, display_option):
+def _fig_objs_layout_based_on_display_option(fig_obj_dict: Dict, display_option: str):
     '''
-    fig_obj_dict => already filtered to top n value selected by user
+    Internal function to collate figure layouts based on display option for non-bimodal scenario
     '''
+    # fig_obj_dict => already filtered to top n value selected by user
     fig_objs_display_combined = []
     if display_option == 'top':
         fig_objs_display_combined = _fig_layout_top_n(fig_obj_dict, display_option, model_pair=False)
@@ -131,7 +196,10 @@ def _fig_objs_layout_based_on_display_option(fig_obj_dict, display_option):
     return fig_objs_display_combined
 
 
-def _fig_objs_layout_based_on_specific_feature(specific_feature, fig_objs_specific):
+def _fig_objs_layout_based_on_specific_feature(specific_feature: List, fig_objs_specific: List):
+    '''
+    Internal function to collate figure layouts for specific feature/features
+    '''
     fig_objs_specific_feature_combined = []
     if len(specific_feature) > 0:
         for i, specific_fig in enumerate(fig_objs_specific):
@@ -141,7 +209,10 @@ def _fig_objs_layout_based_on_specific_feature(specific_feature, fig_objs_specif
     return fig_objs_specific_feature_combined
 
 
-def _model_pair_fig_objs_layout_on_specific_feature(specific_feature, ls_fig_objs_specific):
+def _model_pair_fig_objs_layout_on_specific_feature(specific_feature: List, ls_fig_objs_specific: List):
+    '''
+    Internal function to collate figure layouts for specific feature/features for bimodal scenario
+    '''
     fig_objs_specific_feature_combined = []
     if len(specific_feature) > 0:
         for i, (specific_fig_m1, specific_fig_m2) in enumerate(zip(ls_fig_objs_specific[0], ls_fig_objs_specific[1])):
@@ -159,7 +230,10 @@ def _model_pair_fig_objs_layout_on_specific_feature(specific_feature, ls_fig_obj
     return fig_objs_specific_feature_combined
 
 
-def _second_level_validity_check_on_user_input_range(range_list, df):
+def _second_level_validity_check_on_user_input_range(range_list: List[str], df: pd.DataFrame):
+    '''
+    Internal function to perform validity check on user inputs on index range
+    '''
     range_input_err_alert = ''
     if incomplete_range_entry(range_list):
         range_input_err_alert = style_configs.activate_incomplete_range_entry_alert()
@@ -170,7 +244,13 @@ def _second_level_validity_check_on_user_input_range(range_list, df):
     return range_input_err_alert
 
 
-def _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input, df_features, default_start_idx, default_stop_idx):
+def _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input: str,
+                                                            df_features: pd.DataFrame,
+                                                            default_start_idx: int,
+                                                            default_stop_idx: int):
+    '''
+    Internal function to adjust valid start / stop index based on user input
+    '''
     if slicing_input is not None:
         if invalid_slicing_range(slicing_input):
             range_input_err_alert = style_configs.activate_range_input_error_alert()
@@ -213,7 +293,39 @@ def _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input, df_fe
 
 
 class FeatureDistribution:
-    def __init__(self, data_loader):
+    '''
+    Main integration for feature component on Distribution
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Important Attributes:
+
+        analysis_type (str):
+            Analysis type defined by user during initial inputs preparation via data_loader stage.
+        model_names (:obj:`List[str]`):
+            model names defined by user during initial inputs preparation via data_loader stage.
+        is_bimodal (bool):
+            to indicate if analysis involves 2 models
+        feature_to_exclude (List of :obj:`str`, `optional`):
+            A list of features to be excluded from the kl-div calculation and visualization
+        df_features (:obj:`~pandas.DataFrame`):
+            Dataframe storing all features used in dataset
+        specific_feature (List of :obj:`str`):
+            A list of features to be displayed along with the corresponding kl-div score
+        display_option (str):
+            - info to indicate if to display distribution plot by top-N / bottom-N or both top-N + bottom-N
+            - Available options: 'top', 'bottom' or 'both'
+        display_value (int):
+            - number indicates the limit of graph to be displayed, max at 10
+            - if dataset consists of < 10 features, the limit == no. of features the dataset has
+
+    Returns:
+        :obj:`~dash_core_components.Container`:
+            styled dash components displaying graph and/or table objects
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.model_names = data_loader.get_model_list()
@@ -245,6 +357,9 @@ class FeatureDistribution:
                                                                             self.stop_idx)
 
     def show(self):
+        '''
+        Method to tapout styled html for feature distribution
+        '''
         options_feature_ls_reg = [{'label': f'{col}', 'value': f'{col}'} for col in self.df_features.columns]
 
         if is_regression(self.analysis_type) or (is_classification(self.analysis_type) and not detected_bimodal(self.model_names)):
@@ -360,7 +475,6 @@ class FeatureDistribution:
         return distplot
 
     def callbacks(self):
-        # callback on params related to top-n, botton-n / both
         @app.callback(
             Output('loading-output-kldiv-featdist', 'children'),
             Output('alert-range-input-error-kldiv-featdist', 'children'),
@@ -371,6 +485,9 @@ class FeatureDistribution:
             State('select-slider-top-bottom-range-featdist', 'value'),
             State('input-range-to-slice-kldiv-featdist', 'value'))
         def update_fig_based_on_topbtm_exclusion_idx_range_params(click_count, feature_to_exclude, display_option, display_value, slicing_input):
+            '''
+            Callbacks functionalities on params related to top-n, botton-n / both
+            '''
             if click_count > 0:
                 range_input_err_alert = style_configs.no_error_alert()
                 compact_outputs_kldiv = _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input,
@@ -400,7 +517,6 @@ class FeatureDistribution:
             else:
                 raise PreventUpdate
 
-        # callback on params related to specific feature chosen by user
         @app.callback(
             Output('loading-output-specific-feat-featdist', 'children'),
             Output('alert-range-input-error-spedific-feat-featdist', 'children'),
@@ -409,6 +525,9 @@ class FeatureDistribution:
             State('select-specific-feature-featdist', 'value'),
             State('input-range-to-slice-specific-feat-featdist', 'value'))
         def update_fig_based_on_specific_feat_idx_range_params(click_count, specific_feature, slicing_input):
+            '''
+            Callbacks functionalities on params related to specific feature chosen by user
+            '''
             if click_count > 0:
                 range_input_err_alert = style_configs.no_error_alert()
                 compact_outputs_specific_feat = _generate_valid_start_stop_idx_based_on_usr_input_range(slicing_input,
