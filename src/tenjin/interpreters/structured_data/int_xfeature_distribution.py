@@ -156,7 +156,8 @@ class IntFeatureDistribution(BaseInterpreters):
                 Integer number indicating the stop index position to slice dataframe
 
         Returns:
-            :obj:`Dict` or :obj:`List(Dict)`: dictionary storing kl-divergence score for each feature in decending order
+            :obj:`Dict` or :obj:`List(Dict)`:
+                dictionary storing kl-divergence score for each feature in decending order
         '''
         if isinstance(feature_to_exclude, list):
             feature_to_exclude = feature_to_exclude
