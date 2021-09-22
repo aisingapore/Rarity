@@ -1,3 +1,5 @@
+from typing import Union
+
 import dash
 from dash.dependencies import Input, Output, ALL
 from dash.exceptions import PreventUpdate
@@ -6,6 +8,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 from tenjin.app import app
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data import IntMissPredictions
 from tenjin.visualizers import miss_predictions as viz_misspred
 from tenjin.visualizers import shared_viz_component as viz_shared
@@ -17,13 +20,46 @@ from tenjin.utils.common_functions import (identify_active_trace, is_active_trac
                                             insert_index_col)
 
 
-def fig_plot_prediction_offset_overview(data_loader):
+def fig_plot_prediction_offset_overview(data_loader: Union[CSVDataLoader, DataframeLoader]):
+    '''
+    For use in regression task only.
+    Display scatter plot for overview on prediction offset values
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Returns:
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying scatter plot outlining overview on prediction offset values by index
+    '''
     df = IntMissPredictions(data_loader).xform()
     fig_obj = viz_misspred.plot_prediction_offset_overview(df)
     return fig_obj, df
 
 
-def fig_probabilities_spread_pattern(data_loader):
+def fig_probabilities_spread_pattern(data_loader: Union[CSVDataLoader, DataframeLoader]):
+    '''
+    For use in classification task only.
+    Function to output collated info packs used to display final graph objects and data tables
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Returns:
+
+            Compact outputs consist of the followings
+
+            - fig_objs_all_models (:obj: `List[~plotly.graph_objects.Figure]`): figure displaying scatter plot outlining probabilities \
+                comparison on correct data point vs miss-predicted data point for each class label
+            - tables_all_models (:obj:`List[~dash_table.DataTable]`): table object outlining simple stats on ss, %correct, % wrong, accuracy \
+                for each label class
+            - ls_dfs_viz (:obj:`List[~pandas.DataFrame]`): dataframes for overview visualization need with true labels and \
+                predicted labels included
+            - df_features (:obj:`~pandas.DataFrame`): dataframe storing all features used in dataset
+            - ls_class_labels (:obj:`List[str]`): list of class labels found in dataset
+    '''
     ls_dfs_viz, ls_class_labels, ls_dfs_by_label, ls_dfs_by_label_state = IntMissPredictions(data_loader).xform()
 
     # prepare fig-objs and corresponding sub-tables
@@ -47,22 +83,43 @@ def fig_probabilities_spread_pattern(data_loader):
 
 
 def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
+    '''
+    Create table outlining dataframe content
+
+    Arguments:
+        data (:obj:`~dash_table.DataTable`):
+            dictionary like format storing dataframe info under 'record' key
+        customized_cols (:obj:`List[str]`):
+            list of customized column names
+        header (:obj:`Dict`):
+            dictionary format storing the style info for table header
+        exp_format (str):
+            text info indicating the export format
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with specific styles
+    '''
     tab_obj = viz_shared.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
     return tab_obj
 
 
 def convert_relayout_data_to_df_reg(relayout_data, df, models):
-    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+    '''
+    Convert raw data format from relayout selection range by user into the correct df fit for viz purpose
 
     Arguments:
-        relayout_data {dict}: data containing selection range indices returned from plotly graph
-        df {pandas dataframe}: dataframe tap-out from interpreters pipeline
-        models {list}: model names defined by user during spin-up of Tenjin app
+        relayout_data (:obj:`Dict`):
+            dictionary like data containing selection range indices returned from plotly graph
+        df (:obj:`~pandas.DataFrame`):
+            dataframe tap-out from interpreters pipeline
+        models (:obj:`List[str]`):
+            model names defined by user during spin-up of Tenjin app
 
     Returns:
-        pandas dataframe
-        -- dataframe fit for the responsive table-graph filtering
-    """
+        :obj:`~pandas.DataFrame`:
+            dataframe fit for the responsive table-graph filtering
+    '''
     if detected_single_xaxis(relayout_data):
         x_start_idx = int(relayout_data['xaxis.range[0]']) if relayout_data['xaxis.range[0]'] >= 0 else 0
         x_stop_idx = int(relayout_data['xaxis.range[1]']) if relayout_data['xaxis.range[1]'] <= len(df) - 1 else len(df) - 1
@@ -93,18 +150,23 @@ def convert_relayout_data_to_df_reg(relayout_data, df, models):
 
 
 def convert_relayout_data_to_df_cls(fig_class_label, relayout_data, df_feature, df_viz_specific):
-    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+    '''
+    Convert raw data format from relayout selection range by user into the correct df fit for viz purpose
 
     Arguments:
-        fig_class_label {string}: class label name
-        relayout_data {dict}: data containing selection range indices returned from plotly graph
-        df {pandas dataframe}: dataframe tap-out from interpreters pipeline
-        df_viz_specific {pandas datafrmae}: dataframe prefiltered with right class label and model
+        fig_class_label (str):
+            class label name
+        relayout_data (:obj:`Dict`):
+            data containing selection range indices returned from plotly graph
+        df (:obj:`~pandas.DataFrame`):
+            dataframe tap-out from interpreters pipeline
+        df_viz_specific (:obj:`~pandas.DataFrame`):
+            dataframe prefiltered with right class label and model
 
     Returns:
-        pandas dataframe
-        -- dataframe fit for the responsive table-graph filtering
-    """
+        :obj:`~pandas.DataFrame`:
+            dataframe fit for the responsive table-graph filtering
+    '''
     relayout_dict = relayout_data[1]  # active relayout_data selected by user
     x_start_idx, x_stop_idx, y_start_idx, y_stop_idx = get_adjusted_xy_coordinate(relayout_dict, df_feature)
 
@@ -122,7 +184,31 @@ def convert_relayout_data_to_df_cls(fig_class_label, relayout_data, df_feature, 
 
 
 class MissPredictions:
-    def __init__(self, data_loader):
+    '''
+    Main integration for feature component on Miss Prediction.
+
+        - On Regression: To generate single miss-prediction scatter plot by data index points
+        - On Classification: To generate scatter plots for probabilities comparison on correct data point vs miss-predicted data point \
+            for each class label
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Important Attributes:
+
+        - analysis_type (str):
+            Analysis type defined by user during initial inputs preparation via data_loader stage.
+        - model_names (:obj:`List[str]`):
+            model names defined by user during initial inputs preparation via data_loader stage.
+        - is_bimodal (bool):
+            to indicate if analysis involves 2 models
+
+    Returns:
+        :obj:`~dash_core_components.Container`:
+            styled dash components displaying graph and/or table objects
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.model_names = data_loader.get_model_list()
@@ -141,6 +227,9 @@ class MissPredictions:
             self.dfs_viz = [insert_index_col(df) for df in self.dfs_viz]
 
     def show(self):
+        '''
+        Method to tapout styled html for misspredictions
+        '''
         if is_regression(self.analysis_type):
             miss_preds = dbc.Container([
                                 html.Div(html.H6(style_configs.INSTRUCTION_TEXT_SHARED), className='h6__dash-table-instruction-reg'),
@@ -321,7 +410,6 @@ class MissPredictions:
                 miss_preds = dbc.Container(compiled_fig_table_objs, fluid=True)
         return miss_preds
 
-    # callback for regression tasks
     def callbacks(self):
         @app.callback(
             Output('alert-to-reset-reg', 'children'),
@@ -329,6 +417,9 @@ class MissPredictions:
             Input('fig-reg', 'relayoutData'),  # taking in range selection info from figures
             Input('fig-reg', 'restyleData'))  # taking in legend filtration info from figures
         def display_relayout_data_reg(relayout_data, restyle_data):
+            '''
+            Callbacks functionalities for regression tasks
+            '''
             if relayout_data is not None:
                 try:
                     self.df = self.df.round(2)  # to limit table cell having values with long decimals for better viz purpose
@@ -359,7 +450,6 @@ class MissPredictions:
             else:
                 raise PreventUpdate
 
-        # callback for classification tasks
         @app.callback(
             Output('alert-to-reset-cls', 'children'),
             Output('main-title-plot-name', 'children'),
@@ -370,6 +460,9 @@ class MissPredictions:
             Input({'index': ALL, 'type': 'fig-obj-prob-spread'}, 'relayoutData'),
             Input({'index': ALL, 'type': 'fig-obj-prob-spread'}, 'restyleData'))
         def display_relayout_data_cls(relayout_data, restyle_data):
+            '''
+            Callbacks functionalities for classification tasks
+            '''
             fig_obj_ids = [fig_id_dict['id']['index'] for fig_id_dict in dash.callback_context.inputs_list[0]]
 
             default_plot_name = style_configs.DEFAULT_PLOT_NAME_STYLE
