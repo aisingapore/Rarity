@@ -17,7 +17,8 @@ def plot_distribution_by_specific_feature(ls_specific_feature: List[str], kl_div
             model used to generate yPred
 
     Returns:
-        :obj:`List[~plotly.graph_objects.Figure]`: List of figures displaying distribution plot of specific feature
+        :obj:`List[~plotly.graph_objects.Figure]`:
+            List of figures displaying distribution plot of specific feature
     '''
     if not isinstance(ls_specific_feature, list):
         ls_specific_feature = [ls_specific_feature]
@@ -49,7 +50,8 @@ def plot_distribution_by_kl_div_ranking(kl_div_dict_sorted: Dict, display_option
             model used to generate yPred
 
     Returns:
-        :obj:`Dict[~plotly.graph_objects.Figure]` - Dictionary storing distribution figures by display_option
+        :obj:`Dict[str, ~plotly.graph_objects.Figure]`:
+            Dictionary storing distribution figures by display_option
     '''
     fig_obj_dict = {}
 
@@ -80,6 +82,7 @@ def _single_dist_plot(feature: str, kl_div_dict_sorted: Dict, comparison_base: s
     Internal function to plot single distribution graph
 
     Important Arguments:
+
         comparison_base (str):
         ``dataset_type`` for regression, ``pred_state`` for classification
     '''
