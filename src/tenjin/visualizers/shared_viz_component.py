@@ -1,7 +1,25 @@
+from typing import List, Dict
 import dash_table
 
 
-def reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format):
+def reponsive_table_to_filtered_datapoints(data: Dict, customized_cols: List[str], header: Dict, exp_format: str):
+    '''
+    Create table outlining dataframe content
+
+    Arguments:
+        data (:obj:`~dash_table.DataTable`):
+            dictionary like format storing dataframe info under 'record' key
+        customized_cols (:obj:`List[str]`):
+            list of customized column names
+        header (:obj:`Dict`):
+            dictionary format storing the style info for table header
+        exp_format (str):
+            text info indicating the export format
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with specific styles
+    '''
     table_obj = dash_table.DataTable(
                     data=data,
                     columns=[{'id': c, 'name': c} for c in customized_cols],
@@ -27,6 +45,25 @@ def reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_fo
 
 
 def reponsive_table_to_filtered_datapoints_similaritiesCF(df, customized_cols, feature_cols, header, exp_format):
+    '''
+    Create table outlining dataframe content specific to Counter-Factuals component
+
+    Arguments:
+        df (:obj:`~pd.DataFrame`):
+            dataframe containing calculated distance info
+        customized_cols (:obj:`List[str]`):
+            list of customized column names
+        feature_cols (:obj:`List[str]`):
+            list of feature column names
+        header (:obj:`Dict`):
+            dictionary format storing the style info for table header
+        exp_format (str):
+            text info indicating the export format
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with dynamic-conditional styles
+    '''
     data = df.to_dict('records')
     table_obj = dash_table.DataTable(
                     data=data,
@@ -57,16 +94,12 @@ def reponsive_table_to_filtered_datapoints_similaritiesCF(df, customized_cols, f
                     ],
                     style_data_conditional=[
                         {
-                            'if': {
-                                'column_id': 'category',
-                            },
+                            'if': {'column_id': 'category'},
                             'border-top': '1px solid rgb(229, 211, 197)',
                             'fontWeight': 'bold'}
                     ] + [
                         {
-                            'if': {
-                                'filter_query': '{category} = "User_defined_idx"',
-                            },
+                            'if': {'filter_query': '{category} = "User_defined_idx"'},
                             'backgroundColor': 'rgb(229, 240, 247)',
                         }
                     ],
