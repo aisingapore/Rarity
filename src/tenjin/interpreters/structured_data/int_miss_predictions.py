@@ -15,7 +15,8 @@ class IntMissPredictions(BaseInterpreters):
             Class object from data_loader module
 
     Returns:
-        :obj:`~pd.DataFrame`: Dataframe with essential info suitable for visualization on regression task
+        :obj:`~pd.DataFrame`:
+            Dataframe with essential info suitable for visualization on regression task
 
     .. note::
 
