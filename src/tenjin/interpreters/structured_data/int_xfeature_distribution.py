@@ -1,20 +1,32 @@
+from typing import Union, List, Optional
 import numpy as np
 import pandas as pd
 
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
 from tenjin.utils.methods import calculate_kl_div, get_optimum_bin_size
 from tenjin.utils.common_functions import insert_index_col, is_regression, is_classification
 
 
 class IntFeatureDistribution(BaseInterpreters):
-    def __init__(self, data_loader):
+    '''
+    Transform raw data into input format suitable for visualization on feature distribution
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         super().__init__(data_loader)
         self.df_features = insert_index_col(self.data_loader.get_features())
         # default range set as last 20% of dataset sample size
         self.df_default_range = self.df_features.iloc[np.r_[int(len(self.df_features) * 0.8):, :]]
         self.features = self.df_features.columns
 
-    def _get_df_sliced(self, start_idx, stop_idx):
+    def _get_df_sliced(self, start_idx: int, stop_idx: int):
+        '''
+        Slice dataframe to the specific range.
+        '''
         if start_idx is not None and stop_idx is None:
             df_sliced = self.df_features.iloc[np.r_[start_idx:, :]]
         elif start_idx is None and stop_idx is not None:
@@ -22,26 +34,27 @@ class IntFeatureDistribution(BaseInterpreters):
         elif start_idx is not None and stop_idx is not None:
             df_sliced = self.df_features.iloc[np.r_[start_idx:stop_idx, :]]
         else:  # range is not specified
+            df_sliced = self.df_features
             if is_regression(self.analysis_type):
                 df_sliced = self.df_default_range
-            else:
-                df_sliced = self.df_features
         return df_sliced
 
-    def _get_single_feature_df_with_binning(self, df, feature):
+    def _get_single_feature_df_with_binning(self, df: pd.DataFrame, feature: str):
         '''
-        For regression task
+        For regression task only.
+        Function to find optimum bin-size on sliced df for distribution comparison
         '''
         df_viz_specific_feat = df[['dataset_type', feature]]
         optimum_bin_size = get_optimum_bin_size(df_viz_specific_feat[feature])
         df_viz_specific_feat['bin_group'] = pd.cut(df_viz_specific_feat[feature], optimum_bin_size, labels=list(range(optimum_bin_size)))
         return df_viz_specific_feat, optimum_bin_size
 
-    def _get_probabilities_by_bin_group(self, df_viz, bin_count):
+    def _get_probabilities_by_bin_group(self, df_viz: pd.DataFrame, bin_count: int):
         '''
-        For regression task
+        For regression task only.
+        Function to tap-out customized df for ease of getting probabilities based on bin group for reference df and sliced df
         '''
-        def _interim_df_xformed_from_bin_group(specific_pd_series, col_name):
+        def _interim_df_xformed_from_bin_group(specific_pd_series: pd.Series, col_name: str):
             interim_df = specific_pd_series.value_counts().rename_axis('bin_group').reset_index(name=col_name).sort_values('bin_group')
             return interim_df
 
@@ -66,9 +79,10 @@ class IntFeatureDistribution(BaseInterpreters):
         probs_df_sliced = df_kl_div['df_sliced_counts_pct']
         return probs_df_ref, probs_df_sliced
 
-    def _get_df_feature_with_pred_state_cls(self, df_overall):
+    def _get_df_feature_with_pred_state_cls(self, df_overall: pd.DataFrame):
         '''
-        For classification task
+        For classification task only.
+        Function to tap-out customized df combining features and relevant prediction info for use in visualization.
         '''
         ls_dfs_viz, _ = super().get_df_with_probability_values()
 
@@ -80,9 +94,10 @@ class IntFeatureDistribution(BaseInterpreters):
             ls_dfs_viz_featdist.append(df_viz_interim)
         return ls_dfs_viz_featdist
 
-    def _get_probabilities_by_feature(self, df_viz, specific_feature):
+    def _get_probabilities_by_feature(self, df_viz: pd.DataFrame, specific_feature: str):
         '''
-        For classification task
+        For classification task only.
+        Function to calculate probabilities of correct vs miss-predict for specific feature
         '''
         df_pivot = pd.pivot_table(
             df_viz[[specific_feature, 'pred_state', 'model']],
@@ -102,7 +117,11 @@ class IntFeatureDistribution(BaseInterpreters):
         probs_misspred = df_pivot['misspredict_pct']
         return probs_correct, probs_misspred
 
-    def _generate_kl_div_info_base(self, df, feature_to_exclude):
+    def _generate_kl_div_info_base(self, df: pd.DataFrame, feature_to_exclude: List):
+        '''
+        Function to generate dictionary like output storing kl-divergence score for each feature
+        arranged in descending order.
+        '''
         kl_div_dict = {}
         for feat in self.features:
             if feat not in feature_to_exclude:
@@ -124,7 +143,22 @@ class IntFeatureDistribution(BaseInterpreters):
         kl_div_dict_sorted = dict(sorted(kl_div_dict.items(), key=lambda x: x[1][0], reverse=True))
         return kl_div_dict_sorted
 
-    def xform(self, feature_to_exclude=None, start_idx=None, stop_idx=None):
+    def xform(self, feature_to_exclude: Optional[List[str]] = None, start_idx: Optional[int] = None, stop_idx: Optional[int] = None):
+        '''
+        Core transformation function to tap-out data into input format suitable for plotly graph
+
+        Arguments:
+            feature_to_exclude (List of :obj:`str`, `optional`):
+                A list of features to be excluded from the kl-div calculation and visualization
+            start_idx (:obj:`int`, `optional`):
+                Integer number indicating the start index position to slice dataframe
+            stop_idx (:obj:`int`, `optional`):
+                Integer number indicating the stop index position to slice dataframe
+
+        Returns:
+            :obj:`Dict` or :obj:`List(Dict)`:
+                dictionary storing kl-divergence score for each feature in decending order
+        '''
         if isinstance(feature_to_exclude, list):
             feature_to_exclude = feature_to_exclude
         else:
