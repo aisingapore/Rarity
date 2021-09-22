@@ -39,8 +39,10 @@ class BaseInterpreters:
         collating together with yTrue and probabilities value of each class label
 
         Returns :
-            ls_dfs_viz (:obj:`List[~pd.DataFrame]`) - List of dfs with prediction state info included for each model
-            ls_class_labels (:obj:`List[str]`) - List of class labels
+            ls_dfs_viz (:obj:`List[~pd.DataFrame]`):
+                List of dfs with prediction state info included for each model
+            ls_class_labels (:obj:`List[str]`):
+                List of class labels
         '''
         # extract list of class labels
         df_tmp = self.data_loader.get_all()[0]
