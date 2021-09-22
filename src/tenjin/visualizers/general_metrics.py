@@ -15,12 +15,16 @@ def plot_confusion_matrix(yTrue: pd.Series, yPred: pd.Series, model_names: List)
     Create confusion matrix
 
     Arguments:
-        yTrue (:obj:`pd.Series`): true labels, output from int_general_metrics
-        yPred (:obj:`pd.Series`): predicted labels, output from int_general_metrics
-        model_names (:obj:`List[str]`): model names, output from interpreter int_general_metrics
+        yTrue (:obj:`pd.Series`):
+            true labels, output from int_general_metrics
+        yPred (:obj:`pd.Series`):
+            predicted labels, output from int_general_metrics
+        model_names (:obj:`List[str]`):
+            model names, output from interpreter int_general_metrics
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying confusion matrix details
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying confusion matrix details
     """
     fig_objs = []
     for i in range(len(yPred)):
@@ -49,12 +53,16 @@ def plot_classification_report(yTrue: pd.Series, yPred: pd.Series, model_names: 
     Create classification report in table form
 
     Arguments:
-        yTrue (:obj:`pd.Series`): true labels, output from int_general_metrics
-        yPred (:obj:`pd.Series`): predicted labels, output from int_general_metrics
-        model_names (:obj:`List[str]`): model names, output from interpreter int_general_metrics
+        yTrue (:obj:`pd.Series`):
+            true labels, output from int_general_metrics
+        yPred (:obj:`pd.Series`):
+            predicted labels, output from int_general_metrics
+        model_names (:obj:`List[str]`):
+            model names, output from interpreter int_general_metrics
 
     Returns:
-        :obj:`List[~plotly.graph_objects.Figure]`: list of tables displaying classification report details
+        :obj:`List[~plotly.graph_objects.Figure]`:
+            list of tables displaying classification report details
     """  
     fig_objs = []
     for i in range(len(model_names)):
@@ -93,12 +101,16 @@ def plot_roc_curve(yTrue: pd.Series, yPred: pd.Series, model_names: List):
     Display roc curve for comparison on various models
 
     Arguments:
-        yTrue (:obj:`pd.Series`): true labels, output from int_general_metrics
-        yPred (:obj:`pd.Series`): predicted labels, output from int_general_metrics
-        model_names (:obj:`List[str]`): model names, output from interpreter int_general_metrics
+        yTrue (:obj:`pd.Series`):
+            true labels, output from int_general_metrics
+        yPred (:obj:`pd.Series`):
+            predicted labels, output from int_general_metrics
+        model_names (:obj:`List[str]`):
+            model names, output from interpreter int_general_metrics
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying line curves comparing roc-auc score for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying line curves comparing roc-auc score for various models
     """
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line=dict(color='navy', dash='dash'), showlegend=False))
@@ -165,12 +177,16 @@ def plot_precisionRecall_curve(yTrue: pd.Series, yPred: pd.Series, model_names: 
     Display precision-recall curve for comparison on various models
 
     Arguments:
-        yTrue (:obj:`pd.Series`): true labels, output from int_general_metrics
-        yPred (:obj:`pd.Series`): predicted labels, output from int_general_metrics
-        model_names (:obj:`List[str]`): model names, output from interpreter int_general_metrics
+        yTrue (:obj:`pd.Series`):
+            true labels, output from int_general_metrics
+        yPred (:obj:`pd.Series`):
+            predicted labels, output from int_general_metrics
+        model_names (:obj:`List[str]`):
+            model names, output from interpreter int_general_metrics
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying line curves comparing precision-recall for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying line curves comparing precision-recall for various models
     """
     fig = go.Figure()
 
@@ -236,10 +252,12 @@ def plot_prediction_vs_actual(df: pd.DataFrame):
     Display scatter plot for comparison on actual values vs prediction values
 
     Arguments:
-        df (:obj:`pd.DataFrame`): dataframe containing yTrue and yPred values, output from int_general_metrics
+        df (:obj:`pd.DataFrame`):
+            dataframe containing yTrue and yPred values, output from int_general_metrics
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying scatter plot comparing actual values vs prediction values
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying scatter plot comparing actual values vs prediction values
     '''
     def _modify_legend_name(fig, legend_name_dict):
         for i, dt in enumerate(fig.data):
@@ -297,10 +315,12 @@ def plot_prediction_offset_overview(df: pd.DataFrame):
     Display scatter plot for overview on prediction offset values
 
     Arguments:
-        df (:obj:`~pd.DataFrame`): dataframe containing yTrue and yPred values, output from int_general_metrics
+        df (:obj:`~pd.DataFrame`):
+            dataframe containing yTrue and yPred values, output from int_general_metrics
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying scatter plot outlining overview on prediction offset values
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying scatter plot outlining overview on prediction offset values
     '''
     pred_cols = [col for col in df.columns if 'yPred_' in col]
     corrected_legend_names = [col.replace('yPred_', '') for col in pred_cols]
@@ -354,10 +374,12 @@ def plot_std_error_metrics(df: pd.DataFrame):
     Display table comparing various standard metrics for regression task
 
     Arguments:
-        df (:obj:`~pd.DataFrame`): dataframe containing info on error metrics, output from int_general_metrics
+        df (:obj:`~pd.DataFrame`):
+            dataframe containing info on error metrics, output from int_general_metrics
 
     Returns:
-        :obj:`~dash_table.DataTable`: table object comparing various standard metrics for regression task
+        :obj:`~dash_table.DataTable`:
+            table object comparing various standard metrics for regression task
     '''
     fig = dash_table.DataTable(
         id='table', 
@@ -365,6 +387,5 @@ def plot_std_error_metrics(df: pd.DataFrame):
         style_cell={'textAlign': 'center', 'border': '1px solid rgb(229, 211, 197)', 'font-family': 'Arial', 'margin-bottom': '0'},
         style_header={'fontWeight': 'bold', 'color': 'white', 'backgroundColor': '#7e746d ', 'border': '1px solid rgb(229, 211, 197)'},
         style_table={'width': '98%', 'margin': 'auto'},
-        # css=[{'selector': '.dash-spreadsheet-container','rule': 'border: 1px solid rgb(229, 211, 197); border-radius: 15px;'}],
         data=df.to_dict('records'))
     return fig
