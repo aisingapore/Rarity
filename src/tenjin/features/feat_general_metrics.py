@@ -1,125 +1,128 @@
+from typing import Union
+
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data import IntGeneralMetrics
 from tenjin.visualizers import general_metrics as viz_general
 from tenjin.utils.common_functions import is_regression, is_classification
 
 
-def fig_confusion_matrix(data_loader):
+def fig_confusion_matrix(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
     Create confusion matrix
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly graph 
-        -- displaying confusion matrix details
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying confusion matrix details
     """
     yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'confMat').xform()
     fig_objs = viz_general.plot_confusion_matrix(yTrue, yPred, model_names)
     return fig_objs
 
 
-def fig_classification_report(data_loader):
+def fig_classification_report(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
     Create classification report in table form
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly table 
-        -- containing classification report details
+        :obj:`List[~plotly.graph_objects.Figure]`:
+            list of tables displaying classification report details
     """
     yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'classRpt').xform()
     fig_objs = viz_general.plot_classification_report(yTrue, yPred, model_names)
     return fig_objs
 
 
-def fig_roc_curve(data_loader):
+def fig_roc_curve(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
     Display roc curve for comparison on various models
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly line curve 
-        -- comparing roc-auc score for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying line curves comparing roc-auc score for various models
     """
     yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'rocAuc').xform()
     fig_obj = viz_general.plot_roc_curve(yTrue, yPred, model_names)
     return fig_obj
 
 
-def fig_precisionRecall_curve(data_loader):
+def fig_precisionRecall_curve(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
     Display precision-recall curve for comparison on various models
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly line curve 
-        -- comparing roc-auc score for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying line curves comparing precision-recall for various models
     """
     yTrue, yPred, model_names = IntGeneralMetrics(data_loader, 'precRecall').xform()
     fig_obj = viz_general.plot_precisionRecall_curve(yTrue, yPred, model_names)
     return fig_obj
 
 
-def fig_prediction_actual_comparison(data_loader):
+def fig_prediction_actual_comparison(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
-    Display comparison on prediction (yPred) vs actual (yTrue)
+    Display scatter plot for comparison on actual values (yTrue) vs prediction values (yPred)
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly scatter plot
-        -- comparing state of Prediction vs Actual for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying scatter plot comparing actual values vs prediction values
     """
     df = IntGeneralMetrics(data_loader).xform()
     fig_obj = viz_general.plot_prediction_vs_actual(df)
     return fig_obj
 
 
-def fig_prediction_offset_overview(data_loader):
+def fig_prediction_offset_overview(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
-    Display overview of prediction offset
+    Display scatter plot for overview on prediction offset values
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        plotly scatter plot with baseline
-        -- comparing state of Prediction vs Residual / Offset for various models
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying scatter plot outlining overview on prediction offset values
     """
     df = IntGeneralMetrics(data_loader).xform()
     fig_obj = viz_general.plot_prediction_offset_overview(df)
     return fig_obj
 
 
-def fig_standard_error_metrics(data_loader):
+def fig_standard_error_metrics(data_loader: Union[CSVDataLoader, DataframeLoader]):
     """
     Display table comparing various standard metrics for regression task
 
     Arguments:
-        data_loader {class object} 
-        -- output from data loader pipeline 
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
 
     Returns:
-        dash table
-        -- comparing general metrics covering MAE, MSE, RSME, R2 for single model and bimodal
+        :obj:`~dash_table.DataTable`:
+            table object comparing various standard metrics for regression task
     """
     df = IntGeneralMetrics(data_loader, 'stdErr').xform()
     fig_obj = viz_general.plot_std_error_metrics(df)
@@ -127,7 +130,21 @@ def fig_standard_error_metrics(data_loader):
 
 
 class GeneralMetrics:
-    def __init__(self, data_loader):
+    '''
+    Main integration for feature component on General Metrics.
+
+        - On Regression: ``Prediction vs Actual``, ``Prediction vs Offset``
+        - On Classification: ``Confusion Matrix``, ``Classification Report``, ``ROC``, ``Precision-Recall``
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Returns:
+        :obj:`~dash_core_components.Container`:
+            styled dash components displaying graph and/or table objects
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
 
