@@ -1,18 +1,45 @@
+from typing import Union
+
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.features import GeneralMetrics, MissPredictions, LossClusters, FeatureDistribution, SimilaritiesCF
 from tenjin.app import app
 
 
 class GapAnalyzer:
-    def __init__(self, data_loader, user_defined_title=None):
+    '''
+    GapAnalyzer is the main class object collating all developed feature components for Tenjin.
+    Auto-generated error analysis supports single model and bimodal (max at comparison of 2 models side by side) on tasks
+    such as regression, binary classification and multiclass classification
+
+    Args:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            This is the class object from data_loader compiling ``xfeatures``, ``yTrue``, ``yPredict`` via either ``CSVDataLoader`` \
+            (for both offline and inline analysis) or ``DataframeLoader`` (for inline analysis)
+        user_defined_title (str):
+            Title of analysis, text field defined by user
+
+    Important Attributes:
+
+        analysis_type (str):
+            Analysis type defined by user. Corresponding feature components will be auto-populated based on the \
+            specified analysis type. Supported analysis types : ``Regression``, ``Binary Classification``, ``Multiclass Classification``
+
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader], user_defined_title: str = None):
         self.data_loader = data_loader
         self.analysis_type = self.data_loader.get_analysis_type().replace('-', ' ').title()
         self.usr_defined_title = user_defined_title
 
-    def _layout(self):
+    def _layout(self) -> dbc.Container:
+        '''
+        The main app layout of Tenjin
+        '''
         main_layout = dbc.Container([
                         dbc.Jumbotron(
                             dbc.Container([
@@ -61,7 +88,10 @@ class GapAnalyzer:
 
         return main_layout
 
-    def run(self):
+    def run(self) -> dash.Dash:
+        '''
+        Spin up Tenjin web application built with ``dash`` components
+        '''
         app.layout = self._layout()
 
         @app.callback(Output('feature-page', 'children'),
