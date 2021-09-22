@@ -10,11 +10,14 @@ def plot_offset_clusters(df: pd.DataFrame, analysis_type: str):
     Function to plot figure displaying cluster groups by prediction offset values
 
     Arguments:
-        df (:obj:`~pd.DataFrame`): dataframe containing cluster info, output from int_loss_clusters
-        analysis_type (str): info to indicate if analysis is regression or classification, info inherited from data_loader
+        df (:obj:`~pd.DataFrame`):
+            dataframe containing cluster info, output from int_loss_clusters
+        analysis_type (str):
+            info to indicate if analysis is regression or classification, info inherited from data_loader
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying violin plot outlining cluster groups by offset values
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying violin plot outlining cluster groups by offset values
     '''
     models = [col.replace('cluster_', '') for col in df.columns if 'cluster_' in col]
     fig = _plot_common_clusters(df, models, analysis_type)
@@ -28,11 +31,14 @@ def plot_logloss_clusters(dfs: List[pd.DataFrame], analysis_type: str):
     Function to plot figure displaying cluster groups by log-loss values
 
     Arguments:
-        dfs (:obj:`List[~pd.DataFrame]`): list of dataframes containing cluster info, output from int_loss_clusters
-        analysis_type (str): info to indicate if analysis is regression or classification, info inherited from data_loader
+        dfs (:obj:`List[~pd.DataFrame]`):
+            list of dataframes containing cluster info, output from int_loss_clusters
+        analysis_type (str):
+            info to indicate if analysis is regression or classification, info inherited from data_loader
 
     Returns:
-        :obj:`~plotly.graph_objects.Figure`: figure displaying violin plot outlining cluster groups by log-loss values
+        :obj:`~plotly.graph_objects.Figure`:
+            figure displaying violin plot outlining cluster groups by log-loss values
     '''
     models = [df['model'].values[0] for df in dfs]
     fig = _plot_common_clusters(dfs, models, analysis_type)
@@ -45,13 +51,16 @@ def plot_optimum_cluster_via_elbow_method(cluster_range: List[int], sum_squared_
     Figure to guide decision on the number of clusters that is reasonable to form with KMean method
 
     Arguments:
-        cluster_range (:obj:`List[int]`): list of integers indicating the number of clusters
-        sum_squared_distance (:obj:`List[float]`): list of sum of squared distance generated via kmean_inertia
-        models (:obj:`List[str]`): list of models used to generate yPred
+        cluster_range (:obj:`List[int]`):
+            list of integers indicating the number of clusters
+        sum_squared_distance (:obj:`List[float]`):
+            list of sum of squared distance generated via kmean_inertia
+        models (:obj:`List[str]`):
+            list of models used to generate yPred
 
     Returns:
         :obj:`~plotly.graph_objects.Figure`:
-            - figure displaying line plot outlining the change in sum of squared distances along the cluster range
+            figure displaying line plot outlining the change in sum of squared distances along the cluster range
     '''
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=cluster_range[0],
