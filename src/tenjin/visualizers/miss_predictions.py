@@ -10,11 +10,12 @@ def plot_probabilities_spread_pattern(df_specific_label: pd.DataFrame):
     for each class label
 
     Arguments:
-        df_specific_label (:obj:`~pd.DataFrame`): dataframe of 1 specific label of 1 model type, output from int_miss_predictions
+        df_specific_label (:obj:`~pd.DataFrame`):
+            dataframe of 1 specific label of 1 model type, output from int_miss_predictions
 
     Returns:
         :obj:`~plotly.graph_objects.Figure`:
-        figure displaying scatter plot outlining probabilities comparison on correct data point vs miss-predicted data point for each class label
+            figure displaying scatter plot outlining probabilities comparison on correct data point vs miss-predicted data point for each class label
     '''
     label = list(df_specific_label.columns)[1]
     model_name = df_specific_label['model'].values[0]
@@ -62,10 +63,12 @@ def plot_simple_probs_spread_overview(df_label_state: pd.DataFrame):
     Display data table listing simple stats on ss, %correct, % wrong, accuracy for each label class
 
     Arguments:
-        df_label_state (:obj:`~pd.DataFrame`): dataframe containing info on simple stats, output from int_miss_predictions
+        df_label_state (:obj:`~pd.DataFrame`):
+            dataframe containing info on simple stats, output from int_miss_predictions
 
     Returns:
-        :obj:`~dash_table.DataTable`: table object outlining simple stats on ss, %correct, % wrong, accuracy for each label class
+        :obj:`~dash_table.DataTable`:
+            table object outlining simple stats on ss, %correct, % wrong, accuracy for each label class
     '''
     fig = dash_table.DataTable(
         id='table', 
@@ -88,11 +91,12 @@ def plot_prediction_offset_overview(df: pd.DataFrame):
     Display scatter plot for overview on prediction offset values
 
     Arguments:
-        df (:obj:`~pd.DataFrame`): dataframe containing calculated offset values, output from int_miss_predictions
+        df (:obj:`~pd.DataFrame`):
+            dataframe containing calculated offset values, output from int_miss_predictions
 
     Returns:
         :obj:`~plotly.graph_objects.Figure`:
-        figure displaying scatter plot outlining overview on prediction offset values by index
+            figure displaying scatter plot outlining overview on prediction offset values by index
     '''
     pred_cols = [col for col in df.columns if 'yPred_' in col]
     offset_cols = [col for col in df.columns if 'offset_' in col]
