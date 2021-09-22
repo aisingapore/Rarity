@@ -1,14 +1,17 @@
+from typing import Union, List, Dict
 import math
 import pandas as pd
 
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 from tenjin.app import app
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data import IntLossClusterer
 from tenjin.visualizers import loss_clusters as viz_clusters
 from tenjin.visualizers import shared_viz_component as viz_shared
@@ -20,45 +23,118 @@ from tenjin.utils.common_functions import (is_active_trace, is_reset, is_regress
                                             dataframe_prep_on_model_count_by_yaxis_slice, new_dataframe_prep_based_on_effective_index)
 
 
-def fig_plot_offset_clusters_reg(data_loader, num_cluster):
-    df, ls_cluster_score, analysis_type, ls_cluster_range, ls_ssd = IntLossClusterer(data_loader).xform(num_cluster, None, 'All')
+def fig_plot_offset_clusters_reg(data_loader: Union[CSVDataLoader, DataframeLoader], num_cluster: int):
+    '''
+    For use in regression task only.
+    Function to output collated info packs used to display final graph objects by cluster groups along with calculated silhouette scores
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        num_cluster (int):
+            Number of cluster to form
+
+    Returns:
+
+             Compact outputs consist of the followings
+
+            - df (:obj:`~pd.DataFrame`): dataframes for overview visualization need with offset values included
+            - fig_obj_cluster (:obj:`~plotly.graph_objects.Figure`): figure displaying violin plot outlining cluster groups by offset values
+            - ls_cluster_score (:obj:`List[str]`): list of silhouette scores, indication of clustering quality
+            - fig_obj_elbow (:obj:`~plotly.graph_objects.Figure`): figure displaying line plot outlining the change in sum of squared distances \
+                along the cluster range
+    '''
+    df, ls_cluster_score, ls_cluster_range, ls_ssd = IntLossClusterer(data_loader).xform(num_cluster, None, 'All')
     models = data_loader.get_model_list()
+    analysis_type = data_loader.get_analysis_type()
 
     fig_obj_cluster = viz_clusters.plot_offset_clusters(df, analysis_type)
     fig_obj_elbow = viz_clusters.plot_optimum_cluster_via_elbow_method(ls_cluster_range, ls_ssd, models)
     return df, fig_obj_cluster, ls_cluster_score, fig_obj_elbow
 
 
-def fig_plot_logloss_clusters_cls(data_loader, num_cluster, log_func=math.log, specific_dataset='All'):
+def fig_plot_logloss_clusters_cls(data_loader: Union[CSVDataLoader, DataframeLoader],
+                                    num_cluster: int,
+                                    log_func: math.log = math.log,
+                                    specific_dataset: str = 'All'):
+    '''
+    For use in classification task only.
+    Function to output collated info packs used to display final graph objects by cluster groups along with calculated silhouette scores
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        num_cluster (int):
+            Number of cluster to form
+        log_funct (:obj:`math.log`):
+            Mathematics logarithm function used to calculate log-loss between yTrue and yPred
+        specific_dataset (str):
+            Default to 'All' indicating to include all miss-predict labels. Other options flexibly expand depending on class labels
+
+    Returns:
+
+             Compact outputs consist of the followings
+
+            - ls_dfs_viz (:obj:`List[~pd.DataFrame]`): dataframes for overview visualization need with offset values included
+            - fig_obj_cluster (:obj:`~plotly.graph_objects.Figure`): figure displaying violin plot outlining cluster groups by offset values
+            - ls_cluster_score (:obj:`List[str]`): list of silhouette scores, indication of clustering quality
+            - fig_obj_elbow (:obj:`~plotly.graph_objects.Figure`): figure displaying line plot outlining the change in sum of squared distances \
+                along the cluster range
+            - ls_class_labels (:obj:`List[str]`): list of all class labels
+            - ls_class_labels_misspred (:obj:`List[str]`): list of class labels with minimum of 1 miss-prediction
+            - df_features (:obj:`~pandas.DataFrame`): dataframe storing all features used in dataset
+    '''
     compact_outputs = IntLossClusterer(data_loader).xform(num_cluster, log_func, specific_dataset)
     ls_dfs_viz, ls_class_labels, ls_class_labels_misspred = compact_outputs[0], compact_outputs[1], compact_outputs[2]
-    ls_cluster_score, analysis_type = compact_outputs[3], compact_outputs[4]
-    ls_cluster_range, ls_ssd = compact_outputs[5], compact_outputs[6]
+    ls_cluster_score, ls_cluster_range, ls_ssd = compact_outputs[3], compact_outputs[4], compact_outputs[5]
     df_features = data_loader.get_features()
-
+    analysis_type = data_loader.get_analysis_type()
     models = data_loader.get_model_list()
+
     fig_obj_cluster = viz_clusters.plot_logloss_clusters(ls_dfs_viz, analysis_type)
     fig_obj_elbow = viz_clusters.plot_optimum_cluster_via_elbow_method(ls_cluster_range, ls_ssd, models)
     return ls_dfs_viz, fig_obj_cluster, ls_cluster_score, fig_obj_elbow, ls_class_labels, ls_class_labels_misspred, df_features
 
 
-def table_with_relayout_datapoints(data, customized_cols, header, exp_format):
+def table_with_relayout_datapoints(data: dash_table.DataTable, customized_cols: List[str], header: Dict, exp_format: str):
+    '''
+    Create table outlining dataframe content
+
+    Arguments:
+        data (:obj:`~dash_table.DataTable`):
+            dictionary like format storing dataframe info under 'record' key
+        customized_cols (:obj:`List[str]`):
+            list of customized column names
+        header (:obj:`Dict`):
+            dictionary format storing the style info for table header
+        exp_format (str):
+            text info indicating the export format
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with specific styles
+    '''
     tab_obj = viz_shared.reponsive_table_to_filtered_datapoints(data, customized_cols, header, exp_format)
     return tab_obj
 
 
-def convert_cluster_relayout_data_to_df_reg(relayout_data, df, models):
-    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+def convert_cluster_relayout_data_to_df_reg(relayout_data: Dict, df: pd.DataFrame, models: List[str]):
+    '''
+    For use in regression task only.
+    Convert raw data format from relayout selection range by user into the correct df fit for viz purpose
 
     Arguments:
-        relayout_data {dict}: data containing selection range indices returned from plotly graph
-        df {pandas dataframe}: dataframe tap-out from interpreters pipeline
-        models {list}: model names defined by user during spin-up of Tenjin app
+        relayout_data (:obj:`Dict`):
+            dictionary like data containing selection range indices returned from plotly graph
+        df (:obj:`~pandas.DataFrame`):
+            dataframe tap-out from interpreters pipeline
+        models (:obj:`List[str]`):
+            model names defined by user during spin-up of Tenjin app
 
     Returns:
-        pandas dataframe
-        -- dataframe fit for the responsive table-graph filtering
-    """
+        :obj:`~pandas.DataFrame`:
+            dataframe fit for the responsive table-graph filtering
+    '''
     if detected_single_xaxis(relayout_data):
         x_cluster = get_effective_xaxis_cluster(relayout_data)
         df_filtered_x = df[df[f'cluster_{models[0]}'] == x_cluster]
@@ -103,19 +179,29 @@ def convert_cluster_relayout_data_to_df_reg(relayout_data, df, models):
     return df_final
 
 
-def convert_cluster_relayout_data_to_df_cls(relayout_data, dfs_viz, df_features, models):
-    """convert raw data format from relayout selection range by user into the correct df fit for viz purpose
+def convert_cluster_relayout_data_to_df_cls(relayout_data: Dict, dfs_viz: List[pd.DataFrame], df_features: pd.DataFrame, models: List[str]):
+    '''
+    For use in classification task only.
+    Convert raw data format from relayout selection range by user into the correct df fit for viz purpose
 
     Arguments:
-        relayout_data {dict}: data containing selection range indices returned from plotly graph
-        dfs_viz {pandas dataframe}: dataframe tap-out from interpreters pipeline
-        df_features {pandas datafrmae}: dataframe with all xFeatures
-        models {list}: model names
+        relayout_data (:obj:`Dict`):
+            dictionary like data containing selection range indices returned from plotly graph
+        dfs_viz (:obj:`List[~pd.DataFrame]`):
+            list of dataframes for overview visualization need with offset values included
+        df_features (:obj:`~pandas.DataFrame`):
+            dataframe storing all features used in dataset
+        models (:obj:`List[str]`):
+            model names defined by user during spin-up of Tenjin app
 
     Returns:
-        pandas dataframe
-        -- dataframe fit for the responsive table-graph filtering
-    """
+
+             Compact outputs consist of the followings
+
+            - df_final_features (:obj:`~pd.DataFrame`): dataframe storing all features based on slicing info from relayout_data
+            - df_final_probs (:obj:`~pd.DataFrame`): dataframe storing probability values by class label corresponding to \
+                the slicing relayout_data
+    '''
     if detected_single_xaxis(relayout_data):
         x_cluster = get_effective_xaxis_cluster(relayout_data)
         df_final_probs = dfs_viz[0][dfs_viz[0]['cluster'] == x_cluster]
@@ -148,7 +234,7 @@ def convert_cluster_relayout_data_to_df_cls(relayout_data, dfs_viz, df_features,
     else:  
         '''
         detected_single_xaxis or a complete range is provided by user (with proper x-y coordinates) 
-        will have same results due to the setup of dfs_viz for cls (loss values are right to cluster group)
+        will have same results due to the setup of dfs_viz for cls (loss values are tight to cluster group)
         '''
         x_cluster = get_effective_xaxis_cluster(relayout_data)
         df_filtered_x = dfs_viz[0][dfs_viz[0]['cluster'] == x_cluster]
@@ -172,16 +258,45 @@ def convert_cluster_relayout_data_to_df_cls(relayout_data, dfs_viz, df_features,
     return df_final_features, df_final_probs
 
 
-def _display_score(ls_cluster_score, models):
+def _display_score(ls_cluster_score: List[float], models: List[str]):
+    '''
+    Internal function to tap-out text field for silhouette score
+    '''
     score_text = f'Silhouette score: {ls_cluster_score[0]}'
-    if len(models) == 2:
+    if detected_bimodal(models):
         score_text = f'Silhouette score: {ls_cluster_score[0]} [ {models[0]} ] ' \
                     f'{ls_cluster_score[1]} [ {models[1]} ]'
     return score_text
 
 
 class LossClusters:
-    def __init__(self, data_loader):
+    '''
+    Main integration for feature component on Loss Clusters.
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Important Attributes:
+
+        analysis_type (str):
+            Analysis type defined by user during initial inputs preparation via data_loader stage.
+        model_names (:obj:`List[str]`):
+            model names defined by user during initial inputs preparation via data_loader stage.
+        is_bimodal (bool):
+            to indicate if analysis involves 2 models
+        num_clusters (int):
+            Number of cluster to form
+        log_funct (:obj:`math.log`):
+            Mathematics logarithm function used to calculate log-loss between yTrue and yPred
+        specific_dataset (str):
+            Default to 'All' indicating to include all miss-predict labels. Other options flexibly expand depending on class labels
+
+    Returns:
+        :obj:`~dash_core_components.Container`:
+            styled dash components displaying graph and/or table objects
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.model_names = data_loader.get_model_list()
@@ -207,6 +322,9 @@ class LossClusters:
             self.score_text = _display_score(self.ls_cluster_score, self.model_names)
 
     def show(self):
+        '''
+        Method to tapout styled html for loss clusters
+        '''
         if is_regression(self.analysis_type):
             lloss_clusters = dbc.Container([
                                     dbc.Row(html.Div(
@@ -332,7 +450,6 @@ class LossClusters:
             return lloss_clusters
 
     def callbacks(self):
-        # callback on param - select no. of clusters [ regression ]
         @app.callback(
             Output('loading-output-loss-cluster-reg', 'children'),
             Output('text-score-cluster-reg', 'children'),
@@ -340,6 +457,9 @@ class LossClusters:
             Input('button-num-cluster-update-reg', 'n_clicks'),
             State('select-num-cluster-reg', 'value'))
         def update_fig_based_on_selected_num_cluster(click_count, selected_no_cluster):
+            '''
+            Callbacks functionalities specific to param - select no. of clusters [ regression ]
+            '''
             if click_count > 0:
                 _, fig_obj_cluster_reg, ls_cluster_score_reg, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
                 score_text_reg = _display_score(ls_cluster_score_reg, self.model_names)
@@ -347,7 +467,6 @@ class LossClusters:
             else:
                 raise PreventUpdate
 
-        # callback from fig-obj to data-table [ regression ]
         @app.callback(
             Output('alert-to-reset-cluster-reg', 'children'),
             Output('table-feat-prob-cluster-reg', 'children'),
@@ -355,6 +474,9 @@ class LossClusters:
             Input('fig-loss-cluster-reg', 'restyleData'),
             State('select-num-cluster-reg', 'value'))
         def display_table_based_on_selected_range_reg(relayout_data, restyle_data, selected_no_cluster):
+            '''
+            Callbacks functionalities specific to reponse from fig-obj to data-table [ regression ]
+            '''
             if relayout_data is not None:
                 df_usr_select_cluster, _, _, _ = fig_plot_offset_clusters_reg(self.data_loader, int(selected_no_cluster))
                 try:
@@ -386,7 +508,6 @@ class LossClusters:
             else:
                 raise PreventUpdate
 
-        # callback on all params selection [ classification ]
         @app.callback(
             Output('loading-output-misspred-dataset-cls', 'children'),
             Output('loading-output-loss-cluster-cls', 'children'),
@@ -406,6 +527,9 @@ class LossClusters:
                                                                         selected_dataset,
                                                                         selected_cluster,
                                                                         selected_method):
+            '''
+            Callbacks functionalities specific to all params selection [ classification ]
+            '''
             ctx = dash.callback_context
             triggered_button = ctx.triggered[0]['prop_id'].split('.')[0]
             triggered_button_value = ctx.triggered[0]['value']
@@ -452,7 +576,6 @@ class LossClusters:
             else:
                 raise PreventUpdate
 
-        # callback from fig-obj to data-table [ classification ]
         @app.callback(
             Output('alert-to-reset-loss-cluster-cls', 'children'),
             Output('table-title-features-loss-cluster', 'children'),
@@ -465,6 +588,9 @@ class LossClusters:
             State('select-num-cluster-cls', 'value'),
             State('select-log-method-cls', 'value'))
         def display_table_based_on_selected_range_cls(relayout_data, restyle_data, selected_dataset, selected_cluster, selected_method):
+            '''
+            Callbacks functionalities specific to reponse from fig-obj to data-table [ classification ]
+            '''
             default_title = style_configs.DEFAULT_TITLE_STYLE
             title_table_features_cls = html.H6('Feature Values :', style=default_title, className='title__table-misspred-cls')
             title_table_probs_cls = html.H6('Probabilities Overview :', style=default_title, className='title__table-misspred-cls')
