@@ -15,7 +15,8 @@ def plot_probabilities_spread_pattern(df_specific_label: pd.DataFrame):
 
     Returns:
         :obj:`~plotly.graph_objects.Figure`:
-            figure displaying scatter plot outlining probabilities comparison on correct data point vs miss-predicted data point for each class label
+            figure displaying scatter plot outlining probabilities comparison on correct data point vs miss-predicted data point \
+                for each class label
     '''
     label = list(df_specific_label.columns)[1]
     model_name = df_specific_label['model'].values[0]
