@@ -1,12 +1,9 @@
-"""
-Version : 
----------
-draft 3.0 [ 5 July 2021 - dash ]
-
-"""
+from typing import Union, List
 import pandas as pd
 import numpy as np
 from sklearn import metrics
+
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.utils.common_functions import is_regression, is_classification
 
 ERR_DESC = ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error', 'R Squared']
@@ -21,27 +18,43 @@ ERR_METRICS_DICT['Metrics Name'] = ERR_NAMES
 
 class IntGeneralMetrics:
     """
-    - Transform raw data into input format suitable for plotting with plotly
-    - General metrics cover confusion matrix, classification report, roc curve and precisionRecall curve
+    Transform raw data into input format suitable for visualization. General metrics cover
+    confusion matrix, classification report, roc curve and precisionRecall curve
 
     Arguments:
-        data_loader {class object} -- class object from data_loader pipeline
-        viz_plot {str} -- visualization type : 'confMat', 'classRpt', 'rocAUC', 'preRacall', 'stdErr', None
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+        viz_plot (str):
+            Supported visualization types : ``confMat``, ``classRpt``, ``rocAUC``, ``preRacall``, ``stdErr``, None
+
+    Important Attributes:
+
+        - analysis_type (str):
+            Analysis type defined by user during initial inputs preparation via data_loader stage.
 
     Returns:
-        either (if analysis_type==regression)
-            yTrue {pd.series} -- actual labels
-            yPred {list of list} -- Predicted labels of different models
-            model_names {list} -- name of models used to produce yPred
-        or (if analysis_type==classification)
-            df {dataframe} -- dataframe used to plot fig-obj in visualizer module
-        """
-    def __init__(self, data_loader, viz_plot=None):
+        :obj:`~pd.DataFrame`:
+            Dataframe with essential info suitable for visualization on regression task
+
+    .. note::
+
+            if classification, returns:
+
+            - yTrue data in :obj:`~pd.Series`
+            - yPred data in :obj:`~pd.Series` for [``confMat``, ``classRpt``] or :obj:`~pd.Dataframe` for [``rocAuc``, ``precRecall``]
+
+            If multiclass, returns:
+
+            - yPred data in :obj:`List[List[Tuple]]` pairing class label and yPred in :obj:`~pd.Series`
+            - model_names in :obj:`List[str]`
+    """
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader], viz_plot: str = None):
         self.data_loader = data_loader
         self.viz_plot = viz_plot
         self.analysis_type = self.data_loader.get_analysis_type()
 
-    def _std_err_metrics(self, yTrue, yPred):
+    def _std_err_metrics(self, yTrue: pd.Series, yPred: pd.Series) -> List:
         mae = metrics.mean_absolute_error(yTrue, yPred)
         mse = metrics.mean_squared_error(yTrue, yPred)
         rmse = np.sqrt(metrics.mean_squared_error(yTrue, yPred))
@@ -49,6 +62,9 @@ class IntGeneralMetrics:
         return [int(mae), int(mse), int(rmse), round(r2_score, 4)]
 
     def xform(self):
+        '''
+        Core transformation function to tap-out data into input format suitable for plotly graph
+        '''
         if is_regression(self.analysis_type):
             if self.viz_plot == 'stdErr':
                 yTrue = self.data_loader.get_yTrue()
@@ -73,6 +89,7 @@ class IntGeneralMetrics:
             if self.viz_plot in ['confMat', 'classRpt']:
                 yPred = [pred['yPred-label'] for pred in preds]
             elif self.viz_plot in ['rocAuc', 'precRecall']:
+                yPred = [pred[pred.columns[-3]] for pred in preds]
                 is_multiclass = len(set(yTrue)) > 2
                 if is_multiclass:
                     yPred = []
@@ -81,6 +98,4 @@ class IntGeneralMetrics:
                         pred_values = pred[pred.columns[:-2]].max(axis=1)
                         pred_tmp = [(label_keys[i], pred_values[i]) for i in range(len(label_keys))]
                         yPred.append(pred_tmp)
-                else:
-                    yPred = [pred[pred.columns[-3]] for pred in preds]
             return yTrue, yPred, model_names

@@ -1,7 +1,25 @@
+from typing import List, Dict
 import plotly.express as px
 
 
-def plot_distribution_by_specific_feature(ls_specific_feature, kl_div_dict_sorted, comparison_base, model_name):
+def plot_distribution_by_specific_feature(ls_specific_feature: List[str], kl_div_dict_sorted: Dict, comparison_base: str, model_name: str):
+    '''
+    Create distribution plot for a specific feature
+
+    Arguments:
+        ls_specific_feature (:obj:`List[str]`):
+            list of feature to have its distribution graph plotted
+        kl_div_dict_sorted (:obj:`Dict`):
+            dictionary storing kl-divergence score by feature in decending order
+        comparison_base (str):
+            info to indicate the baseline for distribution comparison. ``dataset_type`` for regression and ``pred_state`` for classification task
+        model_name (str):
+            model used to generate yPred
+
+    Returns:
+        :obj:`List[~plotly.graph_objects.Figure]`:
+            List of figures displaying distribution plot of specific feature
+    '''
     if not isinstance(ls_specific_feature, list):
         ls_specific_feature = [ls_specific_feature]
 
@@ -12,7 +30,29 @@ def plot_distribution_by_specific_feature(ls_specific_feature, kl_div_dict_sorte
     return fig_obj_ls
 
 
-def plot_distribution_by_kl_div_ranking(kl_div_dict_sorted, display_option, display_value, comparison_base, model_name):
+def plot_distribution_by_kl_div_ranking(kl_div_dict_sorted: Dict, display_option: str, display_value: int,
+                                        comparison_base: str, model_name: str):
+    '''
+    Create distribution plot by kl-divergence score ranking in descending order
+
+    Arguments:
+        kl_div_dict_sorted (:obj:`Dict`):
+            dictionary storing kl-divergence score by feature in decending order
+        display_option (str)
+            - info to indicate if to display distribution plot by top-N / bottom-N or both top-N + bottom-N
+            - Available options: ``top``, ``bottom`` or ``both``
+        display_value (int)
+            - number indicates the limit of graph to be displayed, max at 10
+            - if dataset consists of < 10 features, the limit == no. of features the dataset has
+        comparison_base (str):
+            info to indicate the baseline for distribution comparison. ``dataset_type`` for regression and ``pred_state`` for classification task
+        model_name (str):
+            model used to generate yPred
+
+    Returns:
+        :obj:`Dict[str, ~plotly.graph_objects.Figure]`:
+            Dictionary storing distribution figures by display_option
+    '''
     fig_obj_dict = {}
 
     if display_option == 'top':
@@ -37,17 +77,23 @@ def plot_distribution_by_kl_div_ranking(kl_div_dict_sorted, display_option, disp
     return fig_obj_dict
 
 
-def _single_dist_plot(feature, kl_div_dict_sorted, comparison_base, model_name):
+def _single_dist_plot(feature: str, kl_div_dict_sorted: Dict, comparison_base: str, model_name: str):
     '''
-    comparison_base :
-    for regression  => dataset_type
-    for classification => pred_state
+    Internal function to plot single distribution graph
+
+    Important Arguments:
+
+        comparison_base (str):
+        ``dataset_type`` for regression, ``pred_state`` for classification
     '''
     df = kl_div_dict_sorted[feature][1]
 
     fig = px.histogram(df, x=feature, color=comparison_base,
                         marginal='box', opacity=0.5, barmode='overlay',
-                        color_discrete_sequence=px.colors.qualitative.D3)
+                        # color_discrete_sequence=px.colors.qualitative.D3)
+                        # replaces default color mapping by value
+                        color_discrete_map={'correct': '#1F77B4', 'miss-predict': '#FF7F0E', 'df_reference': '#1F77B4', 'df_sliced': '#FF7F0E'},
+                        category_orders={'pred_state': ['correct', 'miss-predict'], 'dataset_type': ['df_reference', 'df_sliced']})
 
     kl_div_score = kl_div_dict_sorted[feature][0]
 

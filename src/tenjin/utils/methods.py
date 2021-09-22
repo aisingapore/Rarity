@@ -1,15 +1,17 @@
+from typing import Union, List
 import math
 import numpy as np
+import pandas as pd
 from scipy import stats
 from sklearn.cluster import KMeans
 from sklearn import metrics
 from sklearn.metrics.pairwise import euclidean_distances
 
 
-def create_clusters(loss_list, num_cluster):
-    """
+def create_clusters(loss_list: List[float], num_cluster: int):
+    '''
     cluster creation for single model
-    """
+    '''
     loss_array = np.array(loss_list).reshape(-1, 1)
 
     kmean = KMeans(n_clusters=num_cluster, random_state=42).fit(loss_array)
@@ -27,17 +29,20 @@ def create_clusters(loss_list, num_cluster):
     return cluster_groups, cluster_score
 
 
-def calculate_logloss(yTrue, yPred, log_func=math.log, eps=1e-15):
-    """
+def calculate_logloss(yTrue: float, yPred: float, log_func: math.log = math.log, eps: float = 1e-15):
+    '''
     calculate single data point loss
     [sklearn] : Log loss is undefined for p=0 or p=1, so probabilities are clipped to max(eps, min(1 - eps, p))
-    """
+    '''
     yPred = np.clip(yPred, eps, 1 - eps)
     loss_single_datapoint = -(-yTrue * log_func(yPred) + (1 - yTrue) * log_func(1 - yPred))
     return loss_single_datapoint
 
 
-def get_optimum_num_clusters(loss_list, num_cluster):
+def get_optimum_num_clusters(loss_list: List[float], num_cluster: int):
+    '''
+    generate 2 output lists for cluster count and its corresponding sum of squared distance
+    '''
     loss_array = np.array(loss_list).reshape(-1, 1)
     cluster_range = list(range(1, 10))
 
@@ -48,14 +53,14 @@ def get_optimum_num_clusters(loss_list, num_cluster):
     return cluster_range, sum_squared_distance
 
 
-def calculate_kl_div(seq1, seq2):
+def calculate_kl_div(seq1: Union[pd.DataFrame, List[float]], seq2: Union[pd.DataFrame, List[float]]):
     kl_divergence = stats.entropy(seq1, seq2)
     return kl_divergence
 
 
-def get_optimum_bin_size(feature_pd_series):
+def get_optimum_bin_size(feature_pd_series: pd.Series):
     '''
-    Adopt Freedman-Diaconis rule
+    adopt Freedman-Diaconis rule
     '''
     q1 = feature_pd_series.quantile(0.25)
     q3 = feature_pd_series.quantile(0.75)
@@ -65,5 +70,5 @@ def get_optimum_bin_size(feature_pd_series):
     return bin_count
 
 
-def compute_distances(X, Y, metric=euclidean_distances):
+def compute_distances(X: pd.Series, Y: pd.Series, metric=euclidean_distances):
     return metric(X, Y)

@@ -1,3 +1,4 @@
+from typing import Union, List
 import pandas as pd
 
 import dash
@@ -8,6 +9,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 
 from tenjin.app import app
+from tenjin.data_loader import CSVDataLoader, DataframeLoader
 from tenjin.interpreters.structured_data import IntSimilaritiesCounterFactuals
 from tenjin.visualizers import shared_viz_component as viz_shared
 from tenjin.utils import style_configs
@@ -15,9 +17,24 @@ from tenjin.utils.common_functions import is_regression, is_classification, get_
                                             detected_bimodal, detected_invalid_index_inputs
 
 
-def generate_similarities(data_loader, user_defined_idx, feature_to_exclude=None, top_n=3):
+def generate_similarities(data_loader: Union[CSVDataLoader, DataframeLoader], user_defined_idx, feature_to_exclude=None, top_n=3):
     '''
+    Tapout table collating feature info corresponding to user defined index and top N index based on distance score.
     Applicable to both regression and classification
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        user_defined_idx (int):
+            Index of the data point of interest specified by user
+        feature_to_exclude (:obj:`List[str]`, `optional`):
+                A list of features to be excluded from the ranking and similarities distance calculation
+        top_n (int):
+                Number indicating the max limit of records to be displayed based on the distance ranking
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with dynamic-conditional styles
     '''
     df_viz, idx_for_top_n, calculated_distance = IntSimilaritiesCounterFactuals(data_loader).xform(user_defined_idx, feature_to_exclude, top_n)
     df_top_n = _base_df_by_calculated_distance(df_viz, idx_for_top_n, calculated_distance)
@@ -47,9 +64,25 @@ def generate_similarities(data_loader, user_defined_idx, feature_to_exclude=None
     return table_obj
 
 
-def generate_counterfactuals(data_loader, user_defined_idx, feature_to_exclude=None, top_n=3):
+def generate_counterfactuals(data_loader: Union[CSVDataLoader, DataframeLoader], user_defined_idx, feature_to_exclude=None, top_n=3):
     '''
-    Applicable to classification only
+    Tapout table collating feature info corresponding to user defined index and top N index based on distance score with condition
+    that the prediction labels of top N index differ from prediction label of user defined index
+    Applicable to both classification only
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+        user_defined_idx (int):
+            Index of the data point of interest specified by user
+        feature_to_exclude (:obj:`List[str]`, `optional`):
+                A list of features to be excluded from the ranking and similarities distance calculation
+        top_n (int):
+                Number indicating the max limit of records to be displayed based on the distance ranking
+
+    Returns:
+        :obj:`~dash_table.DataTable`:
+            table object outlining the dataframe content with dynamic-conditional styles
     '''
     org_data_size = len(data_loader.get_features())
     df_viz, idx_sorted_by_distance, calculated_distance = IntSimilaritiesCounterFactuals(data_loader).xform(user_defined_idx,
@@ -85,7 +118,10 @@ def generate_counterfactuals(data_loader, user_defined_idx, feature_to_exclude=N
     return table_objs
 
 
-def _base_df_by_calculated_distance(df, idx_sorted_by_distance, calculated_distance):
+def _base_df_by_calculated_distance(df: pd.DataFrame, idx_sorted_by_distance: List[int], calculated_distance: List[float]):
+    '''
+    Setup new dataframe storing calculated distance info
+    '''
     df_top_n = pd.DataFrame()
     df_top_n['index'] = idx_sorted_by_distance
     df_top_n['calculated_distance'] = calculated_distance
@@ -93,7 +129,13 @@ def _base_df_by_calculated_distance(df, idx_sorted_by_distance, calculated_dista
     return df_top_n
 
 
-def _table_objs_similarities(data_loader, user_defined_idx, feature_to_exclude, top_n):
+def _table_objs_similarities(data_loader: Union[CSVDataLoader, DataframeLoader],
+                            user_defined_idx: int,
+                            feature_to_exclude: List[str],
+                            top_n: int):
+    '''
+    List collating layouts for similarities table based on user index/indices
+    '''
     table_objs_similarities = []
     for idx in str(user_defined_idx).replace(' ', '').split(','):
         table_obj_similarities = generate_similarities(data_loader, int(idx), feature_to_exclude, top_n)
@@ -105,7 +147,13 @@ def _table_objs_similarities(data_loader, user_defined_idx, feature_to_exclude, 
     return table_objs_similarities
 
 
-def _table_objs_counterfactuals(data_loader, user_defined_idx, feature_to_exclude, top_n):
+def _table_objs_counterfactuals(data_loader: Union[CSVDataLoader, DataframeLoader],
+                                user_defined_idx: int,
+                                feature_to_exclude: List[str],
+                                top_n: int):
+    '''
+    List collating layouts for counterfactual tables based on user index/indices
+    '''
     models = data_loader.get_model_list()
     table_objs_counterfactuals = []
     for idx in str(user_defined_idx).replace(' ', '').split(','):
@@ -150,7 +198,31 @@ def _table_objs_counterfactuals(data_loader, user_defined_idx, feature_to_exclud
 
 
 class SimilaritiesCF:
-    def __init__(self, data_loader):
+    '''
+    Main integration for feature component on Similarities-CounterFactuals
+
+    Arguments:
+        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+            Class object from data_loader module
+
+    Important Attributes:
+
+        analysis_type (str):
+            Analysis type defined by user during initial inputs preparation via data_loader stage.
+        df_features (:obj:`~pandas.DataFrame`):
+            Dataframe storing all features used in dataset
+        feature_to_exclude (:obj:`List[str]`, `optional`):
+            A list of features to be excluded from the ranking and similarities distance calculation
+        user_defined_idx (int):
+            Index of the data point of interest specified by user
+        top_n (int):
+                Number indicating the max limit of records to be displayed based on the distance ranking
+
+    Returns:
+        :obj:`~dash_core_components.Container`:
+            styled dash components displaying graph and/or table objects
+    '''
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
         self.data_loader = data_loader
         self.analysis_type = data_loader.get_analysis_type()
         self.df_features = data_loader.get_features()
@@ -160,6 +232,9 @@ class SimilaritiesCF:
         self.table_objs_similarities = _table_objs_similarities(self.data_loader, self.user_defined_idx, self.feature_to_exclude, self.top_n)
 
     def show(self):
+        '''
+        Method to tapout styled html for Similarities-CounterFactuals
+        '''
         options_feature_ls = [{'label': f'{col}', 'value': f'{col}'} for col in self.df_features.columns]
         shared_layout_reg_cls = [
                                     html.Div([
@@ -228,7 +303,6 @@ class SimilaritiesCF:
         return similaritiesCF
 
     def callbacks(self):
-        # callback on params related to top-n, botton-n / both on regression and classification tasks
         @app.callback(
             Output('loading-output-similaritiesCF', 'children'),
             Output('alert-index-input-error-similaritiesCF', 'children'),
@@ -239,6 +313,9 @@ class SimilaritiesCF:
             State('select-feature-to-exclude-similaritiesCF', 'value'),
             State('select-slider-top-n-similaritiesCF', 'value'))
         def generate_table_objs_based_on_user_selected_params(click_count, specific_idx, feature_to_exclude, top_n):
+            '''
+            Callbacks functionalities on params related to top-n, botton-n / both on regression and classification tasks
+            '''
             if click_count > 0:
                 if specific_idx is None:  # during first spin-up
                     specific_idx = self.user_defined_idx  # default value
