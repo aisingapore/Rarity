@@ -34,7 +34,8 @@ class IntGeneralMetrics:
             Analysis type defined by user during initial inputs preparation via data_loader stage.
 
     Returns:
-        :obj:`~pd.DataFrame`: Dataframe with essential info suitable for visualization on regression task
+        :obj:`~pd.DataFrame`:
+            Dataframe with essential info suitable for visualization on regression task
 
     .. note::
 
