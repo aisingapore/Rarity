@@ -6,19 +6,19 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.features import GeneralMetrics, MissPredictions, LossClusters, FeatureDistribution, SimilaritiesCF
-from tenjin.app import app
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.features import GeneralMetrics, MissPredictions, LossClusters, FeatureDistribution, SimilaritiesCF
+from rarity.app import app
 
 
 class GapAnalyzer:
     '''
-    GapAnalyzer is the main class object collating all developed feature components for Tenjin.
+    GapAnalyzer is the main class object collating all developed feature components for Rarity.
     Auto-generated error analysis supports single model and bimodal (max at comparison of 2 models side by side) on tasks
     such as regression, binary classification and multiclass classification
 
     Args:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             This is the class object from data_loader compiling ``xfeatures``, ``yTrue``, ``yPredict`` via either ``CSVDataLoader`` \
             (for both offline and inline analysis) or ``DataframeLoader`` (for inline analysis)
         user_defined_title (str):
@@ -38,15 +38,15 @@ class GapAnalyzer:
 
     def _layout(self) -> dbc.Container:
         '''
-        The main app layout of Tenjin
+        The main app layout of Rarity
         '''
         main_layout = dbc.Container([
                         dbc.Jumbotron(
                             dbc.Container([
                                 dbc.Row([
                                     dbc.Col(html.Div([
-                                        html.Img(className='header__aisg-logo', src='assets/aisg-logo.png'),
-                                        html.H4('Gap Analysis with Tenjin 3.0', className='header__tenjin-title'),
+                                        html.Img(className='header__rarity-logo', src='assets/rarity-icon.png'),
+                                        html.H4('Gap Analysis with Rarity 1.0', className='header__rarity-title'),
                                         html.Pre(f'|  {self.usr_defined_title}', className='header__usr-pjt-title'),
                                     ]), width=8, md=8, sm=9, className='header__first-row-col-left align-self-center'),
 
@@ -90,7 +90,7 @@ class GapAnalyzer:
 
     def run(self) -> dash.Dash:
         '''
-        Spin up Tenjin web application built with ``dash`` components
+        Spin up Rarity web application built with ``dash`` components
         '''
         app.layout = self._layout()
 

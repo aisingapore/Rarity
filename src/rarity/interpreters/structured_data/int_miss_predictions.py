@@ -1,9 +1,9 @@
 from typing import Union
 import pandas as pd
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.utils.common_functions import is_regression, is_classification
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data.base_interpreters import BaseInterpreters
+from rarity.utils.common_functions import is_regression, is_classification
 
 
 class IntMissPredictions(BaseInterpreters):
@@ -11,7 +11,7 @@ class IntMissPredictions(BaseInterpreters):
     Transform raw data into input format suitable for visualization on miss-prediction points
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:

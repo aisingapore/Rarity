@@ -1,10 +1,10 @@
 from typing import Union
 import math
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.utils.methods import create_clusters, calculate_logloss, get_optimum_num_clusters
-from tenjin.utils.common_functions import is_regression, is_classification
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data.base_interpreters import BaseInterpreters
+from rarity.utils.methods import create_clusters, calculate_logloss, get_optimum_num_clusters
+from rarity.utils.common_functions import is_regression, is_classification
 
 
 class IntLossClusterer(BaseInterpreters):
@@ -12,7 +12,7 @@ class IntLossClusterer(BaseInterpreters):
     Transform raw data into input format suitable for visualization on loss clusters
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
     '''
     def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):

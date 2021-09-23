@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn import metrics
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.utils.common_functions import is_regression, is_classification
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.utils.common_functions import is_regression, is_classification
 
 ERR_DESC = ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error', 'R Squared']
 ERR_NAMES = ['MAE', 'MSE', 'RMSE', 'R2']
@@ -22,7 +22,7 @@ class IntGeneralMetrics:
     confusion matrix, classification report, roc curve and precisionRecall curve
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
         viz_plot (str):

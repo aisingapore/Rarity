@@ -1,7 +1,7 @@
 from typing import Union
 import numpy as np
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
+from rarity.data_loader import CSVDataLoader, DataframeLoader
 
 
 class BaseInterpreters:
@@ -10,7 +10,7 @@ class BaseInterpreters:
     based on the integration need of specific feature component.
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
     '''
     def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):
