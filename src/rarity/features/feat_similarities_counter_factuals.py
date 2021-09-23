@@ -8,12 +8,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from tenjin.app import app
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data import IntSimilaritiesCounterFactuals
-from tenjin.visualizers import shared_viz_component as viz_shared
-from tenjin.utils import style_configs
-from tenjin.utils.common_functions import is_regression, is_classification, get_max_value_on_slider, \
+from rarity.app import app
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data import IntSimilaritiesCounterFactuals
+from rarity.visualizers import shared_viz_component as viz_shared
+from rarity.utils import style_configs
+from rarity.utils.common_functions import is_regression, is_classification, get_max_value_on_slider, \
                                             detected_bimodal, detected_invalid_index_inputs
 
 
@@ -23,7 +23,7 @@ def generate_similarities(data_loader: Union[CSVDataLoader, DataframeLoader], us
     Applicable to both regression and classification
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         user_defined_idx (int):
             Index of the data point of interest specified by user
@@ -71,7 +71,7 @@ def generate_counterfactuals(data_loader: Union[CSVDataLoader, DataframeLoader],
     Applicable to both classification only
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         user_defined_idx (int):
             Index of the data point of interest specified by user
@@ -202,7 +202,7 @@ class SimilaritiesCF:
     Main integration for feature component on Similarities-CounterFactuals
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Important Attributes:

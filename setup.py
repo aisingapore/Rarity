@@ -13,16 +13,16 @@ REQUIRED_PKGS = [
 ]
 
 setup(
-    name='tenjin', 
-    version='3.0 dev0',
-    description='Data dianogstic package with minimal setup analyzing errors and miss predictions of ML models',
+    name='rarity',
+    version='1.0.dev0',
+    description='Data diagnostic package with mininum setup to analyze miss predictions of ML models',
     keywords='data-analysis model-prediction dianogstic',
     author='Yap Siew Lin, Jeanne Choo, Chong Wei Yih @ AI Singapore',
     author_email='siewlin@aisingapore.org',
     license="Apache 2.0",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    entry_points={"console_scripts": ["tenjin-cli=tenjin.commands.tenjin_cli:main"]},
+    entry_points={"console_scripts": ["rarity-cli=rarity.commands.rarity_cli:main"]},
     python_requires=">=3.6.0",
     install_requires=REQUIRED_PKGS,
     extras_require={"notebook": ["jupyter-client>=6.0.0", "jupyter-core>=4.6.3", "ipywidgets>=7.5.1"]},

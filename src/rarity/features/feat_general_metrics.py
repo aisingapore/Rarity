@@ -4,10 +4,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data import IntGeneralMetrics
-from tenjin.visualizers import general_metrics as viz_general
-from tenjin.utils.common_functions import is_regression, is_classification
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data import IntGeneralMetrics
+from rarity.visualizers import general_metrics as viz_general
+from rarity.utils.common_functions import is_regression, is_classification
 
 
 def fig_confusion_matrix(data_loader: Union[CSVDataLoader, DataframeLoader]):
@@ -15,7 +15,7 @@ def fig_confusion_matrix(data_loader: Union[CSVDataLoader, DataframeLoader]):
     Create confusion matrix
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -32,7 +32,7 @@ def fig_classification_report(data_loader: Union[CSVDataLoader, DataframeLoader]
     Create classification report in table form
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -49,7 +49,7 @@ def fig_roc_curve(data_loader: Union[CSVDataLoader, DataframeLoader]):
     Display roc curve for comparison on various models
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -66,7 +66,7 @@ def fig_precisionRecall_curve(data_loader: Union[CSVDataLoader, DataframeLoader]
     Display precision-recall curve for comparison on various models
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -83,7 +83,7 @@ def fig_prediction_actual_comparison(data_loader: Union[CSVDataLoader, Dataframe
     Display scatter plot for comparison on actual values (yTrue) vs prediction values (yPred)
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -100,7 +100,7 @@ def fig_prediction_offset_overview(data_loader: Union[CSVDataLoader, DataframeLo
     Display scatter plot for overview on prediction offset values
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -117,7 +117,7 @@ def fig_standard_error_metrics(data_loader: Union[CSVDataLoader, DataframeLoader
     Display table comparing various standard metrics for regression task
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -137,7 +137,7 @@ class GeneralMetrics:
         - On Classification: ``Confusion Matrix``, ``Classification Report``, ``ROC``, ``Precision-Recall``
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:

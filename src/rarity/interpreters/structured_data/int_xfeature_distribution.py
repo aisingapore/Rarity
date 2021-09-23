@@ -2,10 +2,10 @@ from typing import Union, List, Optional
 import numpy as np
 import pandas as pd
 
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data.base_interpreters import BaseInterpreters
-from tenjin.utils.methods import calculate_kl_div, get_optimum_bin_size
-from tenjin.utils.common_functions import insert_index_col, is_regression, is_classification
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data.base_interpreters import BaseInterpreters
+from rarity.utils.methods import calculate_kl_div, get_optimum_bin_size
+from rarity.utils.common_functions import insert_index_col, is_regression, is_classification
 
 
 class IntFeatureDistribution(BaseInterpreters):
@@ -13,7 +13,7 @@ class IntFeatureDistribution(BaseInterpreters):
     Transform raw data into input format suitable for visualization on feature distribution
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
     '''
     def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader]):

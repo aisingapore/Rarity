@@ -1,8 +1,8 @@
 from typing import List
 import pandas as pd
 
-from tenjin.data_loader import BaseLoader
-from tenjin.utils.common_functions import is_regression, is_classification
+from rarity.data_loader import BaseLoader
+from rarity.utils.common_functions import is_regression, is_classification
 
 
 class CSVDataLoader(BaseLoader):

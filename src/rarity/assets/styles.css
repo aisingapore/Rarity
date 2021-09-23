@@ -25,14 +25,14 @@
     margin-left: 15px;
 }
 
-.header__aisg-logo {
-    max-width: 40px;
+.header__rarity-logo {
+    max-width: 45px;
     display: inline;
     vertical-align: middle;
     border-radius: 50%;
 }
 
-.header__tenjin-title {
+.header__rarity-title {
     display: inline;
     vertical-align: middle;
     padding-left: 12px;

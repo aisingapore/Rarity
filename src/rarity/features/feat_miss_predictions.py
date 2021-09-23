@@ -7,13 +7,13 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from tenjin.app import app
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data import IntMissPredictions
-from tenjin.visualizers import miss_predictions as viz_misspred
-from tenjin.visualizers import shared_viz_component as viz_shared
-from tenjin.utils import style_configs
-from tenjin.utils.common_functions import (identify_active_trace, is_active_trace, is_reset, is_regression, is_classification,
+from rarity.app import app
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data import IntMissPredictions
+from rarity.visualizers import miss_predictions as viz_misspred
+from rarity.visualizers import shared_viz_component as viz_shared
+from rarity.utils import style_configs
+from rarity.utils.common_functions import (identify_active_trace, is_active_trace, is_reset, is_regression, is_classification,
                                             detected_legend_filtration, detected_unique_figure, detected_more_than_1_unique_figure,
                                             detected_single_xaxis, detected_single_yaxis, get_min_max_index, get_min_max_offset,
                                             get_adjusted_xy_coordinate, conditional_sliced_df, dataframe_prep_on_model_count_by_yaxis_slice,
@@ -26,7 +26,7 @@ def fig_plot_prediction_offset_overview(data_loader: Union[CSVDataLoader, Datafr
     Display scatter plot for overview on prediction offset values
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -44,7 +44,7 @@ def fig_probabilities_spread_pattern(data_loader: Union[CSVDataLoader, Dataframe
     Function to output collated info packs used to display final graph objects and data tables
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Returns:
@@ -192,7 +192,7 @@ class MissPredictions:
             for each class label
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Important Attributes:

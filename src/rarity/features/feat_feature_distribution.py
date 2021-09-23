@@ -8,12 +8,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from tenjin.app import app
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data import IntFeatureDistribution
-from tenjin.visualizers.xfeature_distribution import plot_distribution_by_specific_feature, plot_distribution_by_kl_div_ranking
-from tenjin.utils import style_configs
-from tenjin.utils.common_functions import is_regression, is_classification, detected_bimodal, \
+from rarity.app import app
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data import IntFeatureDistribution
+from rarity.visualizers.xfeature_distribution import plot_distribution_by_specific_feature, plot_distribution_by_kl_div_ranking
+from rarity.utils import style_configs
+from rarity.utils.common_functions import is_regression, is_classification, detected_bimodal, \
                                             invalid_slicing_range, invalid_slicing_range_sequence, invalid_min_max_limit, \
                                             incomplete_range_entry, get_max_value_on_slider
 
@@ -28,7 +28,7 @@ def fig_plot_distribution_by_kl_div_ranking(data_loader: Union[CSVDataLoader, Da
     Integration of kl-divergence scores to corresponding fig-object
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         feature_to_exclude (List of :obj:`str`, `optional`):
             A list of features to be excluded from the kl-div calculation and visualization
@@ -71,7 +71,7 @@ def fig_plot_distribution_by_specific_feature(data_loader: Union[CSVDataLoader, 
     Integration of kl-divergence scores to specific fig-object
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         ls_specific_feature (List of :obj:`str`):
             A list of features to be displayed along with the corresponding kl-div score
@@ -297,7 +297,7 @@ class FeatureDistribution:
     Main integration for feature component on Distribution
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Important Attributes:

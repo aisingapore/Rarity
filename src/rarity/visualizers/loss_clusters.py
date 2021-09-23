@@ -1,7 +1,7 @@
 from typing import List
 import pandas as pd
 import plotly.graph_objects as go
-from tenjin.utils.common_functions import is_regression
+from rarity.utils.common_functions import is_regression
 
 
 def plot_offset_clusters(df: pd.DataFrame, analysis_type: str):

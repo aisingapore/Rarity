@@ -10,13 +10,13 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from tenjin.app import app
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
-from tenjin.interpreters.structured_data import IntLossClusterer
-from tenjin.visualizers import loss_clusters as viz_clusters
-from tenjin.visualizers import shared_viz_component as viz_shared
-from tenjin.utils import style_configs
-from tenjin.utils.common_functions import (is_active_trace, is_reset, is_regression, is_classification,
+from rarity.app import app
+from rarity.data_loader import CSVDataLoader, DataframeLoader
+from rarity.interpreters.structured_data import IntLossClusterer
+from rarity.visualizers import loss_clusters as viz_clusters
+from rarity.visualizers import shared_viz_component as viz_shared
+from rarity.utils import style_configs
+from rarity.utils.common_functions import (is_active_trace, is_reset, is_regression, is_classification,
                                             detected_legend_filtration, detected_single_xaxis, detected_single_yaxis,
                                             detected_bimodal, get_min_max_offset, get_min_max_cluster, get_effective_xaxis_cluster,
                                             get_adjusted_dfs_based_on_legend_filtration, conditional_sliced_df, insert_index_col,
@@ -29,7 +29,7 @@ def fig_plot_offset_clusters_reg(data_loader: Union[CSVDataLoader, DataframeLoad
     Function to output collated info packs used to display final graph objects by cluster groups along with calculated silhouette scores
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         num_cluster (int):
             Number of cluster to form
@@ -62,7 +62,7 @@ def fig_plot_logloss_clusters_cls(data_loader: Union[CSVDataLoader, DataframeLoa
     Function to output collated info packs used to display final graph objects by cluster groups along with calculated silhouette scores
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
         num_cluster (int):
             Number of cluster to form
@@ -274,7 +274,7 @@ class LossClusters:
     Main integration for feature component on Loss Clusters.
 
     Arguments:
-        data_loader (:class:`~tenjin.data_loader.CSVDataLoader` or :class:`~tenjin.data_loader.DataframeLoader`):
+        data_loader (:class:`~rarity.data_loader.CSVDataLoader` or :class:`~rarity.data_loader.DataframeLoader`):
             Class object from data_loader module
 
     Important Attributes:
