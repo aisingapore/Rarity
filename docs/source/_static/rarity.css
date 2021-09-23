@@ -1,0 +1,17 @@
+/* Make window size bigger and max at 1200px */
+.wy-nav-content{
+    max-width: 1200px;
+}
+
+.wy-side-nav-search {
+    background-color: #a80202;
+}
+
+wy-menu-vertical header, .wy-menu-vertical p.caption {
+    color: #c26868;
+}
+
+#miss-predictions > p > a > img,
+#loss-clusters > p > a > img {
+    vertical-align: top;
+}
