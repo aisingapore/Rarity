@@ -15,7 +15,7 @@ REQUIRED_PKGS = [
 setup(
     name='rarity',
     version='1.0.dev0',
-    description='Data diagnostic package with mininum setup to analyze miss predictions of ML models',
+    description='Data diagnostic package with minimum setup to analyze miss predictions of ML models',
     keywords='data-analysis model-prediction dianogstic',
     author='Yap Siew Lin, Jeanne Choo, Chong Wei Yih @ AI Singapore',
     author_email='siewlin@aisingapore.org',
