@@ -1,7 +1,7 @@
 import pytest
 import os
 import pandas as pd
-from tenjin.data_loader import CSVDataLoader, DataframeLoader
+from rarity.data_loader import CSVDataLoader, DataframeLoader
 # add this in the conftest.py under tests folder
 from selenium.webdriver.chrome.options import Options
 
