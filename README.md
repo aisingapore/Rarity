@@ -158,7 +158,7 @@ After installation, open terminal and run the following codes :
 with additional adjustments as follows :
 ```diff
 ! replacement of example files to your own file names
-! define `analysis_type` and `analysis_title` accordingly
+! define `model_names_list`, `analysis_type` and `analysis_title` accordingly
 ```
 <br>
 
@@ -188,7 +188,7 @@ To use `DataframeLoader`, it is assumed that you already have some inital datafr
 <br>
 
 # Supports
-- Package documentation : Full version of the package documenation can be found [HERE]()
+- Package documentation : Full version of the package documentation can be found [HERE]()
 - Community : Kindly head to our AISG community channels [HERE](https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/)
 
 <br>
