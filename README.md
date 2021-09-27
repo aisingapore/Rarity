@@ -10,8 +10,8 @@
     <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">
         <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue"/>
     </a>
-    <a href="https://github.com/aimakerspace/Rarity" target="_blank" rel="noopener noreferrer">
-        <img alt="GitHub" src="https://img.shields.io/badge/GitHub-%20rarity%20-blueviolet"/>
+    <a href="" target="_blank" rel="noopener noreferrer">
+        <img alt="Docummentation" src="https://img.shields.io/badge/documentation-%20Rarity%20-blueviolet"/>
     </a>
     <a href="https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/" target="_blank" rel="noopener noreferrer">
         <img alt="Community" src="https://img.shields.io/badge/community-AISG%20Forum-brightgreen"/>
@@ -189,7 +189,7 @@ To use `DataframeLoader`, it is assumed that you already have some inital datafr
 
 # Supports
 - Package documentation : Full version of the package documentation can be found [HERE]()
-- Community : Kindly head to our AISG community channels [HERE](https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/)
+- Community : For interest on AI Singapore program, kindly head to our AISG community channels [HERE](https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/)
 
 <br>
 
