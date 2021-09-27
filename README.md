@@ -3,7 +3,9 @@
 </p>
 
 <p align="center">
-    <img alt="Python" src="https://img.shields.io/badge/python-3.8%2B-blue"/>
+    <a href="https://img.shields.io/badge/python-3.6%2B-blue" target="_blank" rel="noopener noreferrer">
+        <img alt="Python" src="https://img.shields.io/badge/python-3.8%2B-blue"/>
+    </a>
     <a href="https://pypi.org/project/rarity/" target="_blank" rel="noopener noreferrer">
         <img alt="PyPI" src="https://img.shields.io/badge/pypi-v1.0-orange"/>
     </a>
@@ -53,7 +55,7 @@ There are five core feature components covered in the auto-generated gap analysi
 **Counter-Factuals** is also included under **Similarities** component tab for classification task to better compare data points with most similar features but show different prediction outcomes. For futher details on how the feature components are displayed in the web application, please checkout more examples under section [Feature Introduction]() in the package documentation.
 
 <p align="center">
-      <img alt="Rarity Demo" src="docs/source/imgs/rarity-full-demo-reg.gif" width=70%>
+      <img alt="Rarity Demo" src="docs/source/imgs/rarity-full-demo-reg.gif" width=85%>
 </p>
 
 
@@ -102,6 +104,7 @@ After cloning **Rarity** repository, place `xFeatures`, `yTrue` and `yPred files
     │ 
     ├── auto_gap_analysis.py
 
+
 ```
 
 Then open `configs.py` file and update the first section to define the required meta data.
@@ -122,6 +125,7 @@ Then open `configs.py` file and update the first section to define the required 
     ANALYSIS_TITLE = 'example_Customer Churn Prediction'
     # ****************************************************************************************************************************************
 
+
 ```
 
 After uploading files to `configs/csv_data` folder and updating `configs/configs.py` file, open terminal and make sure you are in the **Rarity** project root folder. A file named `auto_gap_analysis.py` is already in the root folder upon installation. Then run the following line of code in the terminal
@@ -134,7 +138,7 @@ A window will be open in the web browser and you will see the gap analysis repor
 
 <br>
 <p align="center">
-      <img alt="Rarity" src="docs/source/imgs/gen-metrics-reg.png" width=75%/>
+      <img alt="Rarity" src="docs/source/imgs/gen-metrics-reg.png" width=85%/>
 </p>
 <br>
 
@@ -157,6 +161,7 @@ After installation, open terminal and run the following codes :
     data_loader = CSVDataLoader(xFeatures_file, yTrue_file, yPred_file_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
     analyzer = GapAnalyzer(data_loader, '<analysis_title>')  # example: '<analysis_title>' => 'Customer Churn Prediction'
     analyzer.run()
+
 
 ```
 with additional adjustments as follows :
@@ -186,6 +191,7 @@ To use `DataframeLoader`, it is assumed that you already have some inital datafr
     data_loader = DataframeLoader(xFeatures_df, yTrue_df, yPred_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
     analyzer = GapAnalyzer(data_loader, '<analysis_title>')  # example: '<analysis_title>' => 'Customer Churn Prediction'
     analyzer.run()
+
 
 ```
 
