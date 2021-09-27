@@ -52,6 +52,10 @@ There are five core feature components covered in the auto-generated gap analysi
 
 **Counter-Factuals** is also included under **Similarities** component tab for classification task to better compare data points with most similar features but show different prediction outcomes. For futher details on how the feature components are displayed in the web application, please checkout more examples under section [Feature Introduction]() in the package documentation.
 
+<p align="center">
+      <img alt="Rarity Demo" src="docs/source/imgs/rarity-full-demo-reg.gif" width=70%>
+</p>
+
 
 <br>
 
