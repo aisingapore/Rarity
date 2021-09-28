@@ -12,6 +12,7 @@ wy-menu-vertical header, .wy-menu-vertical p.caption {
 }
 
 #miss-predictions > p > a > img,
-#loss-clusters > p > a > img {
+#loss-clusters > p > a > img,
+#xfeature-distribution > p > a > img {
     vertical-align: top;
 }
