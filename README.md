@@ -109,7 +109,7 @@ After cloning **Rarity** repository, place `xFeatures`, `yTrue` and `yPred files
 
 Then open `configs.py` file and update the first section to define the required meta data.
 
-```
+```python
 
     # ****************************************************************************************************************************************
     # To be updated by user accordingly if to run this script using saved csv files
@@ -147,7 +147,7 @@ A window will be open in the web browser and you will see the gap analysis repor
 ## Using CSVDataLoader
 After installation, open terminal and run the following codes :
 
-```
+```python
 
     from rarity import GapAnalyzer
     from rarity.data_loader import CSVDataLoader
@@ -178,7 +178,7 @@ with additional adjustments as follows :
 ## Using DataframeLoader
 To use `DataframeLoader`, it is assumed that you already have some inital dataframes tap-out in earlier runs in the terminal and would like to continue analysing the miss-predictions after model training. The `DataframeLoader` api call is meant for inline analysis if you prefer not to collate base info using csv files. You may collate all the `xFeatures`, `yTrue` and `yPreds` dataframes into the right input format using `DataframeLoader` as demonstrated below :
 
-```
+```python
 
     from rarity import GapAnalyzer
     from rarity.data_loader import DataframeLoader
