@@ -41,6 +41,7 @@ Then open ``configs.py`` file and update the first section to define the require
     MODEL_NAME_LIST = ['example_model_x', 'example_model_y']  # can be single model or max bi-modal, wrap in a list
     ANALYSIS_TYPE = 'Regression'  # Supported analysis types : 'Regression', 'Binary Classification', 'Multiclass Classification'
     ANALYSIS_TITLE = 'example_Customer Churn Prediction'
+    PORT = 8000  # Defaults to 8000, user can re-define to a new port number of choice
     # ****************************************************************************************************************************************
 
 After uploading files to ``configs/csv_data`` folder and updating ``configs/configs.py`` file, open terminal and make sure you are in the **Rarity** project root folder. 
@@ -74,9 +75,12 @@ After installation, open terminal and run the following codes with replacement o
     yPred_file_list = ['example_yPreds_model_xx.csv', 'example_yPreds_rf.csv']
     model_names_list = ['model_xx', 'model_yy']
 
+    # specify which port to use, if not provided, default port is set to 8000
+    preferred_port = 8866
+
     # collate all files using dataloader to transform them into the input format that can be processed by various internal function calls
     data_loader = CSVDataLoader(xFeatures_file, yTrue_file, yPred_file_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
-    analyzer = GapAnalyzer(data_loader, '<analysis_title>')  # example: '<analysis_title>' => 'Customer Churn Prediction'
+    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)  # example: '<analysis_title>' => 'Customer Churn Prediction'
     analyzer.run()
 
 
@@ -99,7 +103,10 @@ You may collate all the ``xFeatures``, ``yTrue`` and ``yPreds`` dataframes into 
     yPred_list = [yPred_df_model_xx, yPred_df_model_yy]
     model_names_list = ['model_xx', 'model_yy']
 
+    # specify which port to use, if not provided, default port is set to 8000
+    preferred_port = 8866
+
     # collate all files using dataloader to transform them into the input format that can be processed by various internal function calls
     data_loader = DataframeLoader(xFeatures_df, yTrue_df, yPred_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
-    analyzer = GapAnalyzer(data_loader, '<analysis_title>')  # example: '<analysis_title>' => 'Customer Churn Prediction'
+    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)  # example: '<analysis_title>' => 'Customer Churn Prediction'
     analyzer.run()

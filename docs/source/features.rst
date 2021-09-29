@@ -9,43 +9,43 @@ parameters and callbacks managements are handled in this stage as well.
 Feat - General Metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.features.GeneralMetrics
+.. autoclass:: rarity.features.GeneralMetrics
 
-.. automodule:: tenjin.features.feat_general_metrics
+.. automodule:: rarity.features.feat_general_metrics
     :members: fig_confusion_matrix, fig_classification_report, fig_roc_curve, fig_precisionRecall_curve, fig_prediction_actual_comparison, fig_prediction_offset_overview, fig_standard_error_metrics
 
 
 Feat - Miss Predictions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.features.MissPredictions
+.. autoclass:: rarity.features.MissPredictions
 
-.. automodule:: tenjin.features.feat_miss_predictions
+.. automodule:: rarity.features.feat_miss_predictions
     :members: fig_plot_prediction_offset_overview, fig_probabilities_spread_pattern, table_with_relayout_datapoints, convert_relayout_data_to_df_reg, convert_relayout_data_to_df_cls, 
 
 
 Feat - Loss Clusters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.features.LossClusters
+.. autoclass:: rarity.features.LossClusters
 
-.. automodule:: tenjin.features.feat_loss_clusters
+.. automodule:: rarity.features.feat_loss_clusters
     :members: fig_plot_offset_clusters_reg, fig_plot_logloss_clusters_cls, table_with_relayout_datapoints, convert_cluster_relayout_data_to_df_reg, convert_cluster_relayout_data_to_df_cls, 
 
 
 Feat - xFeature Distribution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.features.FeatureDistribution
+.. autoclass:: rarity.features.FeatureDistribution
 
-.. automodule:: tenjin.features.feat_feature_distribution
+.. automodule:: rarity.features.feat_feature_distribution
     :members: fig_plot_distribution_by_kl_div_ranking, fig_plot_distribution_by_specific_feature
 
 
 Feat - Similarities (+CounterFactuals)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.features.SimilaritiesCF
+.. autoclass:: rarity.features.SimilaritiesCF
 
-.. automodule:: tenjin.features.feat_similarities_counter_factuals
+.. automodule:: rarity.features.feat_similarities_counter_factuals
     :members: generate_similarities, generate_counterfactuals
