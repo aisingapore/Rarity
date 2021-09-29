@@ -6,5 +6,5 @@ is presented as a `tab` which allow user to navigate to feature component of the
 from one component to another serving different task and displayed differently depending if the analysis is ``regression`` or ``classification``.
 
 
-.. autoclass:: tenjin.GapAnalyzer
+.. autoclass:: rarity.GapAnalyzer
     :members: _layout, run
