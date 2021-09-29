@@ -8,10 +8,10 @@ user can call upon to load their data and trigger a series of auto-processing to
 CSVDataLoader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.data_loader.CSVDataLoader
+.. autoclass:: rarity.data_loader.CSVDataLoader
 
 
 DataframeLoader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: tenjin.data_loader.DataframeLoader
+.. autoclass:: rarity.data_loader.DataframeLoader

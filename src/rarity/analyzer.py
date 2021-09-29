@@ -23,6 +23,8 @@ class GapAnalyzer:
             (for both offline and inline analysis) or ``DataframeLoader`` (for inline analysis)
         user_defined_title (str):
             Title of analysis, text field defined by user
+        user_defined_port (int):
+            Port defined by user to spin up Rarity's gap analysis. If not mentioned, defaults to 8000.
 
     Important Attributes:
 
@@ -31,10 +33,11 @@ class GapAnalyzer:
             specified analysis type. Supported analysis types : ``Regression``, ``Binary Classification``, ``Multiclass Classification``
 
     '''
-    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader], user_defined_title: str = None):
+    def __init__(self, data_loader: Union[CSVDataLoader, DataframeLoader], user_defined_title: str = None, user_defined_port=8000):
         self.data_loader = data_loader
         self.analysis_type = self.data_loader.get_analysis_type().replace('-', ' ').title()
         self.usr_defined_title = user_defined_title
+        self.usr_defined_port = user_defined_port
 
     def _layout(self) -> dbc.Container:
         '''
@@ -115,4 +118,4 @@ class GapAnalyzer:
         FeatureDistribution(self.data_loader).callbacks()
         SimilaritiesCF(self.data_loader).callbacks()
 
-        app.run_server(debug=False, port=8000)
+        app.run_server(debug=False, port=self.usr_defined_port)
