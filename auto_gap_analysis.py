@@ -14,7 +14,7 @@ yPRED_FILE_LIST = [os.path.join(CONFIGS_DIR, file) for file in configs.YPRED_FIL
 
 def main():
     data_loader = CSVDataLoader(xFEATURES_FILE, yTRUE_FILE, yPRED_FILE_LIST, configs.MODEL_NAME_LIST, configs.ANALYSIS_TYPE)
-    analyzer = GapAnalyzer(data_loader, configs.ANALYSIS_TITLE)
+    analyzer = GapAnalyzer(data_loader, configs.ANALYSIS_TITLE, configs.PORT)
     analyzer.run()
 
 
