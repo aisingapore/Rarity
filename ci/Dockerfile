@@ -1,3 +1,4 @@
+# specific to AISG registry, not accessible by public
 FROM registry.aisingapore.net/gitlab/conda-runner:latest
 
 # install google chrome
