@@ -72,7 +72,7 @@ There are five core feature components covered in the auto-generated gap analysi
 
 <br>
 
-![rarity-demo](https://user-images.githubusercontent.com/35646492/135389621-e175596c-122e-4bb8-86c6-dc360668a500.mp4)
+[![Rarity Demo](https://github.com/aimakerspace/Rarity/raw/35_config_works_package_release/docs/source/imgs/gen-metrics-reg.png)](https://user-images.githubusercontent.com/35646492/135389621-e175596c-122e-4bb8-86c6-dc360668a500.mp4)
 
 <br>
 
