@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Rarity'
-copyright = '2021, AI Singapore (AISG)'
+copyright = '2021, AI Singapore (AISG), Licenced under the Apache License, Version 2.0'
 author = 'Yap Siew Lin @ AISG'
 
 # The full version, including alpha/beta/rc tags
