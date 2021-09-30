@@ -1,3 +1,15 @@
+..
+   Copyright 2021 AI Singapore. All rights reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+   the License. You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+   an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+   specific language governing permissions and limitations under the License.
+
 
 .. image:: imgs/rarity_logo.png
    :width: 200px
@@ -59,11 +71,13 @@ There are five core feature components covered in the auto-generated gap analysi
 **Counter-Factuals** is also included under **Similarities** component tab for classification task to better compare data points with most similar features but show different prediction outcomes. 
 For futher details on how the feature components are displayed in the web application, please checkout the examples under section :doc:`Features Introduction </features_introduction>`
 
+.. raw:: html
 
-.. image:: imgs/rarity-full-demo-reg.gif
-   :alt: rarity_demo
-   :align: center
-   :width: 80%
+   <p align="center">
+      <video controls width='85%'>
+         <source src='_static/rarity-full-demo-reg.mp4' type="video/mp4">
+      </video>
+   </p>
 
 
 .. toctree::
