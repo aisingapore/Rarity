@@ -77,7 +77,7 @@ There are five core feature components covered in the auto-generated gap analysi
 <br>
 
 # Installation
-**Rarity** has been tested on `Python 3.8+`. It is advisable to create a `Virtual Environment` to use along with **Rarity**.
+**Rarity** has been tested on `Python 3.6+`. It is advisable to create a `Virtual Environment` to use along with **Rarity**.
 
 For details guide on how to create virtual environment, you can refer to this [user guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
 After creation of the virtual environment, activate it and proceed with one of the following steps.
