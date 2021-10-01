@@ -28,7 +28,7 @@ REQUIRED_PKGS = [
 
 setup(
     name='rarity',
-    version='1.0.dev0',
+    version='1.0',
     description='Data diagnostic package with minimum setup to analyze miss predictions of ML models',
     long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
