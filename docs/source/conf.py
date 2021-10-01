@@ -12,7 +12,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+# sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath("../../src"))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +23,7 @@ copyright = '2021, AI Singapore (AISG), Licenced under the Apache License, Versi
 author = 'Yap Siew Lin @ AISG'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.dev0'
+release = '1.0.0.dev0'
 
 
 # -- General configuration ---------------------------------------------------
