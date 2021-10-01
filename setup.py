@@ -26,9 +26,20 @@ REQUIRED_PKGS = [
     "dash-html-components==1.1.3",
 ]
 
+DOCS_EXTRAS = [
+    'Sphinx >= 3.0.0',  # Force RTD to use >= 3.0.0
+    'sphinx-rtd-theme==0.5.2',
+    'docutils==0.16',
+    'sphinxcontrib-serializinghtml==1.1.5'
+    'pylons-sphinx-themes >= 1.0.8',  # Ethical Ads
+    'pylons_sphinx_latesturl',
+    'repoze.sphinx.autointerface',
+    'sphinxcontrib-autoprogram',
+]
+
 setup(
     name='rarity',
-    version='1.0',
+    version='1.0.0.dev0',
     description='Data diagnostic package with minimum setup to analyze miss predictions of ML models',
     long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
@@ -43,7 +54,7 @@ setup(
     entry_points={'console_scripts': ['rarity-cli=rarity.commands.rarity_cli:main']},
     python_requires='>=3.6.0',
     install_requires=REQUIRED_PKGS,
-    extras_require={'notebook': ['jupyter-client>=6.0.0', 'jupyter-core>=4.6.3', 'ipywidgets>=7.5.1']},
+    extras_require={'notebook': ['jupyter-client>=6.0.0', 'jupyter-core>=4.6.3', 'ipywidgets>=7.5.1'], 'docs': DOCS_EXTRAS},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
