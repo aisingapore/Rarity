@@ -30,7 +30,7 @@ DOCS_EXTRAS = [
     'Sphinx >= 3.0.0',  # Force RTD to use >= 3.0.0
     'sphinx-rtd-theme==0.5.2',
     'docutils==0.16',
-    'sphinxcontrib-serializinghtml==1.1.5'
+    'sphinxcontrib-serializinghtml==1.1.5',
     'pylons-sphinx-themes >= 1.0.8',  # Ethical Ads
     'pylons_sphinx_latesturl',
     'repoze.sphinx.autointerface',
