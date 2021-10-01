@@ -137,7 +137,7 @@ yPred_filename = ['example_user_yPred_model_x.csv', 'example_user_yPred_model_y.
 # model name must be listed according to the same sequence of the yPred_filename list above
 # can be single model or max bi-modal, wrap in a list
 MODEL_NAME_LIST = ['example_model_x', 'example_model_y']
-# Supported analysis types : 'Regression', 'Binary Classification', 'Multiclass Classification'
+# Supported analysis type: 'Regression', 'Binary Classification', 'Multiclass Classification'
 ANALYSIS_TYPE = 'Regression'
 ANALYSIS_TITLE = 'example_Customer Churn Prediction'
 PORT = 8000  # Defaults to 8000, user can re-define to a new port number of choice
