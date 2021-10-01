@@ -92,8 +92,10 @@ After installation, open terminal and run the following codes with replacement o
     preferred_port = 8866
 
     # collate all files using dataloader to transform them into the input format that can be processed by various internal function calls
-    data_loader = CSVDataLoader(xFeatures_file, yTrue_file, yPred_file_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
-    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)  # example: '<analysis_title>' => 'Customer Churn Prediction'
+    # example : '<analysis_type>' => 'Regression'
+    # example : '<analysis_title>' => 'Customer Churn Prediction'
+    data_loader = CSVDataLoader(xFeatures_file, yTrue_file, yPred_file_list, model_names_list, '<analysis_type>')
+    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)
     analyzer.run()
 
 
@@ -120,6 +122,8 @@ You may collate all the ``xFeatures``, ``yTrue`` and ``yPreds`` dataframes into 
     preferred_port = 8866
 
     # collate all files using dataloader to transform them into the input format that can be processed by various internal function calls
-    data_loader = DataframeLoader(xFeatures_df, yTrue_df, yPred_list, model_names_list, '<analysis_type>')  # example : '<analysis_type>' => 'Regression'
-    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)  # example: '<analysis_title>' => 'Customer Churn Prediction'
+    # example : '<analysis_type>' => 'Regression'
+    # example : '<analysis_title>' => 'Customer Churn Prediction'
+    data_loader = DataframeLoader(xFeatures_df, yTrue_df, yPred_list, model_names_list, '<analysis_type>')
+    analyzer = GapAnalyzer(data_loader, '<analysis_title>', preferred_port)
     analyzer.run()
