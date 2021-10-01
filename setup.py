@@ -33,7 +33,7 @@ setup(
     long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
     keywords='data analysis model prediction diagnostic',
-    author='Yap Siew Lin, Jeanne Choo, Chong Wei Yih @ AI Singapore',
+    author='Yap Siew Lin @ AI Singapore, Jeanne Choo (ex-AISG), Chong Wei Yih (ex-AISG)',
     author_email='siewlin@aisingapore.org',
     license='Apache 2.0',
     url='https://github.com/aimakerspace/Rarity',
