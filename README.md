@@ -28,7 +28,7 @@ limitations under the License.
     <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">
         <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue"/>
     </a>
-    <a href="" target="_blank" rel="noopener noreferrer">
+    <a href="https://rarity.readthedocs.io/en/latest/index.html" target="_blank" rel="noopener noreferrer">
         <img alt="Docummentation" src="https://img.shields.io/badge/documentation-%20Rarity%20-blueviolet"/>
     </a>
     <a href="https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/" target="_blank" rel="noopener noreferrer">
@@ -230,7 +230,7 @@ analyzer.run()
 <br>
 
 # Supports
-- Package documentation : Full version of the package documentation can be found [HERE]()
+- Package documentation : Full version of the package documentation can be found [HERE](https://rarity.readthedocs.io/en/latest/index.html)
 - Community : For interest on AI Singapore program, kindly head to our AISG community channels [HERE](https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/)
 
 <br>
