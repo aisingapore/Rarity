@@ -13,10 +13,13 @@
 # limitations under the License.
 
 import dash
+import os
 
 
+assets_path = os.path.join(os.getcwd(), 'assets')
 app = dash.Dash(__name__, 
                 meta_tags=[{'name': 'viewport', 
-                            'content': 'width=device-width, initial-scale=1.0'}], 
-                suppress_callback_exceptions=True)
+                            'content': 'width=device-width, initial-scale=1.0'}],
+                suppress_callback_exceptions=True, assets_url_path=assets_path)
+
 server = app.server
