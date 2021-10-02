@@ -39,7 +39,7 @@ DOCS_EXTRAS = [
 
 setup(
     name='rarity',
-    version='1.0.0',
+    version='1.0.1',
     description='Data diagnostic package with minimum setup to analyze miss predictions of ML models',
     long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
@@ -50,7 +50,7 @@ setup(
     url='https://github.com/aimakerspace/Rarity',
     package_dir={'': 'src'},
     packages=find_packages('src'),
-    package_data={'rarity': ['py.typed']},
+    package_data={'rarity': ['py.typed', 'assets/*']},
     entry_points={'console_scripts': ['rarity-cli=rarity.commands.rarity_cli:main']},
     python_requires='>=3.6.0',
     install_requires=REQUIRED_PKGS,
