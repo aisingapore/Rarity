@@ -17,13 +17,20 @@ import pandas as pd
 import numpy as np
 from sklearn import metrics
 
+from rarity.app import app
 from rarity.data_loader import CSVDataLoader, DataframeLoader
 from rarity.utils.common_functions import is_regression, is_classification
 
 ERR_DESC = ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error', 'R Squared']
 ERR_NAMES = ['MAE', 'MSE', 'RMSE', 'R2']
-METRICS_FORMULA = ['![MAE](assets/MAE.png)', '![MSE](assets/MSE.png)', 
-                    '![RMSE](assets/RMSE.png)', '![R2](assets/R2.png)']
+
+MAE_PATH = app.get_asset_url('MAE.png')
+MSE_PATH = app.get_asset_url('MSE.png')
+RMSE_PATH = app.get_asset_url('RMSE.png')
+R2_PATH = app.get_asset_url('R2.png')
+METRICS_FORMULA = [f'![MAE]({MAE_PATH})', F'![MSE]({MSE_PATH})',
+                    f'![RMSE]({RMSE_PATH})', f'![R2]({R2_PATH})']
+
 ERR_METRICS_DICT = {}
 ERR_METRICS_DICT['Metrics Description'] = ERR_DESC
 ERR_METRICS_DICT['Formula'] = METRICS_FORMULA

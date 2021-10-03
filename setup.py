@@ -39,7 +39,7 @@ DOCS_EXTRAS = [
 
 setup(
     name='rarity',
-    version='1.0.1',
+    version='1.0.2.dev1',
     description='Data diagnostic package with minimum setup to analyze miss predictions of ML models',
     long_description=open('README.md', 'r', encoding='utf-8').read(),
     long_description_content_type="text/markdown",
