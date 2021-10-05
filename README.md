@@ -23,12 +23,12 @@ limitations under the License.
         <img alt="Python" src="https://img.shields.io/badge/python-3.6%2B-blue"/>
     </a>
     <a href="https://pypi.org/project/rarity/" target="_blank" rel="noopener noreferrer">
-        <img alt="PyPI" src="https://img.shields.io/badge/pypi-v1.0-orange"/>
+        <img alt="PyPI" src="https://img.shields.io/badge/pypi-v1.0.2-orange"/>
     </a>
     <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">
         <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue"/>
     </a>
-    <a href="https://rarity.readthedocs.io/en/latest/index.html" target="_blank" rel="noopener noreferrer">
+    <a href="https://rarity.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">
         <img alt="Docummentation" src="https://img.shields.io/badge/documentation-%20Rarity%20-blueviolet"/>
     </a>
     <a href="https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/" target="_blank" rel="noopener noreferrer">
@@ -68,7 +68,7 @@ There are five core feature components covered in the auto-generated gap analysi
 - **xFeature Distribution** : distribution plots ranked by kl-divergence score
 - **Similarities** : tabulated info listing top-n data points based on similarities in features with reference to data index specified by user
 
-**Counter-Factuals** is also included under **Similarities** component tab for classification task to better compare data points with most similar features but show different prediction outcomes. For futher details on how the feature components are displayed in the web application, please checkout more examples under section [Feature Introduction]() in the package documentation.
+**Counter-Factuals** is also included under **Similarities** component tab for classification task to better compare data points with most similar features but show different prediction outcomes. For futher details on how the feature components are displayed in the web application, please checkout more examples under section [Feature Introduction](https://rarity.readthedocs.io/en/latest/features_introduction.html) in the package documentation.
 
 <br>
 
@@ -233,7 +233,7 @@ analyzer.run()
 <br>
 
 # Supports
-- Package documentation : Full version of the package documentation can be found [HERE](https://rarity.readthedocs.io/en/latest/index.html)
+- Package documentation : Full version of the package documentation can be found [HERE](https://rarity.readthedocs.io/en/latest/)
 - Community : For interest on AI Singapore program, kindly head to our AISG community channels [HERE](https://community.aisingapore.org/groups/mlops-data-and-infra-engineering/)
 
 <br>
